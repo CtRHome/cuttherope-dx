@@ -1,0 +1,41 @@
+[
+    {
+        "packName": "BOX1_LABEL",
+        "boxBackground": ["bgr_01_p1", "bgr_01_p2"],
+        "boxBackgroundP2Y": 1120,
+        "boxCover": ["bgr_01_cover"],
+        "boxHoleBgColor": [70, 37, 0],
+        "levelCount": 25,
+        "musicPack": ["ctr_original"],
+        "packSpritesheet": "1",
+        "packQuadIndex": 0,
+        "sittingPlatform": 0,
+        "unlockStars": 0
+    },
+    {
+        "packName": "BOX2_LABEL",
+        "boxBackground": ["bgr_02_p1", "bgr_02_p2"],
+        "boxBackgroundP2Y": 1044,
+        "boxCover": ["bgr_02_cover"],
+        "boxHoleBgColor": [39, 52, 0],
+        "levelCount": 25,
+        "musicPack": ["ctr_original"],
+        "packSpritesheet": "1",
+        "packQuadIndex": 1,
+        "sittingPlatform": 1,
+        "unlockStars": 0
+    },
+    {
+        "packName": "BOX3_LABEL",
+        "boxBackground": ["bgr_03_p1", "bgr_03_p2"],
+        "boxBackgroundP2Y": 945,
+        "boxCover": ["bgr_03_cover"],
+        "boxHoleBgColor": [44, 45, 54],
+        "levelCount": 25,
+        "musicPack": ["ctr_original"],
+        "packSpritesheet": "1",
+        "packQuadIndex": 2,
+        "sittingPlatform": 2,
+        "unlockStars": 0
+    }
+]

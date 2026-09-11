@@ -1,21 +1,37 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="320" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" />
-    </layer>
-    <layer name="Objects">
-        <target x="162" y="430" />
-        <grab x="101" y="271" length="100" wheel="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="36" y="148" length="100" wheel="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="291" y="149" length="100" wheel="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="227" y="273" length="100" wheel="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <candy x="159" y="159" />
-        <star x="96" y="379" timeout="-1" />
-        <star x="29" y="246" timeout="-1" />
-        <star x="225" y="377" timeout="-1" />
-        <grab x="98" y="79" length="90" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="226" y="80" length="90" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="162" y="34" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="261" y="401" />
+<gravitySwitch x="187" y="65" />
+<candy x="98" y="102" />
+<pump x="32" y="72" angle="0" />
+<spike2 x="288" y="83" angle="90" size="3" />
+<spike2 x="287" y="255" angle="90" size="4" />
+<spike2 x="204" y="346" angle="180" size="3" />
+<spike2 x="46" y="192" angle="-60" size="2" />
+<pump x="35" y="183" angle="0" />
+<spike2 x="167" y="134" angle="180" size="1" />
+<pump x="292" y="68" angle="180" />
+<star x="188" y="293" />
+<pump x="286" y="287" angle="180" />
+<bouncer1 x="145" y="292" angle="90" size="2" />
+<pump x="286" y="179" angle="180" />
+<star x="106" y="171" />
+<pump x="17" y="296" angle="0" />
+<spike2 x="54" y="464" angle="0" size="1" />
+<star x="198" y="459" />
+<spike2 x="143" y="469" angle="90" size="1" />
+<bubble x="97" y="102" />
+<grab x="96" y="66" length="30" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<spike2 x="103" y="140" angle="165" size="1" />
+<pump x="165" y="139" angle="150" />
+<grab x="55" y="400" length="30" wheel="false" gun="false" radius="30" moveLength="150" moveVertical="false" moveOffset="" spider="false" part="L" hidePath="false" />
+<pump x="115" y="461" angle="-15" />
+<spike2 x="158" y="242" angle="180" size="1" />
+<tutorialText x="50" y="188" locale="en" text="Don't pop it" width="200" />
+<tutorialText x="114" y="236" locale="en" text="by XPigeon" width="200" />
+</layer>
 </map>

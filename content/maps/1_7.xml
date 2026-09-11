@@ -1,20 +1,31 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="320" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" />
-    </layer>
-    <layer name="Objects">
-        <target x="259" y="432" />
-        <candy x="160" y="149" />
-        <star x="258" y="356" timeout="-1" />
-        <star x="66" y="358" timeout="-1" />
-        <star x="267" y="196" timeout="-1" />
-        <grab x="164" y="42" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="266" y="84" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="68" y="85" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="68" y="232" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="164" y="287" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="269" y="229" length="100" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<candy x="127" y="326" />
+<spike2 x="220" y="131" angle="180" size="2" />
+<spike2 x="115" y="361" angle="180" size="3" />
+<grab x="127" y="277" length="25" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" path="0,-119" moveSpeed="50" />
+<target x="259" y="85" />
+<spike2 x="119" y="132" angle="180" size="2" />
+<pump x="39" y="217" angle="0" />
+<grab x="210" y="163" length="100" wheel="false" gun="false" radius="25" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" path="0,119" moveSpeed="50" />
+<bouncer1 x="251" y="421" angle="-45" size="1" />
+<sock x="147" y="401" group="0" angle="0" />
+<star x="167" y="270" />
+<sock x="47" y="49" group="0" angle="0" />
+<grab x="104" y="45" length="100" wheel="false" gun="false" radius="5" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<star x="215" y="395" />
+<star x="226" y="65" />
+<rotatedCircle x="185" y="70" size="45" handleAngle="90" oneHandle="false"  />
+<rotatedCircle x="118" y="70" size="45" handleAngle="90" oneHandle="false"  />
+<spike2 x="64" y="419" angle="90" size="2" />
+<spike2 x="152" y="11" angle="180" size="3" />
+<spike2 x="285" y="83" angle="105" size="2" />
+<spike2 x="254" y="11" angle="180" size="1" />
+<tutorialText x="50" y="410" locale="en" text="Bee level I guess" width="200" />
+<tutorialText x="50" y="432" locale="en" text="by max1804sim" width="200" />
+</layer>
 </map>

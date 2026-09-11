@@ -1,18 +1,31 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="320" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" />
-    </layer>
-    <layer name="Objects">
-        <candy x="158" y="187" />
-        <target x="262" y="362" />
-        <grab x="161" y="315" length="93" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="289" y="186" length="105" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="162" y="57" length="93" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <grab x="33" y="186" length="105" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" />
-        <star x="159" y="226" timeout="-1" />
-        <star x="32" y="312" timeout="-1" />
-        <star x="161" y="434" timeout="-1" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="853" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="713" y="314" />
+<candy x="94" y="138" />
+<grab x="95" y="37" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<pump x="47" y="210" angle="-45" />
+<sock x="122" y="399" group="0" angle="-45" />
+<star x="369" y="77" />
+<star x="773" y="397" />
+<sock x="576" y="103" group="0" angle="45" />
+<star x="149" y="363" />
+<grab x="674" y="140" length="5" wheel="true" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="348" y="191" length="100" wheel="false" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="true" part="L" hidePath="false" />
+<pump x="448" y="274" angle="-135" />
+<pump x="371" y="326" angle="-90" />
+<pump x="243" y="285" angle="-45" />
+<pump x="761" y="208" angle="180" />
+<bouncer1 x="206" y="442" angle="0" size="2" />
+<bouncer1 x="74" y="327" angle="90" size="2" />
+<bouncer1 x="147" y="275" angle="180" size="2" />
+<bouncer1 x="323" y="441" angle="0" size="2" />
+<bouncer1 x="445" y="440" angle="0" size="2" />
+<bouncer1 x="523" y="356" angle="-90" size="2" />
+<tutorialText x="-37" y="221" locale="en" text="Medium Puzzle" width="200" />
+<tutorialText x="-41" y="245" locale="en" text="by ryest" width="200" />
+</layer>
 </map>

@@ -1,23 +1,55 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="320" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" twoParts="false" />
-    </layer>
-    <layer name="Objects">
-        <candy x="160" y="115" />
-        <grab x="69" y="45" length="85" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="257" y="45" length="85" wheel="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <star x="161" y="58" timeout="-1" />
-        <grab x="75" y="200" length="40" wheel="false" radius="80" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="247" y="197" length="40" wheel="false" radius="80" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="109" y="296" length="40" wheel="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="218" y="297" length="40" wheel="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <star x="161" y="297" timeout="-1" />
-        <star x="163" y="193" timeout="-1" />
-        <target x="160" y="433" />
-        <bubble x="161" y="196" />
-        <spike1 x="288" y="355" angle="0" size="1" />
-        <spike1 x="31" y="356" angle="0" size="1" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="0.89" />
+</layer>
+<layer name="Objects">
+<target x="-164" y="416" />
+<spike2 x="162" y="432" angle="90" size="4" />
+<spike2 x="35" y="145" angle="180" size="4" />
+<spike2 x="482" y="331" angle="180" size="4" />
+<spike2 x="-164" y="335" angle="180" size="4" />
+<spike2 x="-260" y="432" angle="90" size="4" />
+<spike2 x="-260" y="240" angle="90" size="4" />
+<spike2 x="-259" y="53" angle="90" size="4" />
+<spike2 x="579" y="431" angle="90" size="4" />
+<spike2 x="579" y="239" angle="90" size="4" />
+<spike2 x="580" y="57" angle="90" size="4" />
+<spike2 x="285" y="147" angle="180" size="4" />
+<spike2 x="495" y="3" angle="180" size="3" />
+<spike2 x="352" y="3" angle="180" size="3" />
+<spike2 x="205" y="3" angle="180" size="3" />
+<spike2 x="58" y="3" angle="180" size="3" />
+<spike2 x="-86" y="1" angle="180" size="3" />
+<spike2 x="-235" y="1" angle="180" size="3" />
+<bouncer1 x="192" y="335" angle="90" size="2" />
+<bouncer1 x="129" y="335" angle="-90" size="2" />
+<bouncer1 x="-235" y="166" angle="90" size="2" />
+<bouncer1 x="558" y="164" angle="-90" size="2" />
+<spike2 x="161" y="147" angle="180" size="1" />
+<pump x="538" y="412" angle="180" />
+<candy x="478" y="411" />
+<grab x="476" y="373" length="25" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<gravitySwitch x="161" y="212" />
+<spike2 x="222" y="241" angle="135" size="2" />
+<spike2 x="282" y="181" angle="135" size="1" />
+<spike2 x="106" y="241" angle="-135" size="2" />
+<spike2 x="47" y="179" angle="-135" size="1" />
+<star x="526" y="163" />
+<star x="-201" y="164" />
+<star x="98" y="335" />
+<spike2 x="90" y="116" angle="165" size="3" />
+<spike2 x="234" y="118" angle="-165" size="3" />
+<spike2 x="509" y="53" angle="-150" size="3" />
+<spike2 x="-186" y="47" angle="150" size="3" />
+<spike2 x="162" y="305" angle="-90" size="1" />
+<spike2 x="-180" y="285" angle="-150" size="3" />
+<spike2 x="506" y="282" angle="150" size="3" />
+<spike2 x="92" y="444" angle="150" size="3" />
+<spike2 x="234" y="445" angle="-150" size="3" />
+<spike2 x="-72" y="479" angle="180" size="4" />
+<spike2 x="396" y="479" angle="180" size="4" />
+<tutorialText x="-144" y="218" locale="en" text="Geometry Dash 2.2 be like" width="160" />
+<tutorialText x="-168" y="281" locale="en" text="by Gray" width="200" />
+</layer>
 </map>

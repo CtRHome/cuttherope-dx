@@ -43,7 +43,7 @@ namespace CutTheRopeDX.Helpers
         /// <remarks>
         /// Replace with your own if needed.
         /// </remarks>
-        private readonly string DISCORD_APP_ID = "1457063659724603457";
+        private readonly string DISCORD_APP_ID = "1513363206775636028";
 
         /// <summary>
         /// Updates Discord Rich Presence to show the user is browsing the menu.

@@ -765,6 +765,7 @@ namespace CutTheRopeDX.GameMain
             public const string GameMusic3 = "game_music3";
             public const string GameMusic4 = "game_music4";
             public const string GameMusic5 = "game_music5";
+            public const string GameMusicKaizo = "CORE";
             public const string MenuMusicXmas = "menu_music_xmas";
             public const string GameMusicXmas = "game_music_xmas";
         }

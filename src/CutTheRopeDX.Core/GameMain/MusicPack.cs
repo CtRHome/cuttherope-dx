@@ -9,6 +9,7 @@ namespace CutTheRopeDX.GameMain
         /// Identifier for the original <i>Cut the Rope</i> music pack.
         /// </summary>
         public const string CtROriginal = "ctr_original";
+        public const string KaizoPackage = "kaizo_package";
     }
 
     /// <summary>
@@ -20,11 +21,10 @@ namespace CutTheRopeDX.GameMain
         /// Music tracks used by the original <i>Cut the Rope</i> music pack.
         /// </summary>
         public static string[] CtROriginal = [
-            Resources.Music.GameMusic,
-            Resources.Music.GameMusic2,
-            Resources.Music.GameMusic3,
-            Resources.Music.GameMusic4,
-            Resources.Music.GameMusic5
+            Resources.Music.GameMusic4
+        ];
+        public static string[] KaizoPackage = [
+            Resources.Music.GameMusicKaizo
         ];
     }
 }

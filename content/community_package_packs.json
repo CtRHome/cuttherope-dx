@@ -28,7 +28,7 @@
     {
         "packName": "BOX3_LABEL",
         "boxBackground": ["bgr_03_p1", "bgr_03_p2"],
-        "boxBackgroundP2Y": 945,
+        "boxBackgroundP2Y": 960,
         "boxCover": ["bgr_03_cover"],
         "boxHoleBgColor": [44, 45, 54],
         "levelCount": 8,

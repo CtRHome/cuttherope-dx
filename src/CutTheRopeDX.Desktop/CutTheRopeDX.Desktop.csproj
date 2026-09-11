@@ -17,8 +17,8 @@
     <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix>dirty</VersionSuffix>
     <Company>ZeptoLab</Company>
-    <Product>Cut The Rope: DX</Product>
-    <Description>Cut the Rope: DX, a fan-made enhancement of the PC version of Cut the Rope.</Description>
+    <Product>Cut The Rope: Community Package</Product>
+    <Description>Cut the Rope: DX, a fan-made collection of community levels of Cut the Rope.</Description>
     <Copyright>Copyright © 2012</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IsAotCompatible>true</IsAotCompatible>

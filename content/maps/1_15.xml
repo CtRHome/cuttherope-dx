@@ -1,7 +1,7 @@
 <map>
 <layer name="settings">
 <map gridSize="32" width="320" height="480" />
-<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" useMobilePhysics="true" />
 </layer>
 <layer name="Objects">
 <spike4 x="159" y="357" angle="0" size="3" toggled="1" />

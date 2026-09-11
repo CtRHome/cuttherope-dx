@@ -1,35 +1,35 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="320" height="480" />
 <gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
 </layer>
 <layer name="Objects">
-<spike2 x="384" y="379" angle="-135" size="1" />
-<spike2 x="492" y="388" angle="135" size="1" />
-<spike2 x="438" y="405" angle="180" size="1" />
-<spike2 x="339" y="104" angle="0" size="1" />
-<spike2 x="298" y="296" angle="45" size="4" />
-<spike2 x="273" y="138" angle="135" size="2" />
-<spike2 x="551" y="98" angle="0" size="1" />
-<spike2 x="234" y="198" angle="90" size="1" />
-<spike2 x="615" y="138" angle="45" size="2" />
-<spike2 x="646" y="204" angle="90" size="1" />
-<spike2 x="577" y="299" angle="135" size="4" />
-<spike2 x="398" y="133" angle="45" size="2" />
-<spike2 x="480" y="134" angle="-45" size="2" />
-<candyL x="437" y="371" />
-<candyR x="338" y="188" />
-<target x="545" y="142" />
-<star x="439" y="189" />
-<bouncer1 x="327" y="261" angle="45" size="1" path="0,0" moveSpeed="0" rotateSpeed="80" />
-<bouncer1 x="339" y="143" angle="180" size="1" />
-<bubble x="340" y="188" />
-<star x="438" y="251" timeout="3.5" />
-<grab x="438" y="321" length="30" wheel="false" gun="false" radius="-1" moveLength="300" moveVertical="true" moveOffset="270" spider="false" part="L" hidePath="false" />
-<star x="540" y="209" />
-<bubble x="529" y="276" />
-<electro x="440" y="328" initialDelay="0" offTime="0.9" onTime="2" angle="180" size="5" />
-<tutorialText x="335" y="401" locale="en" text="Heart Break" width="200" />
-<tutorialText x="335" y="424" locale="en" text="by 345rusl" width="200" />
+<spike2 x="118" y="379" angle="-135" size="1" />
+<spike2 x="226" y="388" angle="135" size="1" />
+<spike2 x="172" y="405" angle="180" size="1" />
+<spike2 x="73" y="104" angle="0" size="1" />
+<spike2 x="32" y="296" angle="45" size="4" />
+<spike2 x="7" y="138" angle="135" size="2" />
+<spike2 x="285" y="98" angle="0" size="1" />
+<spike2 x="-32" y="198" angle="90" size="1" />
+<spike2 x="349" y="138" angle="45" size="2" />
+<spike2 x="380" y="204" angle="90" size="1" />
+<spike2 x="311" y="299" angle="135" size="4" />
+<spike2 x="132" y="133" angle="45" size="2" />
+<spike2 x="214" y="134" angle="-45" size="2" />
+<candyL x="171" y="371" />
+<candyR x="72" y="188" />
+<target x="279" y="142" />
+<star x="173" y="189" />
+<bouncer1 x="62" y="280" angle="45" size="1" path="0,0" moveSpeed="0" rotateSpeed="80" />
+<bouncer1 x="73" y="143" angle="180" size="1" />
+<bubble x="74" y="188" />
+<star x="172" y="251" timeout="3.5" />
+<grab x="172" y="321" length="30" wheel="false" gun="false" radius="-1" moveLength="300" moveVertical="true" moveOffset="270" spider="false" part="L" hidePath="false" />
+<star x="274" y="209" />
+<bubble x="263" y="276" />
+<electro x="174" y="328" initialDelay="0" offTime="0.9" onTime="2" angle="180" size="5" />
+<tutorialText x="69" y="401" locale="en" text="Heart Break" width="200" />
+<tutorialText x="69" y="424" locale="en" text="by 345rusl" width="200" />
 </layer>
 </map>

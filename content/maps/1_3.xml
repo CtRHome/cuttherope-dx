@@ -4,26 +4,22 @@
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
-<target x="260" y="61" />
-<grab x="54" y="56" length="45" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<candy x="55" y="113" />
-<spike4 x="115" y="252" angle="0" size="4" toggled="1" />
-<star x="54" y="283" />
-<pump x="45" y="326" angle="60" />
-<bubble x="55" y="433" />
-<sock x="158" y="336" group="0" angle="90" />
-<sock x="161" y="176" group="0" angle="-90" />
-<spike4 x="195" y="118" angle="90" size="2" toggled="1" />
-<sock x="155" y="73" group="1" angle="90" />
-<sock x="263" y="430" group="1" angle="-90" />
-<star x="259" y="392" />
-<spike2 x="292" y="269" angle="-135" size="1" />
-<spike2 x="215" y="183" angle="150" size="1" />
-<pump x="282" y="311" angle="105" />
-<pump x="178" y="256" angle="-30" />
-<pump x="319" y="223" angle="-120" />
-<star x="156" y="119" />
-<tutorialText x="-402" y="46" locale="en" text="Has anyone seen my hat?" width="500" />
-<tutorialText x="-296" y="77" locale="en" text="by Nikitonhaha" width="200" />
+<target x="251" y="392" />
+<candy x="68" y="262" />
+<grab x="161" y="189" length="100" wheel="false" gun="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<bouncer1 x="69" y="343" angle="0" size="1" />
+<spike4 x="115" y="245" angle="90" size="4" toggled="1" />
+<spike4 x="22" y="249" angle="-90" size="4" toggled="1" />
+<gravitySwitch x="78" y="433" />
+<hidden03 x="130" y="73" angle="-105" drawing="1" />
+<lantern x="63" y="121" candyCaptured="false" />
+<lantern x="181" y="320" candyCaptured="false" />
+<star x="64" y="49" />
+<rotatedCircle x="70" y="616" size="50" handleAngle="90" oneHandle="false"  />
+<rotatedCircle x="230" y="190" size="75" handleAngle="90" oneHandle="false"  />
+<star x="253" y="340" />
+<star x="188" y="399" />
+<tutorialText x="224" y="-15" locale="en" text="Mechanic Mumble Jumble" width="100" />
+<tutorialText x="151" y="66" locale="en" text="by Kittiepai" width="200" />
 </layer>
 </map>

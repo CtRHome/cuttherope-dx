@@ -686,7 +686,7 @@ namespace CutTheRopeDX.GameMain
                 _ = vBox.AddChild(c3);
             }
             _ = designGroup.AddChild(vBox);
-            bool flag = Application.GetString("FACEBOOK_BUTTON").Length > 0;
+            bool flag = true;
             if (flag)
             {
                 BaseElement baseElement2 = new();
@@ -714,11 +714,18 @@ namespace CutTheRopeDX.GameMain
                 {
                     _ = baseElement2.AddChild(button2);
                 }
+                Button button3 = CreateButton2WithImageQuad1Quad2IDDelegate(Resources.Img.MenuExtraButtons, 16, 16, MenuButtonId.OpenWebsite, this);
+                button3.anchor = 9;
+                button3.parentAnchor = 36;
+                Image.SetElementPositionWithQuadOffset(button3, Resources.Img.MenuExtraButtons, 3);
+                button3.x -= texture.preCutSize.X + 215;
+                button3.y -= texture.preCutSize.Y;
+                _ = baseElement2.AddChild(button3);
                 Image image = Image.Image_createWithResIDQuad(Resources.Img.MenuExtraButtonsEn, 0);
                 image.anchor = 9;
                 image.parentAnchor = 36;
                 Image.SetElementPositionWithQuadOffset(image, Resources.Img.MenuExtraButtonsEn, 0);
-                image.x -= texture.preCutSize.X;
+                image.x -= texture.preCutSize.X + 100;
                 image.y -= texture.preCutSize.Y;
                 _ = baseElement2.AddChild(image);
             }
@@ -2045,10 +2052,13 @@ namespace CutTheRopeDX.GameMain
                     ((Popup)ActiveView().GetChildWithName("popup")).HidePopup();
                     return;
                 case var id when id == MenuButtonId.OpenTwitter:
-                    OpenUrl("http://twitter.com/zeptolab");
+                    OpenUrl("https://discord.gg/R7pGNvDxJr");
                     return;
                 case var id when id == MenuButtonId.OpenFacebook:
-                    OpenUrl("http://www.facebook.com/cuttherope");
+                    OpenUrl("https://youtube.com/@CtR-Home");
+                    return;
+                case var id when id == MenuButtonId.OpenWebsite:
+                    OpenUrl("https://ctrhome.github.io/");
                     return;
                 case var id when id == MenuButtonId.LevelEditor:
                     {

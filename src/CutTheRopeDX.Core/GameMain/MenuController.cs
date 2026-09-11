@@ -734,8 +734,8 @@ namespace CutTheRopeDX.GameMain
             _ = audioRow.AddChild(soundToggle);
             _ = audioRow.AddChild(musicToggle);
             _ = vBox.AddChild(audioRow);
-            Button langBtn = CreateButtonWithTextIDDelegate(Application.GetString("LANGUAGE"), MenuButtonId.ShowLanguage, this);
-            _ = vBox.AddChild(langBtn);
+            //Button langBtn = CreateButtonWithTextIDDelegate(Application.GetString("LANGUAGE"), MenuButtonId.ShowLanguage, this);
+            //_ = vBox.AddChild(langBtn);
             Button resetButton = CreateButtonWithTextIDDelegate(Application.GetString("RESET"), MenuButtonId.ShowReset, this);
             _ = vBox.AddChild(resetButton);
             Button creditsButton = CreateButtonWithTextIDDelegate(Application.GetString("CREDITS"), MenuButtonId.ShowCredits, this);

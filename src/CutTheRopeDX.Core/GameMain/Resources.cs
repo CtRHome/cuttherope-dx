@@ -299,6 +299,8 @@ namespace CutTheRopeDX.GameMain
             public const string MenuLogoNew = "menu_logo_new";
             public const string CommunityPackageSubtitle = "community_package_subtitle";
             public const string CutTheRopeDXLogo = "CutTheRopeDXLogo";
+            public const string CommunityPackageLogo = "CommunityPackageLogo";
+            public const string CtRHomeLogo = "ctrhome_logo";
             public const string CandySelectionFx = "candy_selection_fx";
             public const string SkinSelection = "skin_selection";
             public const string MenuPackUI = "menu_pack_ui";

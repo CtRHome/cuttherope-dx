@@ -134,10 +134,24 @@ namespace CutTheRopeDX.GameMain
 
             // Fan work credit section
 
+            Image communityLogo = Image.Image_createWithResID(Resources.Img.CommunityPackageLogo);
+            _ = vBox.AddChild(communityLogo);
+
+            Text PackageCredits = CreateCenteredTextBlock(BuildFanworkMainText(), containerWidth, scale);
+            _ = vBox.AddChild(PackageCredits);
+
+            Image ctrhomeLogo = Image.Image_createWithResIDQuad(Resources.Img.CtRHomeLogo, 0);
+            _ = vBox.AddChild(ctrhomeLogo);
+
+            string PackageCommunityText = Application.GetString("ABOUT_COMMUNITY_SPECIAL_THANKS");
+            Text PackageCommunity = CreateCenteredTextBlock(PackageCommunityText, containerWidth, scale);
+            _ = vBox.AddChild(PackageCommunity);
+
             Image topLogo = Image.Image_createWithResID(Resources.Img.CutTheRopeDXLogo);
             _ = vBox.AddChild(topLogo);
 
-            Text fanworkMain = CreateCenteredTextBlock(BuildFanworkMainText(), containerWidth, scale);
+            string fanworkMainText = Application.GetString("ABOUT_FANWORK_MAIN");
+            Text fanworkMain = CreateCenteredTextBlock(fanworkMainText, containerWidth, scale);
             _ = vBox.AddChild(fanworkMain);
 
             Button fanworkProjectWebsite = CreateCenteredLinkButton(
@@ -369,7 +383,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The localized fanwork body text with version placeholders resolved.</returns>
         private static string BuildFanworkMainText()
         {
-            return ResolveVersionPlaceholder(Application.GetString("ABOUT_FANWORK_MAIN").ToString());
+            return ResolveVersionPlaceholder(Application.GetString("ABOUT_COMMUNITY_PACKAGE").ToString());
         }
 
         /// <summary>

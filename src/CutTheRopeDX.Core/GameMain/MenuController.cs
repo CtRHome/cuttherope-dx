@@ -763,8 +763,8 @@ namespace CutTheRopeDX.GameMain
             _ = hBox2.AddChild(toggleButton2);
             _ = hBox2.AddChild(toggleButton);
             _ = vBox.AddChild(hBox2);
-            Button langBtn = CreateButtonWithTextIDDelegate(Application.GetString("LANGUAGE"), MenuButtonId.ShowLanguage, this);
-            _ = vBox.AddChild(langBtn);
+            //Button langBtn = CreateButtonWithTextIDDelegate(Application.GetString("LANGUAGE"), MenuButtonId.ShowLanguage, this);
+            //_ = vBox.AddChild(langBtn);
             Button c2 = CreateButtonWithTextIDDelegate(Application.GetString("RESET"), MenuButtonId.ShowReset, this);
             _ = vBox.AddChild(c2);
             Button c3 = CreateButtonWithTextIDDelegate(Application.GetString("CREDITS"), MenuButtonId.ShowCredits, this);

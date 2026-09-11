@@ -1,33 +1,25 @@
 <map>
 <layer name="settings">
 <map gridSize="32" width="320" height="480" />
-<gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="true" />
 </layer>
 <layer name="Objects">
-<target x="158" y="25" />
-<candyL x="29" y="233" />
-<candyR x="251" y="163" />
-<grab x="84" y="232" length="40" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<grab x="29" y="175" length="40" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<spike2 x="123" y="295" angle="90" size="1" />
-<bubble x="125" y="427" />
-<pump x="95" y="336" angle="30" />
-<gravitySwitch x="54" y="428" />
-<grab x="280" y="245" length="30" wheel="false" gun="false" radius="30" moveLength="200" moveVertical="true" moveOffset="30" spider="false" part="L" hidePath="false" />
-<spike2 x="241" y="295" angle="90" size="4" />
-<star x="294" y="359" />
-<grab x="202" y="111" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
-<grab x="98" y="98" length="30" wheel="false" gun="false" radius="30" moveLength="200" moveVertical="false" moveOffset="30" spider="false" part="L" hidePath="false" />
-<grab x="278" y="123" length="30" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
-<sock x="272" y="56" group="0" angle="90" />
-<sock x="32" y="145" group="0" angle="-90" />
-<sock x="173" y="301" group="1" angle="-90" />
-<sock x="282" y="431" group="1" angle="-90" />
-<star x="31" y="116" />
-<spike2 x="46" y="94" angle="-135" size="2" />
-<star x="67" y="28" />
-<spike2 x="31" y="197" angle="180" size="1" />
-<tutorialText x="316" y="333" locale="en" text="Red Button for Red Candy" width="300" />
-<tutorialText x="415" y="368" locale="en" text="by Nikitonhaha" width="200" />
+<target x="172" y="431" />
+<candy x="178" y="353" />
+<bubble x="176" y="349" />
+<grab x="84" y="465" length="120" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="266" y="461" length="120" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<bubble x="43" y="412" />
+<star x="43" y="412" />
+<grab x="169" y="87" length="1" wheel="true" gun="false" radius="100" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<lantern x="170" y="27" candyCaptured="false" />
+<lightBulb x="267" y="46" litRadius="70" bulbNumber="1" />
+<lantern x="260" y="191" candyCaptured="false" />
+<pump x="51" y="333" angle="90" />
+<lantern x="66" y="198" candyCaptured="false" />
+<star x="64" y="258" />
+<star x="262" y="260" />
+<tutorialText x="20" y="-5" locale="en" text="Big Nap in Little China" width="100" />
+<tutorialText x="-33" y="53" locale="en" text="by CasteG" width="200" />
 </layer>
 </map>

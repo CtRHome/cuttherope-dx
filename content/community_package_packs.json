@@ -19,7 +19,7 @@
         "boxCover": ["bgr_02_cover"],
         "boxHoleBgColor": [39, 52, 0],
         "levelCount": 25,
-        "musicPack": ["ctr_original"],
+        "musicPack": ["kaizo_package"],
         "packSpritesheet": "1",
         "packQuadIndex": 1,
         "sittingPlatform": 1,

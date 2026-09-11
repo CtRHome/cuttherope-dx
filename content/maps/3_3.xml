@@ -1,0 +1,33 @@
+<map>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="158" y="25" />
+<candyL x="29" y="233" />
+<candyR x="251" y="163" />
+<grab x="84" y="232" length="40" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="29" y="175" length="40" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<spike2 x="123" y="295" angle="90" size="1" />
+<bubble x="125" y="427" />
+<pump x="95" y="336" angle="30" />
+<gravitySwitch x="54" y="428" />
+<grab x="280" y="245" length="30" wheel="false" gun="false" radius="30" moveLength="200" moveVertical="true" moveOffset="30" spider="false" part="L" hidePath="false" />
+<spike2 x="241" y="295" angle="90" size="4" />
+<star x="294" y="359" />
+<grab x="202" y="111" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
+<grab x="98" y="98" length="30" wheel="false" gun="false" radius="30" moveLength="200" moveVertical="false" moveOffset="30" spider="false" part="L" hidePath="false" />
+<grab x="278" y="123" length="30" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
+<sock x="272" y="56" group="0" angle="90" />
+<sock x="32" y="145" group="0" angle="-90" />
+<sock x="173" y="301" group="1" angle="-90" />
+<sock x="282" y="431" group="1" angle="-90" />
+<star x="31" y="116" />
+<spike2 x="46" y="94" angle="-135" size="2" />
+<star x="67" y="28" />
+<spike2 x="31" y="197" angle="180" size="1" />
+<tutorialText x="316" y="333" locale="en" text="Red Button for Red Candy" width="300" />
+<tutorialText x="415" y="368" locale="en" text="by Nikitonhaha" width="200" />
+</layer>
+</map>

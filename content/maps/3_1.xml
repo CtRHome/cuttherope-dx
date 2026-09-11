@@ -1,0 +1,29 @@
+<map>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="260" y="61" />
+<grab x="54" y="56" length="45" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<candy x="55" y="113" />
+<spike4 x="115" y="252" angle="0" size="4" toggled="1" />
+<star x="54" y="283" />
+<pump x="45" y="326" angle="60" />
+<bubble x="55" y="433" />
+<sock x="158" y="336" group="0" angle="90" />
+<sock x="161" y="176" group="0" angle="-90" />
+<spike4 x="195" y="118" angle="90" size="2" toggled="1" />
+<sock x="155" y="73" group="1" angle="90" />
+<sock x="263" y="430" group="1" angle="-90" />
+<star x="259" y="392" />
+<spike2 x="292" y="269" angle="-135" size="1" />
+<spike2 x="215" y="183" angle="150" size="1" />
+<pump x="282" y="311" angle="105" />
+<pump x="178" y="256" angle="-30" />
+<pump x="319" y="223" angle="-120" />
+<star x="156" y="119" />
+<tutorialText x="-402" y="46" locale="en" text="Has anyone seen my hat?" width="500" />
+<tutorialText x="-296" y="77" locale="en" text="by Nikitonhaha" width="200" />
+</layer>
+</map>

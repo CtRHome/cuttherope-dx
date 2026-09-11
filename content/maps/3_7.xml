@@ -1,0 +1,24 @@
+<map>
+<layer name="settings">
+<map gridSize="32" width="320" height="960" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<rotatedCircle x="160" y="428" size="95" handleAngle="90" oneHandle="false"  />
+<candy x="171" y="289" />
+<rotatedCircle x="162" y="260" size="100" handleAngle="90" oneHandle="false"  />
+<star x="32" y="430" />
+<star x="289" y="589" />
+<star x="158" y="837" />
+<spike2 x="229" y="54" angle="90" size="1" />
+<spike2 x="110" y="52" angle="90" size="1" />
+<target x="169" y="39" />
+<sock x="83" y="885" group="0" angle="-90" path="164,2" moveSpeed="30" />
+<rotatedCircle x="160" y="595" size="90" handleAngle="90" oneHandle="false"  />
+<spike2 x="160" y="711" angle="180" size="1" />
+<sock x="168" y="102" group="0" angle="-90" />
+<grab x="166" y="169" length="70" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<tutorialText x="-255" y="220" locale="en" text="Down to Disco" width="200" />
+<tutorialText x="-267" y="247" locale="en" text="by 345rusl" width="200" />
+</layer>
+</map>

@@ -1,0 +1,27 @@
+<map>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<spike4 x="221" y="277" angle="90" size="4" toggled="1" />
+<candyL x="119" y="269" />
+<candyR x="270" y="79" />
+<bubble x="269" y="80" />
+<grab x="269" y="156" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
+<grab x="183" y="226" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="102" y="230" length="20" wheel="false" gun="false" radius="-1" moveLength="75" moveVertical="false" moveOffset="75" spider="false" part="L" hidePath="false" />
+<bubble x="269" y="226" />
+<star x="271" y="227" />
+<star x="184" y="379" />
+<pump x="275" y="417" angle="180" />
+<bubble x="184" y="380" />
+<grab x="46" y="162" length="100" wheel="false" gun="false" radius="0" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="46" y="71" length="" wheel="false" gun="false" radius="30" moveLength="200" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<spike2 x="99" y="166" angle="90" size="1" />
+<target x="48" y="380" />
+<star x="128" y="104" />
+<tutorialText x="-288" y="41" locale="en" text="On Your Toes" width="200" />
+<tutorialText x="-267" y="66" locale="en" text="by Mystical Leafy" width="200" />
+</layer>
+</map>

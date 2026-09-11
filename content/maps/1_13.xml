@@ -1,19 +1,27 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="640" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" twoParts="false" />
-    </layer>
-    <layer name="Objects">
-        <candy x="402" y="351" />
-        <target x="234" y="61" />
-        <bubble x="247" y="410" />
-        <grab x="330" y="128" length="210" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-        <grab x="224" y="126" length="275" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-        <bubble x="325" y="418" />
-        <bubble x="403" y="412" />
-        <star x="404" y="287" timeout="-1" />
-        <star x="235" y="193" timeout="-1" />
-        <star x="326" y="418" timeout="-1" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<grab x="53" y="429" length="100" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="269" y="431" length="100" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<candy x="163" y="359" />
+<bubble x="162" y="361" />
+<spike2 x="27" y="328" angle="90" size="1" />
+<spike2 x="131" y="284" angle="180" size="4" />
+<spike2 x="292" y="242" angle="90" size="4" />
+<spike2 x="214" y="237" angle="90" size="1" />
+<spike2 x="125" y="179" angle="90" size="1" />
+<spike2 x="26" y="193" angle="90" size="3" />
+<spike2 x="140" y="41" angle="0" size="4" />
+<spike2 x="28" y="84" angle="90" size="1" />
+<spike2 x="210" y="138" angle="0" size="3" />
+<target x="266" y="57" />
+<star x="77" y="92" />
+<star x="250" y="180" />
+<star x="72" y="328" />
+<tutorialText x="62" y="399" locale="en" text="Spike Puppeteer" width="200" />
+<tutorialText x="65" y="427" locale="en" text="by Mystical Leafy" width="200" />
+</layer>
 </map>

@@ -1,20 +1,40 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="640" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" twoParts="false" />
-    </layer>
-    <layer name="Objects">
-        <target x="450" y="395" />
-        <candy x="246" y="183" />
-        <spike3 x="305" y="374" angle="90" size="3" />
-        <spike2 x="452" y="195" angle="90" size="2" />
-        <grab x="183" y="67" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="187" y="244" length="180" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="459" y="68" length="320" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="323" y="70" length="110" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <star x="362" y="338" timeout="-1" />
-        <star x="415" y="221" timeout="-1" />
-        <star x="307" y="218" timeout="-1" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="960" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="270" y="208" />
+<grab x="162" y="139" length="100" wheel="false" gun="false" radius="100" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<sock x="79" y="902" group="0" angle="-90" />
+<sock x="58" y="79" group="0" angle="90" />
+<candy x="76" y="433" />
+<grab x="20" y="109" length="100" wheel="false" gun="false" radius="35" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="76" y="371" length="45" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<electro x="103" y="470" initialDelay="0" offTime="2" onTime="2" angle="180" size="5" />
+<bubble x="70" y="584" />
+<electro x="88" y="313" initialDelay="0" offTime="0" onTime="1" angle="180" size="5" />
+<electro x="234" y="311" initialDelay="0" offTime="0" onTime="1" angle="180" size="5" />
+<pump x="33" y="527" angle="60" />
+<electro x="177" y="565" initialDelay="0" offTime="0" onTime="1" angle="90" size="5" />
+<electro x="98" y="664" initialDelay="0" offTime="0" onTime="1" angle="180" size="5" />
+<star x="138" y="504" />
+<pump x="138" y="430" angle="90" />
+<grab x="184" y="343" length="100" wheel="false" gun="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<grab x="248" y="436" length="100" wheel="false" gun="false" radius="55" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<bubble x="248" y="501" />
+<star x="246" y="363" />
+<electro x="249" y="590" initialDelay="0" offTime="1" onTime="2" angle="-45" size="5" />
+<electro x="252" y="613" initialDelay="1" offTime="2" onTime="2" angle="135" size="5" />
+<bouncer1 x="271" y="844" angle="-30" size="1" />
+<bouncer1 x="63" y="811" angle="135" size="1" />
+<star x="75" y="862" />
+<electro x="72" y="183" initialDelay="0" offTime="3" onTime="1" angle="135" size="5" />
+<electro x="156" y="232" initialDelay="0" offTime="3" onTime="1" angle="-60" size="5" />
+<electro x="89" y="209" initialDelay="0" offTime="3" onTime="1" angle="-45" size="5" />
+<electro x="128" y="218" initialDelay="0" offTime="3" onTime="1" angle="-60" size="5" />
+<electro x="194" y="232" initialDelay="0" offTime="3" onTime="1" angle="-75" size="5" />
+<tutorialText x="14" y="595" locale="en" text="Electricity in Candy" width="150" />
+<tutorialText x="-9" y="667" locale="en" text="by Nikitonhaha" width="200" />
+</layer>
 </map>

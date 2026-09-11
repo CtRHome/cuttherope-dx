@@ -1,21 +1,28 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="640" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" twoParts="false" />
-    </layer>
-    <layer name="Objects">
-        <candy x="324" y="130" />
-        <target x="320" y="413" />
-        <star x="434" y="270" timeout="-1" />
-        <star x="321" y="65" timeout="-1" />
-        <star x="209" y="269" timeout="-1" />
-        <grab x="450" y="103" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="193" y="103" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="321" y="241" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <bubble x="431" y="268" />
-        <bubble x="208" y="268" />
-        <spike1 x="348" y="345" angle="0" size="1" path="66,100," moveSpeed="30" />
-        <spike1 x="288" y="345" angle="0" size="1" path="-66,100," moveSpeed="30" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<target x="47" y="54" />
+<spike2 x="12" y="219" angle="90" size="2" />
+<spike2 x="300" y="388" angle="90" size="4" />
+<bubble x="214" y="92" />
+<star x="127" y="92" />
+<spike2 x="105" y="443" angle="90" size="2" />
+<rotatedCircle x="217" y="159" size="75" handleAngle="90" oneHandle="false"  />
+<star x="304" y="245" />
+<spike2 x="301" y="94" angle="90" size="4" />
+<spike2 x="96" y="82" angle="-90" size="2" />
+<spike2 x="10" y="338" angle="90" size="2" />
+<pump x="272" y="283" angle="90" />
+<star x="200" y="453" />
+<rotatedCircle x="212" y="283" size="75" handleAngle="90" oneHandle="false"  />
+<grab x="199" y="401" length="50" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+<bubble x="193" y="319" />
+<candy x="198" y="314" />
+<spike2 x="109" y="209" angle="90" size="3" />
+<tutorialText x="17" y="268" locale="en" text="From Top to Bottom" width="100" />
+<tutorialText x="-31" y="328" locale="en" text="by CasteG" width="200" />
+</layer>
 </map>

@@ -1,60 +1,33 @@
-<?xml version='1.0' encoding='utf-8'?>
 <map>
-    <layer name="settings">
-        <map gridSize="32" width="640" height="480" />
-        <gameDesign ropePhysicsSpeed="1.0" twoParts="false" />
-    </layer>
-    <layer name="Objects">
-        <target x="514" y="418" />
-        <grab x="224" y="177" length="100" wheel="false" gun="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="448" y="337" length="100" wheel="false" gun="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <grab x="335" y="256" length="100" wheel="false" gun="false" radius="45" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <candy x="178" y="103" />
-        <star x="222" y="269" timeout="-1" />
-        <star x="448" y="430" timeout="-1" />
-        <star x="328" y="345" timeout="-1" />
-        <grab x="180" y="31" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" />
-        <tutorialText x="273" y="39" locale="en" text="TUTORIAL_LVL_1_10_01" width="140" />
-        <tutorial04 x="316" y="164" locale="en" moveSpeed="100" rotateSpeed="100" />
-    </layer>
-    <layer name="Ru">
-        <tutorial04 x="325" y="173" locale="ru" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="234" y="68" locale="ru" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Fr">
-        <tutorialText x="213" y="41" locale="fr" text="TUTORIAL_LVL_1_10_01" width="260" />
-        <tutorial04 x="298" y="144" locale="fr" moveSpeed="100" rotateSpeed="100" />
-    </layer>
-    <layer name="De">
-        <tutorialText x="250" y="47" locale="de" text="TUTORIAL_LVL_1_10_01" width="200" />
-        <tutorial04 x="329" y="152" locale="de" moveSpeed="100" rotateSpeed="100" />
-    </layer>
-    <layer name="It">
-        <tutorial04 x="316" y="171" locale="it" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="66" locale="it" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Ja">
-        <tutorial04 x="316" y="171" locale="ja" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="77" locale="ja" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Es">
-        <tutorial04 x="316" y="171" locale="es" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="53" locale="es" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Zh">
-        <tutorial04 x="316" y="171" locale="zh" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="85" locale="zh" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Ko">
-        <tutorial04 x="316" y="171" locale="ko" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="85" locale="ko" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Br">
-        <tutorial04 x="316" y="171" locale="pt_br" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="66" locale="pt_br" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
-    <layer name="Nl">
-        <tutorial04 x="316" y="171" locale="nl" moveSpeed="100" rotateSpeed="100" />
-        <tutorialText x="273" y="48" locale="nl" text="TUTORIAL_LVL_1_10_01" width="220" />
-    </layer>
+<layer name="settings">
+<map gridSize="32" width="320" height="480" />
+<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<spike2 x="231" y="24" angle="180" size="3" />
+<bouncer1 x="239" y="61" angle="180" size="1" />
+<pump x="47" y="89" angle="0" />
+<bubble x="114" y="102" />
+<spike2 x="63" y="153" angle="180" size="2" />
+<spike2 x="140" y="172" angle="45" size="1" />
+<sock x="272" y="112" group="0" angle="180" />
+<sock x="66" y="227" group="0" angle="90" />
+<target x="68" y="405" />
+<candy x="118" y="13" />
+<spike2 x="50" y="23" angle="180" size="1" />
+<bouncer1 x="64" y="330" angle="30" size="1" />
+<star x="234" y="112" />
+<star x="127" y="377" />
+<star x="223" y="290" />
+<pump x="280" y="318" angle="180" />
+<spike2 x="24" y="270" angle="90" size="4" />
+<spike2 x="298" y="246" angle="90" size="1" />
+<spike2 x="221" y="439" angle="180" size="4" />
+<spike2 x="293" y="388" angle="90" size="1" />
+<spike2 x="240" y="191" angle="180" size="3" />
+<spike2 x="242" y="391" angle="135" size="2" />
+<spike2 x="266" y="228" angle="-135" size="1" />
+<tutorialText x="114" y="295" locale="en" text="I don't know what name to put here" width="150" />
+<tutorialText x="67" y="434" locale="en" text="by elfabrigorra" width="200" />
+</layer>
 </map>

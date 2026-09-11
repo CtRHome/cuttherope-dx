@@ -5,7 +5,7 @@
             "frame": {
                 "x": 0,
                 "y": 0,
-                "w": 1293,
+                "w": 1284,
                 "h": 1440
             },
             "rotated": false,
@@ -13,7 +13,7 @@
             "spriteSourceSize": {
                 "x": 0,
                 "y": 0,
-                "w": 1293,
+                "w": 1284,
                 "h": 1440
             },
             "sourceSize": {
@@ -24,9 +24,9 @@
         {
             "filename": "frame_0001",
             "frame": {
-                "x": 1293,
+                "x": 1284,
                 "y": 0,
-                "w": 72,
+                "w": 63,
                 "h": 1440
             },
             "rotated": false,
@@ -34,7 +34,7 @@
             "spriteSourceSize": {
                 "x": 1284,
                 "y": 0,
-                "w": 72,
+                "w": 63,
                 "h": 1440
             },
             "sourceSize": {
@@ -46,10 +46,10 @@
     "meta": {
         "app": "Converted from XML",
         "version": "1.0",
-        "image": "bgr_01_cover.png",
+        "image": "bgr_09_cover.png",
         "format": "RGBA8888",
         "size": {
-            "w": 1365,
+            "w": 1347,
             "h": 1440
         },
         "scale": "1"

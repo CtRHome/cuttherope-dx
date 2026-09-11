@@ -647,9 +647,9 @@ namespace CutTheRopeDX.GameMain
             SetIntForKey(0, "PREFS_CANDIES_LOST", true);
             SetIntForKey(0, "PREFS_CANDIES_UNITED", true);
             SetIntForKey(0, "PREFS_SOCKS_USED", true);
-            SetIntForKey(0, "PREFS_SELECTED_CANDY", true);
+            SetIntForKey(38, "PREFS_SELECTED_CANDY", true);
             SetIntForKey(0, "PREFS_SELECTED_ROPE", true);
-            SetIntForKey(0, "PREFS_SELECTED_OMNOM", true);
+            SetIntForKey(1, "PREFS_SELECTED_OMNOM", true);
             SetIntForKey(0, "PREFS_SELECTED_TRACE", true);
             SetBooleanForKey(false, "PREFS_CANDY_WAS_CHANGED", true);
             SetBooleanForKey(true, "PREFS_GAME_CENTER_ENABLED", true);

@@ -127,6 +127,14 @@
             "trimmed": true,
             "spriteSourceSize": { "x": 261, "y": 49, "w": 124, "h": 93 },
             "sourceSize": { "w": 679, "h": 206 }
+        },
+		{
+            "filename": "frame_16_websitebtn.png",
+            "frame": { "x": 421, "y": 207, "w": 94, "h": 97 },
+            "rotated": false,
+            "trimmed": true,
+            "spriteSourceSize": { "x": 562, "y": 89, "w": 94, "h": 97 },
+            "sourceSize": { "w": 679, "h": 206 }
         }
     ],
     "meta": {
@@ -134,7 +142,7 @@
         "version": "1.0",
         "image": "menu_extra_buttons.png",
         "format": "RGBA8888",
-        "size": { "w": 1270, "h": 208 },
+        "size": { "w": 1270, "h": 308 },
         "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:9a7bd957593d06fdd49922fa6fc0b525:a17b3b18ff008deda1779b515a3c9a7a:48ba2060699c239f9dccfa4027b970d3$"
     }

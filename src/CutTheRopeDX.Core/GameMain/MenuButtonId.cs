@@ -46,6 +46,7 @@ namespace CutTheRopeDX.GameMain
         ShowLanguage,
         BackFromLanguage,
         LevelEditor,
+        OpenWebsite,
     }
 
     /// <summary>
@@ -145,6 +146,11 @@ namespace CutTheRopeDX.GameMain
         /// Opens the Facebook page.
         /// </summary>
         public static readonly MenuButtonId OpenFacebook = MenuButton.OpenFacebook;
+
+        /// <summary>
+        /// Opens the Facebook page.
+        /// </summary>
+        public static readonly MenuButtonId OpenWebsite = MenuButton.OpenWebsite;
 
         /// <summary>
         /// Opens the fanwork project website.

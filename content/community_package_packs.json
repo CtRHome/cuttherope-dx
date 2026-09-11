@@ -35,7 +35,7 @@
         "musicPack": ["ctr_original"],
         "packSpritesheet": "1",
         "packQuadIndex": 2,
-        "sittingPlatform": 2,
+        "sittingPlatform": 3,
         "unlockStars": 0
     }
 ]

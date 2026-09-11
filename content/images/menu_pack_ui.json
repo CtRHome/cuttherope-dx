@@ -10,7 +10,7 @@
         },
         {
             "filename": "01_monster.png",
-            "frame": { "x": 112, "y": 443, "w": 168, "h": 176 },
+            "frame": { "x": 112, "y": 625, "w": 171, "h": 216 },
             "rotated": false,
             "trimmed": true,
             "spriteSourceSize": { "x": 249, "y": 352, "w": 168, "h": 176 },
@@ -86,7 +86,7 @@
         "version": "1.0",
         "image": "menu_pack_ui.png",
         "format": "RGBA8888",
-        "size": { "w": 657, "h": 622 },
+        "size": { "w": 657, "h": 850 },
         "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:d762e503f766e70b1370fc425bbcdd12:8859498a114ac0a3b969423bce625ce4:1137557b36cfd4f757e8914f89e4fa16$"
     }

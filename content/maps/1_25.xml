@@ -1,7 +1,7 @@
 <map>
 <layer name="settings">
 <map gridSize="32" width="853" height="480" />
-<gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="true" />
+<gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="true" useMobilePhysics="true"/>
 </layer>
 <layer name="Objects">
 <candyL x="108" y="329" />

@@ -379,7 +379,13 @@ namespace CutTheRopeDX.GameMain
                         break;
                 }
 
-                _ = logoParent.AddChild(logo);
+                _ = logoParent.AddChild(image3);
+                Image imagePackage = Image.Image_createWithResIDQuad(Resources.Img.CommunityPackageSubtitle, 0);
+                imagePackage.anchor = 10;
+                imagePackage.parentAnchor = 10;
+                imagePackage.y = 500f;
+                imagePackage.x = 20f;
+                _ = logoParent.AddChild(imagePackage);
 
             }
             if (s)

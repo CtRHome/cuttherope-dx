@@ -62,7 +62,7 @@ namespace CutTheRopeDX.Browser
         /// This takes the main menu slot the quit button leaves empty in a browser, which cannot
         /// close its own tab.
         /// </remarks>
-        public string LevelEditorUrl => "https://yell0wsuit.github.io/ctrdx-editor/";
+        public string LevelEditorUrl => "https://ctrhome.github.io/play/";
 
         /// <inheritdoc />
         public string CustomLevelExitLabelKey => "CLOSE_TAB_BUTTON";

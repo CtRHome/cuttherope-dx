@@ -109,7 +109,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <returns><see langword="true"/> if update checking is enabled; otherwise, <see langword="false"/>.</returns>
         public static bool IsUpdateCheckEnabled()
         {
-            return GetBooleanForKey("PREFS_UPDATE_CHECK");
+            return false;
         }
 
         /// <summary>

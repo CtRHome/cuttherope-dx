@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Heart Break&#13;&#10;By 345rusl"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -29,7 +29,5 @@
 <star x="274" y="209" />
 <bubble x="263" y="276" />
 <electro x="174" y="328" initialDelay="0" offTime="0.9" onTime="2" angle="180" size="5" />
-<tutorialText x="69" y="401" locale="en" text="Heart Break" width="200" />
-<tutorialText x="69" y="424" locale="en" text="by 345rusl" width="200" />
 </layer>
 </map>

@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Big Nap In Little China&#13;&#10;By CasteG"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="true" />
 </layer>
 <layer name="Objects">
@@ -19,7 +19,5 @@
 <lantern x="66" y="198" candyCaptured="false" />
 <star x="64" y="258" />
 <star x="262" y="260" />
-<tutorialText x="20" y="-5" locale="en" text="Big Nap in Little China" width="100" />
-<tutorialText x="-33" y="53" locale="en" text="by CasteG" width="200" />
 </layer>
 </map>

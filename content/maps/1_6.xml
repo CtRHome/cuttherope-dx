@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="853" height="480" levelName="Triple Quest&#13;&#10;By 5eburek"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -36,7 +36,5 @@
 <tutorialText x="369" y="55" locale="en" text="Quest-3" width="700" />
 <target x="647" y="408" />
 <grab x="802" y="394" length="999999999" wheel="false" gun="false" radius="30" moveLength="75" moveVertical="false" moveOffset="75" spider="false" part="L" hidePath="false" />
-<tutorialText x="100" y="-7" locale="en" text="Triple Quest" width="200" />
-<tutorialText x="99" y="20" locale="en" text="by 5eburek" width="200" />
 </layer>
 </map>

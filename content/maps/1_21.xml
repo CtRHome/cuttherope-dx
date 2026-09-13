@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Smack the Mouse&#13;&#10;By 8 Second Rocket"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="true" useMobilePhysics="true"/>
 </layer>
 <layer name="Objects">
@@ -23,7 +23,5 @@
 <star x="190" y="90" />
 <lightBulb x="190" y="172" litRadius="100" bulbNumber="1" />
 <bubble x="190" y="169" />
-<tutorialText x="79" y="320" locale="en" text="Smack the Mouse" width="200" />
-<tutorialText x="57" y="347" locale="en" text="by 8 Second Rocket" width="250" />
 </layer>
 </map>

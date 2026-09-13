@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Spike Puppeteer&#13;&#10;By Mystical Leafy"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -21,7 +21,5 @@
 <star x="77" y="92" />
 <star x="250" y="180" />
 <star x="72" y="328" />
-<tutorialText x="62" y="399" locale="en" text="Spike Puppeteer" width="200" />
-<tutorialText x="65" y="427" locale="en" text="by Mystical Leafy" width="200" />
 </layer>
 </map>

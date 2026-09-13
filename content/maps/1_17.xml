@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="960" />
+<map gridSize="32" width="320" height="960" levelName="Electricity in Candy&#13;&#10;by Nikitonhaha"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -30,7 +30,5 @@
 <bouncer1 x="63" y="811" angle="135" size="1" />
 <star x="75" y="862" />
 <electro x="194" y="232" initialDelay="0" offTime="3" onTime="1" angle="-75" size="5" />
-<tutorialText x="14" y="595" locale="en" text="Electricity in Candy" width="150" />
-<tutorialText x="-9" y="667" locale="en" text="by Nikitonhaha" width="200" />
 </layer>
 </map>

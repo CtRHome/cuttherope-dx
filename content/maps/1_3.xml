@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Mechanic Mumble Jumble&#13;&#10;By Kittiepai"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -19,7 +19,5 @@
 <rotatedCircle x="230" y="190" size="75" handleAngle="90" oneHandle="false"  />
 <star x="253" y="340" />
 <star x="188" y="399" />
-<tutorialText x="224" y="-15" locale="en" text="Mechanic Mumble Jumble" width="100" />
-<tutorialText x="151" y="66" locale="en" text="by Kittiepai" width="200" />
 </layer>
 </map>

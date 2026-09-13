@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="From Top to Bottom&#13;&#10;By CasteG"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -22,7 +22,5 @@
 <bubble x="193" y="319" />
 <candy x="198" y="314" />
 <spike2 x="109" y="209" angle="90" size="3" />
-<tutorialText x="17" y="268" locale="en" text="From Top to Bottom" width="100" />
-<tutorialText x="-31" y="328" locale="en" text="by CasteG" width="200" />
 </layer>
 </map>

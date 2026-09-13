@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Shooting Stars&#13;&#10;By KurtTheKing"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -58,9 +58,5 @@
 <spike2 x="160" y="440" angle="180" size="2" />
 
 <pump x="81" y="143" angle="0" />
-
-<tutorialText x="5" y="400" locale="en" text="Shooting Stars" width="100" />
-<tutorialText x="153" y="400" locale="en" text="by" width="200" />
-<tutorialText x="154" y="430" locale="en" text="KurtTheKing" width="200" />
 </layer>
 </map>

@@ -1,60 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <map>
-<layer name="settings">
-<map gridSize="32" width="320" height="480" />
-<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
-</layer>
-<layer name="Objects">
-<candy x="64" y="448" />
-<pump x="27" y="213" angle="45" />
-<bubble x="64" y="452" />
-<spike2 x="102" y="383" angle="90" size="4" />
-<spike2 x="25" y="376" angle="90" size="4" />
-<spike4 x="98" y="354" angle="180" size="1" toggled="1" />
-<spike2 x="26" y="193" angle="90" size="4" />
-<spike2 x="99" y="174" angle="90" size="3" />
-<spike4 x="33" y="273" angle="180" size="1" toggled="2" />
-<star x="135" y="194" />
-<bubble x="264" y="152" />
-<bubble x="264" y="178" />
-<bubble x="264" y="211" />
-<bubble x="264" y="244" />
-<bubble x="264" y="274" />
-<bubble x="264" y="303" />
-<spike4 x="175" y="203" angle="90" size="1" toggled="1" />
-<spike4 x="98" y="164" angle="90" size="1" toggled="1" />
-<spike2 x="137" y="292" angle="0" size="1" />
-<spike2 x="172" y="207" angle="90" size="4" />
-<spike4 x="174" y="143" angle="90" size="1" toggled="2" />
-<target x="157" y="412" />
-<spike2 x="116" y="478" angle="180" size="4" />
-<pump x="312" y="394" angle="180" />
-<bouncer1 x="268" y="483" angle="0" size="2" />
-<spike2 x="27" y="62" angle="90" size="1" />
-<star x="168" y="4" />
-<sock x="243" y="55" group="0" angle="180" />
-<sock x="264" y="105" group="0" angle="90" />
-<spike2 x="116" y="24" angle="0" size="4" />
-<spike2 x="224" y="208" angle="90" size="4" />
-<spike2 x="197" y="121" angle="180" size="1" />
-<spike2 x="305" y="212" angle="90" size="4" />
-<spike2 x="212" y="455" angle="-90" size="1" />
-<spike2 x="223" y="331" angle="90" size="1" />
-<spike2 x="306" y="407" angle="90" size="4" />
-<bubble x="151" y="454" />
-<bubble x="185" y="456" />
-<bubble x="159" y="468" />
-<bubble x="134" y="452" />
-<bubble x="166" y="452" />
-<bubble x="264" y="164" />
-<bubble x="264" y="255" />
-<bubble x="264" y="286" />
-<bubble x="264" y="226" />
-<bubble x="264" y="195" />
-<grab x="61" y="58" length="" wheel="false" gun="false" radius="20" moveLength="175" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<bouncer1 x="315" y="68" angle="-90" size="2" />
-<tutorialText x="154" y="311" locale="en" text="   l       ---------- l   exit   l-----------" width="120" />
-<star x="265" y="343" timeout="15" />
-<tutorialText x="-285" y="63" locale="en" text="Handle with care" width="200" />
-<tutorialText x="-311" y="94" locale="en" text="by Sneaky" width="200" />
-</layer>
+  <layer name="settings">
+    <map gridSize="32" width="320" height="480" levelName="Handle with care&#13;&#10;By Sneaky"/>
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <candy x="64" y="448" candyNumber="0" />
+    <pump x="27" y="213" angle="45" />
+    <bubble x="64" y="452" />
+    <spike4 x="102" y="383" angle="90" size="4" />
+    <spike4 x="25" y="376" angle="90" size="4" />
+    <spike1 x="98" y="354" angle="180" size="1" toggled="1" />
+    <spike4 x="26" y="193" angle="90" size="4" />
+    <spike3 x="99" y="174" angle="90" size="3" />
+    <spike1 x="33" y="273" angle="180" size="1" toggled="2" />
+    <star x="135" y="194" />
+    <bubble x="264" y="152" />
+    <bubble x="264" y="178" />
+    <bubble x="264" y="211" />
+    <bubble x="264" y="244" />
+    <bubble x="264" y="274" />
+    <bubble x="264" y="303" />
+    <spike1 x="175" y="203" angle="90" size="1" toggled="1" />
+    <spike1 x="98" y="164" angle="90" size="1" toggled="1" />
+    <spike1 x="137" y="292" angle="0" size="1" />
+    <spike4 x="172" y="207" angle="90" size="4" />
+    <spike1 x="174" y="143" angle="90" size="1" toggled="2" />
+    <target x="157" y="412" />
+    <spike4 x="116" y="478" angle="180" size="4" />
+    <pump x="312" y="394" angle="180" />
+    <bouncer2 x="268" y="483" angle="0" size="2" />
+    <spike1 x="27" y="62" angle="90" size="1" />
+    <star x="168" y="4" />
+    <sock x="243" y="55" group="0" angle="180" />
+    <sock x="264" y="105" group="0" angle="90" />
+    <spike4 x="116" y="24" angle="0" size="4" />
+    <spike4 x="224" y="208" angle="90" size="4" />
+    <spike1 x="197" y="121" angle="180" size="1" />
+    <spike4 x="305" y="212" angle="90" size="4" />
+    <spike1 x="212" y="455" angle="-90" size="1" />
+    <spike1 x="223" y="331" angle="90" size="1" />
+    <spike4 x="306" y="407" angle="90" size="4" />
+    <bubble x="151" y="454" />
+    <bubble x="185" y="456" />
+    <bubble x="159" y="468" />
+    <bubble x="134" y="452" />
+    <bubble x="166" y="452" />
+    <bubble x="264" y="164" />
+    <bubble x="264" y="255" />
+    <bubble x="264" y="286" />
+    <bubble x="264" y="226" />
+    <bubble x="264" y="195" />
+    <grab x="61" y="58" length="" wheel="false" gun="false" radius="20" moveLength="175" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+    <bouncer2 x="315" y="68" angle="-90" size="2" />
+    <tutorialText x="154" y="311" locale="en" text="   l       ---------- l   exit   l-----------" width="120" />
+    <star x="265" y="343" timeout="15" />
+  </layer>
 </map>

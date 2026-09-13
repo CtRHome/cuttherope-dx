@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Don't pop it&#13;&#10;By XPigeon"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -31,7 +31,5 @@
 <grab x="55" y="400" length="30" wheel="false" gun="false" radius="30" moveLength="150" moveVertical="false" moveOffset="" spider="false" part="L" hidePath="false" />
 <pump x="115" y="461" angle="-15" />
 <spike2 x="158" y="242" angle="180" size="1" />
-<tutorialText x="50" y="188" locale="en" text="Don't pop it" width="200" />
-<tutorialText x="114" y="236" locale="en" text="by XPigeon" width="200" />
 </layer>
 </map>

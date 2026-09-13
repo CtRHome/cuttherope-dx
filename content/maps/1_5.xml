@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="960" />
+<map gridSize="32" width="853" height="960" levelName="Long Distance Relationship&#13;&#10;By DarkTheCreature"/>
 <gameDesign ropePhysicsSpeed="1.0" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -33,7 +33,5 @@
 <star x="272" y="869" />
 <bouncer1 x="720" y="324" angle="-90" size="1" />
 <pump x="613" y="360" angle="90" />
-<tutorialText x="103" y="12" locale="en" text="Long Distance Relationship" width="150" />
-<tutorialText x="76" y="74" locale="en" text="by DarkTheCreature" width="200" />
 </layer>
 </map>

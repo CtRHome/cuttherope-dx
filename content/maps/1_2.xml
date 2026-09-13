@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Round The Blade&#13;&#10;By Mystical Leafy"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -17,7 +17,5 @@
 <grab x="108" y="101" length="50" wheel="false" gun="false" radius="-1" moveLength="100" moveVertical="true" moveOffset="0" spider="false" part="L" hidePath="false" />
 <candy x="109" y="178" />
 <grab x="246" y="103" length="100" wheel="false" gun="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<tutorialText x="-16" y="-12" locale="en" text="Round The Blade" width="200" />
-<tutorialText x="-8" y="12" locale="en" text="by Mystical Leafy" width="200" />
 </layer>
 </map>

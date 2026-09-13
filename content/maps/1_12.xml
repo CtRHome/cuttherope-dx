@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Mixing Bowl&#13;&#10;By KurtTheKing"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -24,7 +24,5 @@
 <star x="-145" y="122" path="794,-2" moveSpeed="20" />
 <bouncer1 x="69" y="32" angle="150" size="2" />
 <bouncer1 x="245" y="35" angle="-150" size="2" />
-<tutorialText x="53" y="408" locale="en" text="Mixing Bowl" width="200" />
-<tutorialText x="51" y="432" locale="en" text="by KurtTheKing" width="200" />
 </layer>
 </map>

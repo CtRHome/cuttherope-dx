@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="853" height="480" levelName="Blades of Doom&#13;&#10;By Gulu the third"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -21,7 +21,5 @@
 <spike2 x="137" y="381" angle="90" size="2" path="0,0" moveSpeed="0" rotateSpeed="75" />
 <spike2 x="783" y="133" angle="180" size="1" path="0,0" moveSpeed="0" rotateSpeed="450" />
 <spike2 x="232" y="207" angle="180" size="2" path="0,0" moveSpeed="0" rotateSpeed="400" />
-<tutorialText x="34" y="236" locale="en" text="Blades of Doom" width="200" />
-<tutorialText x="37" y="265" locale="en" text="by Gulu the third" width="200" />
 </layer>
 </map>

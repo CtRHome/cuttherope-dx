@@ -5,7 +5,7 @@
             "frame": {
                 "x": 0,
                 "y": 0,
-                "w": 1292,
+                "w": 1291,
                 "h": 1440
             },
             "rotated": false,
@@ -13,7 +13,7 @@
             "spriteSourceSize": {
                 "x": 0,
                 "y": 0,
-                "w": 1292,
+                "w": 1291,
                 "h": 1440
             },
             "sourceSize": {
@@ -24,17 +24,17 @@
         {
             "filename": "frame_0001",
             "frame": {
-                "x": 1292,
+                "x": 1291,
                 "y": 0,
-                "w": 56,
+                "w": 69,
                 "h": 1440
             },
             "rotated": false,
             "trimmed": true,
             "spriteSourceSize": {
-                "x": 1285,
+                "x": 1280,
                 "y": 0,
-                "w": 56,
+                "w": 69,
                 "h": 1440
             },
             "sourceSize": {
@@ -49,7 +49,7 @@
         "image": "bgr_04_cover.png",
         "format": "RGBA8888",
         "size": {
-            "w": 1348,
+            "w": 1360,
             "h": 1440
         },
         "scale": "1"

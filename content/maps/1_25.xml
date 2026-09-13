@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="853" height="480" levelName="The Squad Reunites&#13;&#10;By 8 Second Rocket"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="true" useMobilePhysics="true"/>
 </layer>
 <layer name="Objects">
@@ -35,7 +35,5 @@
 <star x="125" y="126" />
 <star x="95" y="126" />
 <bouncer1 x="635" y="415" angle="0" size="1" />
-<tutorialText x="111" y="-5" locale="en" text="The Squad Reunites" width="150" />
-<tutorialText x="117" y="403" locale="en" text="by 8 Second Rocket" width="160" />
 </layer>
 </map>

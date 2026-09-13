@@ -1,0 +1,39 @@
+<map>
+<layer name="settings">
+<map gridSize="32" width="853" height="960"/>
+<gameDesign ropePhysicsSpeed="1.0" twoParts="false" nightLevel="false" />
+</layer>
+<layer name="Objects">
+<candy x="199" y="222" />
+<target x="630" y="850" />
+<pump x="87" y="222" angle="0" />
+<spike2 x="194" y="354" angle="0" size="4" />
+<sock x="73" y="89" group="1" angle="0" />
+<sock x="248" y="603" group="1" angle="-75" />
+<bouncer1 x="404" y="359" angle="-90" size="2" />
+<spike2 x="475" y="405" angle="90" size="4" />
+<spike2 x="175" y="699" angle="180" size="4" />
+<spike2 x="369" y="699" angle="180" size="4" />
+<spike2 x="473" y="598" angle="90" size="4" />
+<spike2 x="583" y="698" angle="180" size="4" />
+<pump x="611" y="248" angle="90" />
+<spike2 x="754" y="262" angle="-90" size="4" />
+<spike2 x="766" y="698" angle="180" size="3" />
+<spike2 x="803" y="148" angle="180" size="2" />
+<bubble x="656" y="301" />
+<pump x="542" y="464" angle="0" />
+<sock x="800" y="243" group="0" angle="90" />
+<sock x="110" y="898" group="0" angle="-90" />
+<bouncer1 x="213" y="899" angle="0" size="2" />
+<pump x="31" y="836" angle="0" />
+<star x="289" y="312" />
+<star x="703" y="496" />
+<bouncer1 x="648" y="752" angle="-135" size="2" />
+<bouncer1 x="201" y="315" angle="0" size="1" />
+<star x="272" y="869" />
+<bouncer1 x="720" y="324" angle="-90" size="1" />
+<pump x="613" y="360" angle="90" />
+<tutorialText x="103" y="12" locale="en" text="Long Distance Relationship" width="150" />
+<tutorialText x="76" y="74" locale="en" text="by DarkTheCreature" width="200" />
+</layer>
+</map>

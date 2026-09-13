@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="854" height="480" />
+<map gridSize="32" width="854" height="480" levelName="One Hard Star&#13;&#10;By SomethingOfficials"/>
 <gameDesign special="1" ropePhysicsSpeed="1.0" />
 </layer>
 <layer name="Objects">
@@ -17,7 +17,5 @@
 <pump x="280" y="364" angle="-60" />
 <sock x="575" y="403" group="1" angle="-90" />
 <sock x="728" y="146" group="1" angle="90" />
-<tutorialText x="-28" y="328" locale="en" text="One Hard Star" width="200" />
-<tutorialText x="3" y="357" locale="en" text="by SomethingOfficials" width="200" />
 </layer>
 </map>

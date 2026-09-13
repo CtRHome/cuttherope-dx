@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Act Quick, Om Nom!&#13;&#10;By DaBigJ"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -19,7 +19,5 @@
 <target x="225" y="386" />
 <star x="159" y="398" timeout="7" />
 <bubble x="156" y="119" />
-<tutorialText x="-21" y="33" locale="en" text="Act Quick, Om Nom!" width="250" />
-<tutorialText x="-39" y="72" locale="en" text="by DaBigJ" width="200" />
 </layer>
 </map>

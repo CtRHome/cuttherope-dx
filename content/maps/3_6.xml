@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="960" />
+<map gridSize="32" width="853" height="960" levelName="Disc Launchers&#13;&#10;By DarkTheCreature"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -31,7 +31,5 @@
 <electro x="257" y="628" initialDelay="5" offTime="1" onTime="4" angle="-135" size="5" />
 <electro x="474" y="526" initialDelay="5" offTime="1" onTime="4" angle="135" size="5" />
 <rotatedCircle x="717" y="323" size="75" handleAngle="90" oneHandle="false"  />
-<tutorialText x="307" y="677" locale="en" text="Disc Launchers" width="200" />
-<tutorialText x="281" y="706" locale="en" text="by DarkTheCreature" width="250" />
 </layer>
 </map>

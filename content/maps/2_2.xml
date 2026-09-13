@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Path of Pain&#13;&#10;By Sneaky"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -47,7 +47,5 @@
 <star x="105" y="94" />
 <star x="157" y="211" />
 <star x="158" y="360" />
-<tutorialText x="145" y="402" locale="en" text="Path of Pain" width="200" />
-<tutorialText x="157" y="425" locale="en" text="by Sneaky" width="200" />
 </layer>
 </map>

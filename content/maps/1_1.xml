@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Bringin' it Arooooooooound Town&#13;&#10;By UltraYeet"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -14,7 +14,5 @@
 <star x="65" y="130" />
 <star x="259" y="406" timeout="4" path="0,-110" moveSpeed="50"  />
 <grab x="148" y="37" length="100" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<tutorialText x="11" y="341" locale="en" text="Bringin' it Arooooooooound Town" width="200" />
-<tutorialText x="15" y="404" locale="en" text="by UltraYeet" width="200" />
 </layer>
 </map>

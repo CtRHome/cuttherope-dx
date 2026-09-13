@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="853" height="480" levelName="Medium Puzzle&#13;&#10;By ryest"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -25,7 +25,5 @@
 <bouncer1 x="323" y="441" angle="0" size="2" />
 <bouncer1 x="445" y="440" angle="0" size="2" />
 <bouncer1 x="523" y="356" angle="-90" size="2" />
-<tutorialText x="-37" y="221" locale="en" text="Medium Puzzle" width="200" />
-<tutorialText x="-41" y="245" locale="en" text="by ryest" width="200" />
 </layer>
 </map>

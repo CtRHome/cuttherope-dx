@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Name&#13;&#10;By Boberro"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -34,7 +34,5 @@
 <electro x="266" y="235" initialDelay="1" offTime="2" onTime="2" angle="180" size="5" />
 <electro x="80" y="172" initialDelay="1" offTime="2" onTime="2" angle="180" size="5" />
 <electro x="75" y="307" initialDelay="1" offTime="2" onTime="2" angle="180" size="5" />
-<tutorialText x="66" y="330" locale="en" text="Name" width="200" />
-<tutorialText x="68" y="351" locale="en" text="by Boberro" width="200" />
 </layer>
 </map>

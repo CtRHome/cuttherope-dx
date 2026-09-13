@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="960" />
+<map gridSize="32" width="853" height="960" levelName="Self Portrait&#13;&#10;By 345rusl"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -72,7 +72,5 @@
 <star x="728" y="735" timeout="29" />
 <sock x="348" y="861" group="5" angle="120" path="0,0" moveSpeed="0" rotateSpeed="-99" />
 <grab x="344" y="743" length="100" wheel="false" gun="false" radius="8" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<tutorialText x="15" y="59" locale="en" text="Self Portrait" width="200" />
-<tutorialText x="5" y="85" locale="en" text="by 345rusl" width="200" />
 </layer>
 </map>

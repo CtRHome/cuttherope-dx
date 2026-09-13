@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="960" />
+<map gridSize="32" width="853" height="960" levelName="Faster Than a Speeding Bullet&#13;&#10;By max1804sim"/>
 <gameDesign ropePhysicsSpeed="1.0" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -163,6 +163,5 @@
 <pump x="159" y="706" angle="-15" />
 <pump x="780" y="538" angle="180" />
 <pump x="428" y="564" angle="-150" />
-<tutorialText x="355.5" y="888" locale="en" text="by max1804sim" width="200" />
 </layer>
 </map>

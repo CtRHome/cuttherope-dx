@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="Close the gate&#13;&#10;By 8 Second Rocket"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" useMobilePhysics="true" />
 </layer>
 <layer name="Objects">
@@ -20,7 +20,5 @@
 <star x="114" y="441" />
 <star x="198" y="391" />
 <grab x="59" y="263" length="100" wheel="false" gun="false" radius="58" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" path="-1,-148" moveSpeed="55" />
-<tutorialText x="-19" y="92" locale="en" text="Close the gate" width="200" />
-<tutorialText x="-149" y="120" locale="en" text="by 8 Second Rocket" width="500" />
 </layer>
 </map>

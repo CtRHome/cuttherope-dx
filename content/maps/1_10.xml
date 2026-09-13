@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="I don't know what name to put here&#13;&#10;By elfabrigorra"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -27,7 +27,5 @@
 <spike2 x="240" y="191" angle="180" size="3" />
 <spike2 x="242" y="391" angle="135" size="2" />
 <spike2 x="266" y="228" angle="-135" size="1" />
-<tutorialText x="104" y="295" locale="en" text="I don't know what name to put here" width="150" />
-<tutorialText x="67" y="434" locale="en" text="by elfabrigorra" width="200" />
 </layer>
 </map>

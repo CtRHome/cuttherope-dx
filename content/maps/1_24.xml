@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="853" height="480" />
+<map gridSize="32" width="853" height="480" levelName="Where are you, soulmate?&#13;&#10;By Nikitonhaha"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -24,7 +24,5 @@
 <grab x="715" y="196" length="100" wheel="false" gun="false" radius="40" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
 <grab x="526" y="151" length="25" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="R" hidePath="false" />
 <bubble x="525" y="263" />
-<tutorialText x="49" y="341" locale="en" text="Where are you, soulmate?" width="160" />
-<tutorialText x="28" y="408" locale="en" text="by Nikitonhaha" width="200" />
 </layer>
 </map>

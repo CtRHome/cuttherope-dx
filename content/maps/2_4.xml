@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="480" />
+<map gridSize="32" width="320" height="480" levelName="I Will Achieve Apotheosis&#13;&#10;By ggando12"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="true" />
 </layer>
 <layer name="Objects">

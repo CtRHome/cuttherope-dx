@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="960" />
+<map gridSize="32" width="320" height="960" levelName="Kaizo Cutter: Screen Crunch&#13;&#10;By unkownusergd"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="true" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -49,7 +49,5 @@
 <spike2 x="66" y="730" angle="180" size="3" />
 <bouncer1 x="12" y="702" angle="90" size="1" />
 <grab x="237" y="290" length="100" wheel="false" gun="false" radius="25" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<tutorialText x="-85" y="134" locale="en" text="Kaizo Cutter: Screen Crunch" width="500" />
-<tutorialText x="62" y="158" locale="en" text="by unkownusergd" width="200" />
 </layer>
 </map>

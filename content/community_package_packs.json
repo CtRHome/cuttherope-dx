@@ -37,5 +37,18 @@
         "packQuadIndex": 2,
         "sittingPlatform": 3,
         "unlockStars": 0
+    },
+	{
+        "packName": "BOX4_LABEL",
+        "boxBackground": ["bgr_04_p1", "bgr_04_p2"],
+        "boxBackgroundP2Y": 1102,
+        "boxCover": ["bgr_04_cover"],
+        "boxHoleBgColor": [73, 52, 0],
+        "levelCount": 25,
+        "musicPack": ["ctr_original"],
+        "packSpritesheet": "1",
+        "packQuadIndex": 3,
+        "sittingPlatform": 6,
+        "unlockStars": 0
     }
 ]

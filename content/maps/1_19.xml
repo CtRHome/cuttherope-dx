@@ -1,6 +1,6 @@
 <map>
 <layer name="settings">
-<map gridSize="32" width="320" height="960" />
+<map gridSize="32" width="320" height="960" levelName="The Tower Of Babel&#13;&#10;By ggando12"/>
 <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
 </layer>
 <layer name="Objects">
@@ -99,8 +99,5 @@
 <spike2 x="101" y="35" angle="165" size="1" />
 <spike2 x="216" y="28" angle="0" size="1" />
 <spike2 x="159" y="28" angle="180" size="1" />
-
-<tutorialText x="87" y="602" locale="en" text="The Tower Of Babel" width="100" />
-<tutorialText x="36" y="658" locale="en" text="by ggando12" width="200" />
 </layer>
 </map>

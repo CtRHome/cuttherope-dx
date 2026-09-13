@@ -95,11 +95,12 @@ namespace CutTheRopeDX.GameMain
                     secondaryLabel.scaleX = secondaryLabel.scaleY = 0.7f;
                     _ = text.AddChild(secondaryLabel);
                 }
+                float holdDuration = !string.IsNullOrEmpty(levelName) ? 3.0f : 1.0f;
                 Timeline labelTimeline = new Timeline().InitWithMaxKeyFramesOnTrack(5);
                 labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
                 labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
                 labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
-                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, holdDuration));
                 labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
                 text.AddTimelinewithID(labelTimeline, 0);
                 text.PlayTimeline(0);

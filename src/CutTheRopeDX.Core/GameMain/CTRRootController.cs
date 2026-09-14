@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using CutTheRopeDX.Commons;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Diagnostics;
 using CutTheRopeDX.Framework.Platform;
 using CutTheRopeDX.Helpers;
+
+using Microsoft.Extensions.Logging;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -78,6 +82,7 @@ namespace CutTheRopeDX.GameMain
 
             StopGameplayPrefetch();
 
+            long startedTicks = Stopwatch.GetTimestamp();
             string[] levelResources = LevelResourceScanner.GetRequiredResources(map);
             TrackSessionResources(levelResources);
 
@@ -91,6 +96,11 @@ namespace CutTheRopeDX.GameMain
             {
                 SetMapName(newMapName);
             }
+
+            double elapsedMs = Stopwatch.GetElapsedTime(startedTicks).TotalMilliseconds;
+            ILogger logger = Log.For(LogCategories.ContentXml);
+            string memory = MemoryReport.Describe();
+            CTRRootControllerLog.LevelReady(logger, pack, level, newMapName, elapsedMs, memory);
 
             StartBoxResourceScanIfNeeded();
             QueueOrPollBoxPrefetch();
@@ -191,6 +201,9 @@ namespace CutTheRopeDX.GameMain
             resourceMgr.InitLoading();
             resourceMgr.LoadPack(levelResources);
             resourceMgr.StartLoading();
+            ILogger logger = Log.For(LogCategories.ContentXml);
+            string mapName = GetMapName();
+            CTRRootControllerLog.LevelLoadStarted(logger, pack, level, mapName, levelResources.Length);
             ((LoadingController)GetChild(2)).nextController = 0;
             ActivateChild(2);
         }
@@ -211,6 +224,9 @@ namespace CutTheRopeDX.GameMain
             resourceMgr.LoadPack(PackConfig.GetBoxBackgrounds(pack));
             resourceMgr.LoadPack(levelResources);
             resourceMgr.StartLoading();
+            ILogger logger = Log.For(LogCategories.ContentXml);
+            string mapName = GetMapName();
+            CTRRootControllerLog.LevelLoadStarted(logger, pack, level, mapName, levelResources.Length);
             ((LoadingController)GetChild(2)).nextController = 0;
             ActivateChild(2);
         }
@@ -287,7 +303,8 @@ namespace CutTheRopeDX.GameMain
                         {
                             AndroidAPI.DisableBanners();
                         }
-                        LOG();
+                        ILogger logger = Log.For(LogCategories.Application);
+                        CTRRootControllerLog.ShowingMenu(logger);
                         ActivateChild(1);
                         //Show menu presence after loading screen
                         PlatformServices.RichPresence?.MenuPresence();
@@ -314,12 +331,16 @@ namespace CutTheRopeDX.GameMain
                 case 2:
                     {
                         int nextController = ((LoadingController)GetChild(2)).nextController;
+                        long buildStartedTicks = Stopwatch.GetTimestamp();
                         if (nextController == 0)
                         {
                             SetShowGreeting(true);
                             GameController c3 = new(this);
                             AddChildwithID(c3, 3);
                             ActivateChild(3);
+                            ILogger gameBuildLogger = Log.For(LogCategories.Application);
+                            double gameBuildMs = Stopwatch.GetElapsedTime(buildStartedTicks).TotalMilliseconds;
+                            CTRRootControllerLog.ControllerBuilt(gameBuildLogger, "game", gameBuildMs);
                             QueueOrPollBoxPrefetch();
                             return;
                         }
@@ -329,11 +350,21 @@ namespace CutTheRopeDX.GameMain
                         }
                         MenuController menuController3 = new(this);
                         AddChildwithID(menuController3, 1);
+                        // A menu opening on level select shows the current box's cover at once. That
+                        // cover is still loaded, from before the level or from the menu's own batch,
+                        // so freeing it here would only have the menu decode it again in the frame
+                        // that builds it.
+                        int keptCoverPack = nextController is 2 or 4 ? pack : -1;
                         int packCount = CTRPreferences.GetPacksCount();
+                        List<string[]> covers = [];
                         for (int i = 0; i < packCount; i++)
                         {
-                            resourceMgr.FreePack(PackConfig.GetBoxCovers(i));
+                            if (i != keptCoverPack)
+                            {
+                                covers.Add(PackConfig.GetBoxCovers(i));
+                            }
                         }
+                        resourceMgr.FreePacks(covers);
                         if (IS_WVGA)
                         {
                             SetViewTransition(4);
@@ -355,6 +386,9 @@ namespace CutTheRopeDX.GameMain
                         {
                             menuController3.ShowNextPack();
                         }
+                        ILogger menuBuildLogger = Log.For(LogCategories.Application);
+                        double menuBuildMs = Stopwatch.GetElapsedTime(buildStartedTicks).TotalMilliseconds;
+                        CTRRootControllerLog.ControllerBuilt(menuBuildLogger, "menu", menuBuildMs);
                         return;
                     }
                 case 3:
@@ -374,20 +408,28 @@ namespace CutTheRopeDX.GameMain
                         {
                             StopGameplayPrefetch();
                             DeleteChild(3);
-                            resourceMgr.FreePack(PackGame);
-                            resourceMgr.FreePack([.. sessionResources]);
+                            List<string[]> gameplayPacks = [PackGame, [.. sessionResources]];
                             sessionResources.Clear();
                             int packCount = CTRPreferences.GetPacksCount();
                             for (int i = 0; i < packCount; i++)
                             {
-                                resourceMgr.FreePack(PackConfig.GetBoxBackgrounds(i));
+                                gameplayPacks.Add(PackConfig.GetBoxBackgrounds(i));
                             }
+                            resourceMgr.FreePacks(gameplayPacks);
                             resourceMgr.resourcesDelegate = (LoadingController)GetChild(2);
+                            int menuNextController = exitCode != 0 ? exitCode != 1 ? 3 : 2 : 1;
                             resourceMgr.InitLoading();
                             resourceMgr.LoadPack(PackMenu);
+                            if (menuNextController == 2)
+                            {
+                                // The menu opens on level select, which shows this box's cover at
+                                // once. Loading it with the menu keeps it out of the frame that
+                                // builds the menu; one still loaded from before costs nothing.
+                                resourceMgr.LoadPack(PackConfig.GetBoxCovers(pack));
+                            }
                             resourceMgr.StartLoading();
                             LoadingController loadingController = (LoadingController)GetChild(2);
-                            loadingController.nextController = exitCode != 0 ? exitCode != 1 ? 3 : 2 : 1;
+                            loadingController.nextController = menuNextController;
                             ActivateChild(2);
                             //Show menu presence on exit to menu
                             PlatformServices.RichPresence?.MenuPresence();
@@ -565,6 +607,8 @@ namespace CutTheRopeDX.GameMain
                 else
                 {
                     Console.Error.WriteLine(error);
+                    ILogger rejectedLogger = Log.For(LogCategories.Playtest);
+                    PlaytestLog.LevelRejected(rejectedLogger, error);
                 }
 
                 return;
@@ -827,18 +871,34 @@ namespace CutTheRopeDX.GameMain
             null
         ];
 
-        /// <summary>Resource pack loaded for the main menu.</summary>
-        private static readonly string[] PackMenu =
+        /// <summary>
+        /// Main menu image resources, terminated by <see langword="null"/>. Loaded at startup and
+        /// on every return to the menu, and freed when gameplay replaces the menu.
+        /// </summary>
+        /// <remarks>
+        /// Every image the menu controller's constructor reaches for belongs here. Anything left
+        /// out is still decoded and uploaded — just in the single frame that builds the menu,
+        /// after the progress bar has already reported completion, which reads as a freeze on
+        /// slower texture paths like the browser's. It also never gets freed, so it stays in
+        /// memory through gameplay.
+        /// </remarks>
+        internal static readonly string[] PackMenu =
         [
             Resources.Img.MenuBgr,
             Resources.Img.MenuPopup,
             Resources.Img.MenuLogo,
+            Resources.Img.MenuLogoNew,
+            Resources.Img.CutTheRopeDXLogo,
             Resources.Img.MenuLevelUi,
             Resources.Img.MenuPackSelection,
             Resources.Img.MenuPackSelection2,
+            Resources.Img.MenuPackUI,
             Resources.Img.MenuExtraButtons,
             Resources.Img.MenuBgrShadow,
             Resources.Img.MenuBgrXmas,
+            Resources.BackgroundImg.SkinBackground,
+            Resources.Img.SkinSelection,
+            Resources.Img.CandySelectionFx,
             null
         ];
 
@@ -892,5 +952,29 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Timer handle draining the background prefetch queue, or −1 if inactive.</summary>
         private int prefetchDrainTimer = -1;
+    }
+
+    /// <summary>Log messages for the root controller's lifecycle.</summary>
+    internal static partial class CTRRootControllerLog
+    {
+        [LoggerMessage(
+            Level = LogLevel.Information,
+            Message = "Built the {Controller} controller behind the loading screen in {ElapsedMs:F1} ms")]
+        public static partial void ControllerBuilt(ILogger logger, string controller, double elapsedMs);
+
+        [LoggerMessage(Level = LogLevel.Debug, Message = "Loading finished; showing the menu.")]
+        public static partial void ShowingMenu(ILogger logger);
+
+        [LoggerMessage(
+            Level = LogLevel.Information,
+            Message = "Loading level pack {Pack} level {Level} '{MapName}': {ResourceCount} resources")]
+        public static partial void LevelLoadStarted(
+            ILogger logger, int pack, int level, string mapName, int resourceCount);
+
+        [LoggerMessage(
+            Level = LogLevel.Information,
+            Message = "Level pack {Pack} level {Level} '{MapName}' ready in {ElapsedMs:F1} ms; {Memory}")]
+        public static partial void LevelReady(
+            ILogger logger, int pack, int level, string mapName, double elapsedMs, string memory);
     }
 }

@@ -37,6 +37,38 @@ namespace CutTheRopeDX.Framework.Platform
             int height,
             RGBAColor tint);
 
+        /// <summary>
+        /// Starts decoding an image in the background so that loading it later only has to upload
+        /// it. Loading works the same whether or not this was called first.
+        /// </summary>
+        /// <param name="contentPath">Content-relative path, e.g. <c>images/obj_candy</c>.</param>
+        void PrepareImage(string contentPath);
+
+        /// <summary>
+        /// Whether loading an image now would not wait on a background decode: its decode has
+        /// finished, it is already loaded, or nothing is decoding it.
+        /// </summary>
+        /// <param name="contentPath">Content-relative path, e.g. <c>images/obj_candy</c>.</param>
+        /// <returns><see langword="true"/> when loading the image would not block on a decode.</returns>
+        bool IsImageReady(string contentPath);
+
+        /// <summary>
+        /// Drops a prepared image that is no longer wanted. Never releases a loaded texture.
+        /// </summary>
+        /// <param name="contentPath">Content-relative path, e.g. <c>images/obj_candy</c>.</param>
+        void DiscardPreparedImage(string contentPath);
+
+        /// <summary>
+        /// Reports the most decoded pixel memory held for prepared images not yet loaded since the
+        /// last call, and starts the next reading from what is held now.
+        /// </summary>
+        /// <remarks>
+        /// Counts decoded pixels only: not decoder scratch memory, encoded file bytes, or GPU
+        /// textures.
+        /// </remarks>
+        /// <returns>Peak decoded pixel bytes awaiting upload.</returns>
+        long TakePeakPreparedPixelBytes();
+
         /// <summary>Releases the cached content manager backing an image, if any.</summary>
         /// <param name="contentPath">Content-relative path, e.g. <c>images/obj_candy</c>.</param>
         void FreeImage(string contentPath);

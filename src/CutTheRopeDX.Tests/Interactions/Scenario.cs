@@ -413,10 +413,18 @@ namespace CutTheRopeDX.Tests.Interactions
         /// <summary>Adds a lantern.</summary>
         /// <param name="x">Level-space X.</param>
         /// <param name="y">Level-space Y.</param>
+        /// <param name="path">Optional mover path string.</param>
+        /// <param name="moveSpeed">Mover speed for <paramref name="path"/>.</param>
         /// <returns>This scenario.</returns>
-        public Scenario Lantern(int x, int y)
+        public Scenario Lantern(int x, int y, string path = null, float moveSpeed = 0f)
         {
-            return Add(Node("lantern", x, y));
+            XElement lantern = Node("lantern", x, y);
+            if (path != null)
+            {
+                lantern.SetAttributeValue("path", path);
+                lantern.SetAttributeValue("moveSpeed", Num(moveSpeed));
+            }
+            return Add(lantern);
         }
 
         /// <summary>
@@ -546,8 +554,9 @@ namespace CutTheRopeDX.Tests.Interactions
         /// <param name="width">Belt width (thickness) in level units.</param>
         /// <param name="velocity">Belt speed.</param>
         /// <param name="angle">Belt rotation in degrees.</param>
+        /// <param name="manual">Whether the player drags the belt instead of it running on its own.</param>
         /// <returns>This scenario.</returns>
-        public Scenario Conveyor(int x, int y, int length = 120, int width = 20, float velocity = 40f, float angle = 0f)
+        public Scenario Conveyor(int x, int y, int length = 120, int width = 20, float velocity = 40f, float angle = 0f, bool manual = false)
         {
             XElement belt = Node("conveyorBelt", x, y);
             belt.SetAttributeValue("length", Num(length));
@@ -555,7 +564,7 @@ namespace CutTheRopeDX.Tests.Interactions
             belt.SetAttributeValue("angle", Num(angle));
             belt.SetAttributeValue("velocity", Num(velocity));
             belt.SetAttributeValue("direction", "forward");
-            belt.SetAttributeValue("type", "auto");
+            belt.SetAttributeValue("type", manual ? "manual" : "auto");
             return Add(belt);
         }
 

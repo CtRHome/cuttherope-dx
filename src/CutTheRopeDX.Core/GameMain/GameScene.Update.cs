@@ -46,6 +46,7 @@ namespace CutTheRopeDX.GameMain
                 switcher?.Update(delta);
             }
             pauseSwitcherWaves?.Update(delta);
+            SyncBubbleAnimationsToFreeze();
             for (int ti = 0; ti < targets.Count; ti++)
             {
                 TargetContext t = targets[ti];
@@ -145,8 +146,8 @@ namespace CutTheRopeDX.GameMain
                     }
 
                     // A detached suction cup that has been trying to stick for long enough re-sticks,
-                    // but only where there is wall to stick to.
-                    if (rope != null && grab.Mount is SuctionMount mount && mount.TickSticking(delta))
+                    // but only where there is wall to stick to. Its countdown waits out frozen time.
+                    if (rope != null && !timeFrozen && grab.Mount is SuctionMount mount && mount.TickSticking(delta))
                     {
                         if (GameObject.RectInObject(mapOriginX, mapOriginY, mapOriginX + mapWidth, mapOriginY + mapHeight, grab))
                         {
@@ -178,7 +179,14 @@ namespace CutTheRopeDX.GameMain
                     {
                         if (grab.Attachment.IsSimulated)
                         {
-                            UpdateRopeWithAntCarryOverride(rope, delta);
+                            // A rope hanging from a kicked suction cup holds its shape while time is
+                            // frozen. A rope still pinned to the wall keeps simulating around its held
+                            // candy, and a cut piece keeps falling while it fades.
+                            bool kickedRopeHeld = timeFrozen && grab.Mount?.IsMounted == false && rope.cut == -1;
+                            if (!kickedRopeHeld)
+                            {
+                                UpdateRopeWithAntCarryOverride(rope, delta);
+                            }
                             if (grab.Spider is SpiderRider rider && rider.IsAttached)
                             {
                                 if (camera.type != CAMERATYPE.CAMERASPEEDPIXELS || !ignoreTouches)
@@ -479,9 +487,15 @@ namespace CutTheRopeDX.GameMain
             }
             UpdateLightEmitterPhysics();
             UpdateNightStarLighting();
-            conveyors.Update(delta);
+            conveyors.Update(delta, timeFrozen);
 
-            UpdateAntConveyor(delta);
+            // The ants stop marching while time is frozen. Their carry marker has to stop with them:
+            // the candy is pinned, so a marker that kept going would drag it the whole frozen
+            // distance in one frame when time resumes.
+            if (!timeFrozen)
+            {
+                UpdateAntConveyor(delta);
+            }
 
             if (camera.type != CAMERATYPE.CAMERASPEEDPIXELS || !ignoreTouches)
             {
@@ -670,9 +684,16 @@ namespace CutTheRopeDX.GameMain
                 }
 
                 // Only a whole body enters a tube; the body-role table keeps split halves out, so
-                // there is no split carve-out left in the entry gate.
+                // there is no split carve-out left in the entry gate. Frozen time catches nothing: a
+                // held candy never moves, so the entry test would read it as heading in and swallow
+                // it again the moment it came out.
                 foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Transport))
                 {
+                    if (timeFrozen)
+                    {
+                        break;
+                    }
+
                     CandyContext ctx = body.Owner;
                     if (!ctx.Capabilities.CanEnterTransport)
                     {
@@ -693,7 +714,9 @@ namespace CutTheRopeDX.GameMain
 
             foreach (SteamTube steamTube in tubes)
             {
-                if (steamTube != null)
+                // Frozen steam neither puffs nor pushes: the column holds its height and the valve
+                // holds its animation until time resumes.
+                if (steamTube != null && !timeFrozen)
                 {
                     steamTube.Update(delta);
                     if (steamTube.steamState != 3)
@@ -705,12 +728,19 @@ namespace CutTheRopeDX.GameMain
             List<Lantern> lanterns = Lantern.GetAllLanterns();
             foreach (Lantern lantern in lanterns)
             {
-                lantern.Update(delta);
+                // Frozen time holds an empty lantern on its path and lets no lantern take a candy. A
+                // lantern already holding the candy carries on as it would, release tap included.
+                lantern.Update(delta, timeFrozen && lantern.lanternState == Lantern.LanternStateInactive);
 
                 bool lanternInactive = lantern.lanternState == Lantern.LanternStateInactive;
                 bool groupOccupied = AnyCandyInLantern();
                 foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Lantern))
                 {
+                    if (timeFrozen)
+                    {
+                        break;
+                    }
+
                     CandyContext ctx = body.Owner;
                     if (!ctx.Capabilities.CanEnterLantern)
                     {
@@ -805,7 +835,9 @@ namespace CutTheRopeDX.GameMain
             {
                 _ = rotatedCircles.Remove(rotatedCircle6);
             }
-            if (miceManager != null)
+            // Frozen time holds the mice where they are: no animation, no retreat countdown, no
+            // hand-off to the next hole and no new grab.
+            if (miceManager != null && !timeFrozen)
             {
                 miceManager.Update(delta);
 
@@ -974,7 +1006,23 @@ namespace CutTheRopeDX.GameMain
                     {
                         if (carriesCandy && rocket.state == Rocket.STATE_ROCKET_FLY)
                         {
+                            // prevPos too: a frozen point is never integrated, so a candy dragged
+                            // while time is stopped (by a hand's turning arm) would otherwise leave
+                            // prevPos behind, and the first running frame would replay the whole
+                            // drag as one frame of velocity.
                             rocket.point.pos = rocketStar.pos;
+                            rocket.point.prevPos = rocketStar.pos;
+                        }
+                        if (carriesCandy)
+                        {
+                            // The body still follows its candy's heading, so a candy turned by a
+                            // hand while time is stopped does not leave the rocket pointing the old
+                            // way. Same formula as the running path, rope alignment included.
+                            float heading = AngleTo0_360(rocket.startRotation + rocketCandyMain.rotation - rocket.startCandyRotation);
+                            rocket.rotation = rocket.state == Rocket.STATE_ROCKET_FLY
+                                ? heading + rocket.additionalAngle
+                                : heading;
+                            rocket.UpdateRotation();
                         }
                         continue;
                     }
@@ -1329,7 +1377,8 @@ namespace CutTheRopeDX.GameMain
                     body.Point.ApplyImpulseDelta(Vect(-body.Point.v.X / damping, (-body.Point.v.Y / damping) + verticalWaterImpulse), delta);
                 }
             }
-            if (waterLayer != null && bungees != null)
+            // Water only ever pushes a kicked cup's anchor, and that rope holds still while frozen.
+            if (waterLayer != null && bungees != null && !timeFrozen)
             {
                 foreach (Grab grab in bungees)
                 {

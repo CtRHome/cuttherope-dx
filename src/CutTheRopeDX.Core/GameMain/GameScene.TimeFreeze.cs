@@ -1,6 +1,7 @@
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Physics;
+using CutTheRopeDX.Framework.Visual;
 using CutTheRopeDX.GameMain.Tutorials;
 
 namespace CutTheRopeDX.GameMain
@@ -42,6 +43,10 @@ namespace CutTheRopeDX.GameMain
         {
             timeFrozen = !timeFrozen;
             particlesAniPool.updateable = !timeFrozen;
+            foreach (Rocket rocket in rockets ?? [])
+            {
+                rocket?.SetExhaustHidden(timeFrozen);
+            }
             if (timeFrozen)
             {
                 switcher.ShowFrozen();
@@ -58,6 +63,77 @@ namespace CutTheRopeDX.GameMain
             }
 
             tutorialDirector.Fire(timeFrozen ? TutorialEvent.TimeFreeze : TutorialEvent.TimeUnfreeze);
+        }
+
+        /// <summary>
+        /// Stops or restarts every bubble overlay's animation to match the freeze, leaving the rest of
+        /// each candy animating. Time Travel flips the same updateable flag on a bubbled candy's
+        /// bubble when the pause switcher toggles; applying it every step also covers a body that
+        /// splits or comes back from transport while time is stopped.
+        /// </summary>
+        private void SyncBubbleAnimationsToFreeze()
+        {
+            bool running = !timeFrozen;
+            foreach (CandyContext ctx in candies)
+            {
+                SetBubbleAnimationsUpdateable(ctx.WholeBody, running);
+                if (ctx.Lifecycle.Split is SplitCandyState split)
+                {
+                    foreach (CandyBody half in split.SurvivingBodies)
+                    {
+                        SetBubbleAnimationsUpdateable(half, running);
+                    }
+                }
+
+                // A bulb draws its own bubble overlays rather than handing them to its body.
+                if (ctx.LightBulb is LightBulb bulb)
+                {
+                    bulb.BubbleAnimation.updateable = running;
+                    HoldGhostBubbleFrames(bulb.GhostBubbleAnimation, !running);
+                }
+            }
+        }
+
+        /// <summary>Sets whether a body's bubble and ghost-bubble animations advance.</summary>
+        /// <param name="body">The body whose overlays to set, or <see langword="null"/>.</param>
+        /// <param name="updateable">Whether the overlays advance.</param>
+        private static void SetBubbleAnimationsUpdateable(CandyBody body, bool updateable)
+        {
+            if (body == null)
+            {
+                return;
+            }
+
+            _ = (body.BubbleAnimation?.updateable = updateable);
+            HoldGhostBubbleFrames(body.GhostBubbleAnimation, !updateable);
+        }
+
+        /// <summary>
+        /// Holds or resumes a ghost bubble's own frames while its drifting clouds keep animating.
+        /// The clouds are children of the ghost bubble, so the overlay stays updateable and only
+        /// its current timeline is paused.
+        /// </summary>
+        /// <param name="ghost">The ghost-bubble overlay, or <see langword="null"/>.</param>
+        /// <param name="held">Whether the bubble frames hold still.</param>
+        private static void HoldGhostBubbleFrames(CandyInGhostBubbleAnimation ghost, bool held)
+        {
+            if (ghost == null)
+            {
+                return;
+            }
+
+            ghost.updateable = true;
+            Timeline frames = ghost.GetCurrentTimeline();
+            if (held && frames?.state == Timeline.TimelineState.TIMELINE_PLAYING)
+            {
+                frames.PauseTimeline();
+            }
+            else if (!held && frames?.state == Timeline.TimelineState.TIMELINE_PAUSED)
+            {
+                // Resuming from a pause continues where the frames stopped; starting any other
+                // state would rewind them.
+                frames.PlayTimeline();
+            }
         }
 
         /// <summary>Silences looping sounds whose gameplay sources stop when time is frozen.</summary>

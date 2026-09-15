@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
@@ -88,7 +89,7 @@ namespace CutTheRopeDX.Tests
         }
 
         [Fact]
-        public void FrozenAxeStopsPhysicsAndBladeSpinButKeepsBubbleAnimationAdvancing()
+        public void FrozenAxeHoldsItsBladeSpinAndBubbleAnimation()
         {
             GameScene scene = Scenario.New()
                 .Candy(60, 100)
@@ -106,12 +107,14 @@ namespace CutTheRopeDX.Tests
             HeadlessGame.StepFrames(scene, 4);
 
             Assert.Equal(rotation, axe.GetChild(1).rotation);
-            Assert.NotEqual(bubbleTime, axe.bubbleAnimation.GetTimeline(0).time);
+            Assert.Equal(bubbleTime, axe.bubbleAnimation.GetTimeline(0).time);
         }
 
         [Fact]
-        public void FrozenCandyBubbleAnimationKeepsAdvancing()
+        public void FrozenCandyBubbleAnimationHoldsItsFrameUntilTimeResumes()
         {
+            // Time Travel clears the updateable flag on a bubbled candy's bubble animation when the
+            // pause switcher stops time, and sets it again when time resumes.
             GameScene scene = Scenario.New()
                 .Candy(160, 200)
                 .Bubble(160, 200)
@@ -125,6 +128,11 @@ namespace CutTheRopeDX.Tests
             float before = timeline.time;
 
             HeadlessGame.StepFrames(scene, 4);
+
+            Assert.Equal(before, timeline.time);
+
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
 
             Assert.NotEqual(before, timeline.time);
         }
@@ -500,6 +508,449 @@ namespace CutTheRopeDX.Tests
             _ = scene.TouchUpXYIndex(end.X, end.Y, 0);
 
             Assert.NotEqual(-1, rope.cut);
+        }
+
+        [Fact]
+        public void BambooTubeDoesNotCatchTheCandyAgainWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .BambooTube(20, 40, TubeMouth.CatchesFalling)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Act.EnterBambooTube(scene, candy, TubeMouth.CatchesFalling);
+            Freeze(scene);
+
+            // A candy already inside comes out on its own timer, as a sock's does in Time Travel.
+            Assert.True(Interaction.StepUntil(scene, () => candy.Lifecycle.Transport?.BambooTube == null));
+            HeadlessGame.StepFrames(scene, 60);
+
+            Assert.Null(candy.Lifecycle.Transport?.BambooTube);
+        }
+
+        [Fact]
+        public void CarryingMouseHoldsTheCandyInPlaceWhileFrozen()
+        {
+            // A short stay makes an unfrozen mouse retreat and hand the candy to the second hole
+            // well inside the frozen window.
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Mouse(160, 200, activeTime: 1f)
+                .Mouse(260, 100, index: 2, activeTime: 1f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Mouse mouse = Act.CarryByMouse(scene, candy);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+            Vector frozenAt = candy.WholeBody.Point.pos;
+
+            HeadlessGame.StepFrames(scene, 120);
+
+            Assert.True(mouse.IsActive);
+            Assert.True(scene.MouseCarries(candy));
+            Assert.Equal(frozenAt.X, candy.WholeBody.Point.pos.X, 3);
+            Assert.Equal(frozenAt.Y, candy.WholeBody.Point.pos.Y, 3);
+        }
+
+        [Fact]
+        public void MouseDoesNotGrabFrozenCandy()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 190)
+                .OmNom(20, 460)
+                .Mouse(160, 200)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Freeze(scene);
+
+            HeadlessGame.StepFrames(scene, 60);
+
+            Assert.False(scene.MouseCarries(candy));
+        }
+
+        [Fact]
+        public void AntsDoNotCarryTheCandyOnWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(120, 200)
+                .OmNom(20, 460)
+                .Ants(100, 200, path: "200,0")
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Act.CarryByAnts(scene, candy);
+            HeadlessGame.StepFrames(scene, 5);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+            CandyAttachments attachments = candy.Lifecycle.Attachments;
+            Vector marker = attachments.AntInteractionPoint;
+            float carryTime = attachments.AntInteractionTime;
+            Vector frozenAt = candy.WholeBody.Point.pos;
+
+            HeadlessGame.StepFrames(scene, 120);
+
+            Assert.Equal(marker, attachments.AntInteractionPoint);
+            Assert.Equal(carryTime, attachments.AntInteractionTime);
+
+            // Had the marker kept marching, the candy would snap the whole frozen distance at once.
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+
+            Assert.True(VectLength(VectSub(candy.WholeBody.Point.pos, frozenAt)) < 10f);
+        }
+
+        [Fact]
+        public void AutomaticConveyorStopsCarryingItsItemsWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .OmNom(20, 460)
+                .Conveyor(160, 300, length: 160, velocity: 40f)
+                .Star(200, 300)
+                .PauseSwitcher(300, 460)
+                .Build();
+            HeadlessGame.StepFrames(scene, 5);
+            Star star = scene.Stars()[0];
+            _ = Assert.Single(scene.Conveyors().Iterator().First().BoundObjects);
+            Freeze(scene);
+            float frozenAt = star.x;
+
+            HeadlessGame.StepFrames(scene, 60);
+
+            Assert.Equal(frozenAt, star.x, 3);
+        }
+
+        [Fact]
+        public void ManualConveyorStillDragsAndCoastsWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .OmNom(20, 460)
+                .Conveyor(160, 300, length: 160, manual: true)
+                .Star(200, 300)
+                .PauseSwitcher(300, 460)
+                .Build();
+            HeadlessGame.StepFrames(scene, 5);
+            Star star = scene.Stars()[0];
+            Freeze(scene);
+            Vector grip = scene.ScreenPositionOf(star);
+            float before = star.x;
+
+            Assert.True(scene.TouchDownXYIndex(grip.X, grip.Y, 1));
+            for (int step = 1; step <= 6; step++)
+            {
+                _ = scene.TouchMoveXYIndex(grip.X + (step * 15f), grip.Y, 1);
+                HeadlessGame.StepFrames(scene, 1);
+            }
+            float dragged = star.x;
+            _ = scene.TouchUpXYIndex(grip.X + 120f, grip.Y, 1);
+            HeadlessGame.StepFrames(scene, 10);
+
+            Assert.True(dragged > before);
+            Assert.True(star.x > dragged);
+        }
+
+        [Fact]
+        public void SteamColumnHoldsStillWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .OmNom(20, 460)
+                .SteamTube(160, 300)
+                .PauseSwitcher(300, 460)
+                .Build();
+            SteamTube tube = scene.SteamTubes()[0];
+            HeadlessGame.StepFrames(scene, 5);
+            Freeze(scene);
+            float height = tube.GetCurrentHeightModulated();
+
+            HeadlessGame.StepFrames(scene, 30);
+
+            Assert.Equal(height, tube.GetCurrentHeightModulated());
+        }
+
+        [Fact]
+        public void SteamValveIgnoresTapsWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .OmNom(20, 460)
+                .SteamTube(160, 300)
+                .PauseSwitcher(300, 460)
+                .Build();
+            SteamTube tube = scene.SteamTubes()[0];
+            Vector valve = scene.ScreenPositionOf(new Vector(tube.x, tube.y + (28f * tube.GetHeightScale())));
+            int state = tube.steamState;
+            Freeze(scene);
+
+            _ = scene.TouchDownXYIndex(valve.X, valve.Y, 1);
+            _ = scene.TouchUpXYIndex(valve.X, valve.Y, 1);
+
+            Assert.Equal(state, tube.steamState);
+
+            Freeze(scene);
+            _ = scene.TouchDownXYIndex(valve.X, valve.Y, 1);
+            _ = scene.TouchUpXYIndex(valve.X, valve.Y, 1);
+
+            Assert.NotEqual(state, tube.steamState);
+        }
+
+        [Fact]
+        public void LanternDoesNotCaptureCandyWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Lantern(40, 40)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Interaction.Hover(candy);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+            Act.MoveTo(Lantern.GetAllLanterns()[0], candy.WholeBody.Point.pos);
+
+            HeadlessGame.StepFrames(scene, 10);
+
+            Assert.False(candy.Lifecycle.Attachments.InLantern);
+        }
+
+        [Fact]
+        public void EmptyLanternHoldsItsPathWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .OmNom(20, 460)
+                .Lantern(160, 200, path: "80,0", moveSpeed: 30f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            Lantern lantern = Lantern.GetAllLanterns()[0];
+            HeadlessGame.StepFrames(scene, 5);
+            Freeze(scene);
+            Vector frozenAt = new(lantern.x, lantern.y);
+
+            HeadlessGame.StepFrames(scene, 60);
+
+            Assert.Equal(frozenAt, new Vector(lantern.x, lantern.y));
+        }
+
+        [Fact]
+        public void RocketCandyMovedWhileFrozenDoesNotLurchWhenTimeResumes()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Rocket(160, 200, impulse: 0f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Rocket rocket = Act.BindRocket(scene, candy);
+            Assert.Equal(Rocket.STATE_ROCKET_FLY, rocket.state);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+
+            // A hand turning its arm drags a held candy like this while time is frozen: position and
+            // previous position move together, so the candy itself carries no velocity.
+            ConstraintedPoint point = candy.WholeBody.Point;
+            Vector heldAt = new(point.pos.X - 120f, point.pos.Y - 120f);
+            point.pos = heldAt;
+            point.prevPos = heldAt;
+            HeadlessGame.StepFrames(scene, 10);
+
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+
+            Assert.True(VectLength(VectSub(point.pos, heldAt)) < 10f);
+        }
+
+        [Fact]
+        public void FlyingRocketTurnsWithItsCandyWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Rocket(160, 200, impulse: 0f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Rocket rocket = Act.BindRocket(scene, candy);
+            Assert.Equal(Rocket.STATE_ROCKET_FLY, rocket.state);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+            float before = rocket.rotation;
+
+            // A hand's rotating arm turns a held candy while time is frozen.
+            candy.WholeBody.Main.rotation += 90f;
+            HeadlessGame.StepFrames(scene, 2);
+
+            float expected = (before + 90f) % 360f;
+            Assert.Equal(expected < 0f ? expected + 360f : expected, rocket.rotation, 2);
+        }
+
+        [Fact]
+        public void FlyingRocketHidesItsExhaustWhileFrozen()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Rocket(160, 200, time: 2f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            Rocket rocket = Act.BindRocket(scene, scene.Candy());
+            Assert.NotNull(rocket.particles);
+            Assert.NotNull(rocket.cloudParticles);
+            Assert.False(rocket.ExhaustHidden);
+
+            Freeze(scene);
+
+            Assert.True(rocket.ExhaustHidden);
+            Assert.False(rocket.particles.visible);
+            Assert.False(rocket.cloudParticles.visible);
+
+            Freeze(scene);
+
+            Assert.False(rocket.ExhaustHidden);
+            Assert.True(rocket.particles.visible);
+            Assert.True(rocket.cloudParticles.visible);
+        }
+
+        [Fact]
+        public void FrozenGhostBubbleHoldsItsBubbleButKeepsItsCloudsDrifting()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(160, 440)
+                .PauseSwitcher(60, 440)
+                .Build();
+            CandyInGhostBubbleAnimation ghost = scene.Candy().WholeBody.GhostBubbleAnimation;
+            Freeze(scene);
+            float bubbleTime = ghost.GetTimeline(0).time;
+            float cloudTime = ghost.backCloud.GetTimeline(0).time;
+
+            HeadlessGame.StepFrames(scene, 4);
+
+            Assert.Equal(bubbleTime, ghost.GetTimeline(0).time);
+            Assert.NotEqual(cloudTime, ghost.backCloud.GetTimeline(0).time);
+        }
+
+        [Fact]
+        public void FrozenLightBulbBubbleAnimationHoldsItsFrame()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(40, 40)
+                .LightBulb(160, 200)
+                .Bubble(160, 200)
+                .OmNom(20, 460)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext bulb = Assert.Single(scene.Candies(), context => context.LightBulb != null);
+            _ = Act.CaptureInBubble(scene, bulb);
+            Freeze(scene);
+            Timeline timeline = bulb.LightBulb.BubbleAnimation.GetTimeline(0);
+            float before = timeline.time;
+
+            HeadlessGame.StepFrames(scene, 4);
+
+            Assert.Equal(before, timeline.time);
+        }
+
+        [Fact]
+        public void RocketExhaustComesBackWhereTheRocketIsWhenTimeResumes()
+        {
+            GameScene scene = Scenario.New()
+                .Candy(160, 200)
+                .OmNom(20, 460)
+                .Rocket(160, 200, impulse: 0f)
+                .PauseSwitcher(300, 460)
+                .Build();
+            CandyContext candy = scene.Candy();
+            Rocket rocket = Act.BindRocket(scene, candy);
+            HeadlessGame.StepFrames(scene, 2);
+            float flameX = rocket.container.x;
+            float sparksX = rocket.particles.x;
+            float cloudsX = rocket.cloudParticles.x;
+            Freeze(scene);
+
+            // Particles already in the air belong to where the rocket was; they must not reappear.
+            Assert.Equal(0, rocket.particles.particleCount);
+            Assert.Equal(0, rocket.particles.particleIdx);
+            Assert.Equal(0, rocket.cloudParticles.particleCount);
+            Assert.Equal(0, rocket.cloudParticles.particleIdx);
+
+            ConstraintedPoint point = candy.WholeBody.Point;
+            Vector heldAt = new(point.pos.X - 120f, point.pos.Y);
+            point.pos = heldAt;
+            point.prevPos = heldAt;
+            HeadlessGame.StepFrames(scene, 5);
+
+            // Unfreezing can be drawn before the next update runs, so the exhaust has to be moved
+            // onto the rocket at the moment it is shown again.
+            Freeze(scene);
+
+            Assert.Equal(flameX - 120f, rocket.container.x, 1);
+            Assert.Equal(sparksX - 120f, rocket.particles.x, 1);
+            Assert.Equal(cloudsX - 120f, rocket.cloudParticles.x, 1);
+        }
+
+        [Fact]
+        public void KickedSuctionCupRopeHoldsStillWhileFrozen()
+        {
+            (GameScene scene, Grab hook) = FrozenKickedCup();
+            Bungee rope = hook.Rope;
+            ConstraintedPoint middle = rope.parts[rope.parts.Count / 2];
+            Vector anchor = rope.bungeeAnchor.pos;
+            Vector middleAt = middle.pos;
+
+            HeadlessGame.StepFrames(scene, 30);
+
+            Assert.Equal(anchor, rope.bungeeAnchor.pos);
+            Assert.Equal(middleAt, middle.pos);
+        }
+
+        [Fact]
+        public void KickedSuctionCupDoesNotReStickWhileFrozen()
+        {
+            (GameScene scene, Grab hook) = FrozenKickedCup();
+            hook.Mount.BeginSticking();
+
+            HeadlessGame.StepFrames(scene, (int)(Grab.STICK_DELAY / 0.016f) + 10);
+
+            Assert.False(hook.Mount.IsMounted);
+            Assert.Equal(0f, hook.Mount.StickTimer);
+        }
+
+        [Fact]
+        public void PumpDoesNotBlowAKickedSuctionCupWhileFrozen()
+        {
+            (GameScene scene, Grab hook) = FrozenKickedCup(withPump: true);
+            Pump pump = scene.Pumps()[0];
+            Act.MoveTo(pump, new Vector(hook.x, hook.y + 60f));
+            Vector anchor = hook.Rope.bungeeAnchor.pos;
+
+            scene.OperatePump(pump);
+
+            Assert.Equal(anchor, hook.Rope.bungeeAnchor.pos);
+        }
+
+        private static (GameScene Scene, Grab Hook) FrozenKickedCup(bool withPump = false)
+        {
+            Scenario scenario = Scenario.New()
+                .Candy(160, 260, "first")
+                .Grab(160, 120, length: 100, kickable: true, kicked: true, candyNumber: "first")
+                .OmNom(20, 460)
+                .PauseSwitcher(300, 460);
+            GameScene scene = (withPump ? scenario.Pump(40, 40) : scenario).Build();
+            Grab hook = Assert.Single(scene.Grabs(), grab => grab.Mount != null);
+            Assert.False(hook.Mount.IsMounted);
+            HeadlessGame.StepFrames(scene, 3);
+            Freeze(scene);
+            HeadlessGame.StepFrames(scene, 1);
+            return (scene, hook);
         }
 
         [Fact]

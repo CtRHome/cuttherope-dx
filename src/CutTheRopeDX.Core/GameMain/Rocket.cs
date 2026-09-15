@@ -104,6 +104,14 @@ namespace CutTheRopeDX.GameMain
             point.Update(delta);
             SyncPointToMover();
             container.Update(delta);
+            SyncExhaustToRocket();
+        }
+
+        /// <summary>
+        /// Places the flame and both exhaust emitters on the rocket's current position and heading.
+        /// </summary>
+        private void SyncExhaustToRocket()
+        {
             container.rotation = rotation;
             container.x = x;
             container.y = y;
@@ -203,9 +211,57 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public override void Draw()
         {
-            container.Draw();
+            if (!ExhaustHidden)
+            {
+                container.Draw();
+            }
             base.Draw();
         }
+
+        /// <summary>
+        /// Hides or restores the flame and both exhaust trails. Frozen time turns the exhaust off
+        /// rather than leaving it hanging where the rocket was when time stopped.
+        /// </summary>
+        /// <remarks>
+        /// The flame is skipped at draw time instead of having its visibility cleared, because an
+        /// idle rocket already keeps its flame disabled and restoring visibility would light it.
+        /// </remarks>
+        /// <param name="hidden"><see langword="true"/> to hide the exhaust.</param>
+        public void SetExhaustHidden(bool hidden)
+        {
+            ExhaustHidden = hidden;
+            if (hidden)
+            {
+                // Puffs already in the air mark where the rocket was when time stopped; left in place
+                // they would reappear there once time resumes.
+                ClearParticles(particles);
+                ClearParticles(cloudParticles);
+            }
+            else
+            {
+                // The exhaust can be drawn before the next update runs, so it is moved onto the
+                // rocket as it is shown instead of at its old spot for a frame.
+                SyncExhaustToRocket();
+            }
+            _ = (particles?.visible = !hidden);
+            _ = (cloudParticles?.visible = !hidden);
+        }
+
+        /// <summary>Removes every live particle from an exhaust trail, drawn quads included.</summary>
+        /// <param name="trail">The trail to clear, or <see langword="null"/>.</param>
+        private static void ClearParticles(Particles trail)
+        {
+            if (trail == null)
+            {
+                return;
+            }
+
+            trail.particleCount = 0;
+            trail.particleIdx = 0;
+        }
+
+        /// <summary>Gets whether the flame and exhaust trails are hidden while time is frozen.</summary>
+        public bool ExhaustHidden { get; private set; }
 
         /// <inheritdoc />
         public void TimelinereachedKeyFramewithIndex(Timeline t, KeyFrame k, int i)

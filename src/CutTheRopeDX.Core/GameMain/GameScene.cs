@@ -532,6 +532,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             CTRRectangle viewport = snapshot.VisibleBounds;
+            easterEggScreen = viewport;
             if (pauseSwitcherWaves != null)
             {
                 pauseSwitcherWaves.x = viewport.x;
@@ -1022,6 +1023,53 @@ namespace CutTheRopeDX.GameMain
         /// <summary>All Om Noms in the level. Single-target packs hold one element.</summary>
         private readonly List<TargetContext> targets = [];
 #pragma warning restore IDE0052
+
+        /// <summary>The vector Om Nom a tap on the target plays over the frozen level.</summary>
+        private readonly EasterEggOmNom easterEgg = new();
+
+        /// <summary>The visible screen region the easter egg's dim covers.</summary>
+        private CTRRectangle easterEggScreen = new(0f, 0f, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        /// <summary>True while a press that began on Om Nom is waiting for its release.</summary>
+        private bool overOmNom;
+
+        /// <summary>
+        /// Gets a value indicating whether the primary Om Nom wears the classic skin, the only one
+        /// the vector artwork depicts, so the only one whose tap plays the easter egg.
+        /// </summary>
+        private bool EasterEggMatchesTarget =>
+            targetObject != null && targetAnimationController?.SkinDefinition == null;
+
+        /// <summary>Gets a value indicating whether the easter egg is holding the level.</summary>
+        internal bool EasterEggHoldsLevel => easterEgg.FreezesGameplay;
+
+        /// <summary>
+        /// Spends a press on the easter egg while it holds the level: it dismisses the egg once Om
+        /// Nom is showing, and is swallowed while only the dim is fading up.
+        /// </summary>
+        /// <returns><see langword="true"/> when the egg took the press.</returns>
+        internal bool DismissEasterEgg()
+        {
+            if (!easterEgg.FreezesGameplay)
+            {
+                return false;
+            }
+            _ = easterEgg.Cancel();
+            return true;
+        }
+
+        /// <summary>Removes the easter egg at once, with no closing fade.</summary>
+        internal void ClearEasterEgg()
+        {
+            easterEgg.Clear();
+            overOmNom = false;
+        }
+
+        /// <summary>Draws the easter egg in screen space, over everything drawn before it.</summary>
+        internal void DrawEasterEgg()
+        {
+            easterEgg.Draw(easterEggScreen);
+        }
 
         /// <summary>True once the first &lt;candy&gt; element has claimed the pre-built primary candy (candies[0]).</summary>
         private bool primaryCandyClaimed;

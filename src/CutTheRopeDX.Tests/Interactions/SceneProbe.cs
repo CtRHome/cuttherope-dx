@@ -104,6 +104,67 @@ namespace CutTheRopeDX.Tests.Interactions
             return Field<bool>(scene, "timeFrozen");
         }
 
+        /// <summary>Whether the easter egg is on screen.</summary>
+        /// <param name="scene">Scene to read.</param>
+        /// <returns><see langword="true"/> while the egg is drawing.</returns>
+        public static bool IsEasterEggPlaying(this GameScene scene)
+        {
+            return Field<EasterEggOmNom>(scene, "easterEgg").IsActive;
+        }
+
+        /// <summary>Sets the chance that a tap on Om Nom plays the easter egg.</summary>
+        /// <param name="scene">Scene to change.</param>
+        /// <param name="chance">0 never plays it, 1 always does.</param>
+        public static void SetEasterEggChance(this GameScene scene, float chance)
+        {
+            Field<EasterEggOmNom>(scene, "easterEgg").TriggerChance = chance;
+        }
+
+        /// <summary>A screen point an Om Nom's own hit test agrees is on him.</summary>
+        /// <param name="scene">Scene to read.</param>
+        /// <param name="index">Which Om Nom, in load order; 0 is the primary one.</param>
+        /// <returns>The point in the input API's screen coordinates.</returns>
+        public static Vector OmNomTapPoint(this GameScene scene, int index = 0)
+        {
+            GameObject target = scene.Targets()[index].targetObject;
+
+            // Walk outward from the anchor until the object's own test accepts a point. The
+            // anchor is not guaranteed to sit inside the drawn quad.
+            for (int radius = 0; radius <= 200; radius += 4)
+            {
+                for (int dx = -radius; dx <= radius; dx += 4)
+                {
+                    for (int dy = -radius; dy <= radius; dy += 4)
+                    {
+                        if (target.PointInDrawQuad(target.x + dx, target.y + dy))
+                        {
+                            return scene.ScreenPositionOf(new Vector(target.x + dx, target.y + dy));
+                        }
+                    }
+                }
+            }
+
+            Assert.Fail("no point on Om Nom's draw quad was found");
+            return default;
+        }
+
+        /// <summary>Presses and releases on Om Nom, which starts the easter egg.</summary>
+        /// <param name="scene">Scene to tap.</param>
+        public static void TapOmNom(this GameScene scene)
+        {
+            Vector point = scene.OmNomTapPoint();
+            _ = scene.TouchDownXYIndex(point.X, point.Y, 0);
+            _ = scene.TouchUpXYIndex(point.X, point.Y, 0);
+        }
+
+        /// <summary>The primary Om Nom.</summary>
+        /// <param name="scene">Scene to read.</param>
+        /// <returns>The scene's first target object.</returns>
+        public static GameObject OmNomTarget(this GameScene scene)
+        {
+            return scene.Targets()[0].targetObject;
+        }
+
         /// <summary>Whether the opening camera pan is still in flight.</summary>
         /// <param name="scene">Scene to read.</param>
         /// <returns><see langword="true"/> while the pan is still travelling.</returns>

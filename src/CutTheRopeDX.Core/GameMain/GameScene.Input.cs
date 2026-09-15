@@ -88,6 +88,14 @@ namespace CutTheRopeDX.GameMain
                 gesture.Begin(Vect(tx, ty), camera.ScreenToWorld(tx, ty));
                 return true;
             }
+            // Every press starts unlatched, so a press whose release another handler consumed
+            // cannot leave the egg armed for a later release.
+            overOmNom = false;
+            // While the egg holds the level, a press anywhere goes to it and nowhere else.
+            if (DismissEasterEgg())
+            {
+                return true;
+            }
             if (ignoreTouches)
             {
                 if (camera.type == CAMERATYPE.CAMERASPEEDPIXELS)
@@ -443,6 +451,12 @@ namespace CutTheRopeDX.GameMain
                     _ = CutWithRazorOrLine1Line2Immediate(null, s, s, false);
                 }
             }
+            // Checked last so the egg can never shadow a rope cut or a grab.
+            if (EasterEggMatchesTarget
+                && targetObject.PointInDrawQuad(camera.ScreenToWorldX(tx), camera.ScreenToWorldY(ty)))
+            {
+                overOmNom = true;
+            }
             return true;
         }
 
@@ -604,6 +618,15 @@ namespace CutTheRopeDX.GameMain
                 }
             }
             _ = conveyors.OnPointerUp(camera.ScreenToWorldX(tx), camera.ScreenToWorldY(ty), ti);
+            if (overOmNom)
+            {
+                overOmNom = false;
+                if (EasterEggMatchesTarget
+                    && targetObject.PointInDrawQuad(camera.ScreenToWorldX(tx), camera.ScreenToWorldY(ty)))
+                {
+                    _ = easterEgg.TryTrigger();
+                }
+            }
             return true;
         }
 

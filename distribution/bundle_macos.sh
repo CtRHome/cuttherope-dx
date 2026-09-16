@@ -42,7 +42,7 @@ if [ -z "$USE_AOT" ]; then
     esac
 fi
 
-echo "=== Building Cut The Rope: DX v$VERSION for macOS (NativeAOT: $USE_AOT) ==="
+echo "=== Building Cut the Rope DX v$VERSION for macOS (NativeAOT: $USE_AOT) ==="
 
 # =========================
 # Step 1: Build the application
@@ -96,6 +96,10 @@ else
   echo "Warning: icon not found at $ICON_SOURCE"
 fi
 
+# Localized display name; see the comment in the strings file
+mkdir -p "$APP_DIR/Contents/Resources/en.lproj"
+cp "$SCRIPT_DIR/macos/en.lproj/InfoPlist.strings" "$APP_DIR/Contents/Resources/en.lproj/"
+
 # Write Info.plist
 sed -e "s/{{APP_NAME}}/$APP_NAME/g" \
     -e "s/{{BUNDLE_ID}}/$BUNDLE_ID/g" \
@@ -133,7 +137,9 @@ echo "[5/5] Packaging .dmg archive..."
 
 RELEASE_DIR="$PROJECT_ROOT/src/CutTheRopeDX.Desktop/bin/release_github"
 mkdir -p "$RELEASE_DIR"
-ARCHIVE_NAME="CutTheRopeDX-v${VERSION}-macOS-arm64-ffmpeg.dmg"
+# "+" in a prerelease version is not kept in GitHub asset names, so file names use "_".
+FILE_VERSION=$(printf '%s' "$VERSION" | tr '+' '_')
+ARCHIVE_NAME="CutTheRopeDX-v${FILE_VERSION}-macOS-arm64-ffmpeg.dmg"
 ARCHIVE_PATH="$RELEASE_DIR/$ARCHIVE_NAME"
 
 # Remove old archive if exists

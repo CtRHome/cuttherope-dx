@@ -57,7 +57,8 @@ def create_dmg(version: str) -> None:
 
     RELEASE_DIR.mkdir(parents=True, exist_ok=True)
 
-    dmg_name = f"CutTheRopeDX-v{version}-macOS-arm64-avfoundation.dmg"
+    # "+" in a prerelease version is not kept in GitHub asset names, so file names use "_".
+    dmg_name = f"CutTheRopeDX-v{version.replace('+', '_')}-macOS-arm64-avfoundation.dmg"
     dmg_path = RELEASE_DIR / dmg_name
     volume_name = f"Cut the Rope DX {version}"
 
@@ -119,7 +120,7 @@ def resolve_options() -> tuple[str, bool]:
         print("Usage: release_macos_tahoe.py <version> [--no-aot]", file=sys.stderr)
         sys.exit(1)
 
-    version = input("Version (e.g. 2.12.0.1): ").strip()
+    version = input("Version (e.g. 2.30.0): ").strip()
     if not version:
         print("Version is required.", file=sys.stderr)
         sys.exit(1)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for creating a .deb package for Cut The Rope: DX
+# Build script for creating a .deb package for Cut the Rope DX
 # Usage: `./build_deb.sh [version]` or `bash build_deb.sh [version]`
 #
 # Requirements:
@@ -12,10 +12,10 @@ set -e
 
 # Configuration
 APP_NAME="cuttherope-dx"
-APP_DISPLAY_NAME="Cut The Rope: DX"
+APP_DISPLAY_NAME="Cut the Rope DX"
 ARCHITECTURE="amd64"
 MAINTAINER="yell0wsuit"
-DESCRIPTION="Cut the Rope: DX, a fan-made enhancement of the PC version of Cut the Rope."
+DESCRIPTION="Cut the Rope DX, a fan-made enhancement of the PC version of Cut the Rope."
 
 # What the shipped natives link against, read off their ELF DT_NEEDED entries rather than
 # guessed: libSkiaSharp.so needs libfontconfig.so.1 and libstdc++.so.6, and a missing one
@@ -39,9 +39,11 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
-DEB_ROOT="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCHITECTURE}"
+# "+" in a prerelease version is not kept in GitHub asset names, so file names use "_".
+FILE_VERSION="${VERSION//+/_}"
+DEB_ROOT="$BUILD_DIR/${APP_NAME}_${FILE_VERSION}_${ARCHITECTURE}"
 
-echo "=== Building Cut The Rope: DX v$VERSION .deb ==="
+echo "=== Building Cut the Rope DX v$VERSION .deb ==="
 
 # Step 1: Build the application
 echo "[1/5] Building Linux x64 release..."
@@ -131,12 +133,12 @@ echo "[5/5] Building .deb package..."
 dpkg-deb --build --root-owner-group "$DEB_ROOT"
 
 # Move to Publish folder
-mv "$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCHITECTURE}.deb" "$PUBLISH_DIR/"
+mv "$BUILD_DIR/${APP_NAME}_${FILE_VERSION}_${ARCHITECTURE}.deb" "$PUBLISH_DIR/"
 
 # Cleanup
 rm -rf "$BUILD_DIR"
 
-DEB_FILE="$PUBLISH_DIR/${APP_NAME}_${VERSION}_${ARCHITECTURE}.deb"
+DEB_FILE="$PUBLISH_DIR/${APP_NAME}_${FILE_VERSION}_${ARCHITECTURE}.deb"
 DEB_SIZE=$(ls -lh "$DEB_FILE" | awk '{print $5}')
 
 # Copy to release_github
@@ -149,5 +151,5 @@ echo "=== Build complete! ==="
 echo "Package created: $DEB_FILE ($DEB_SIZE)"
 echo "Copied to:       $RELEASE_DIR/"
 echo ""
-echo "To install: sudo apt install $PUBLISH_DIR/${APP_NAME}_${VERSION}_${ARCHITECTURE}.deb"
+echo "To install: sudo apt install $PUBLISH_DIR/${APP_NAME}_${FILE_VERSION}_${ARCHITECTURE}.deb"
 echo "To uninstall: sudo apt remove $APP_NAME"

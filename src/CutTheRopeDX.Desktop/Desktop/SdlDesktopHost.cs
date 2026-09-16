@@ -59,8 +59,8 @@ namespace CutTheRopeDX.Desktop
         /// </summary>
         internal static readonly string Version = ResolveVersion();
 
-        /// <summary>The Cut the Rope: DX name shown in the title.</summary>
-        internal const string CtrDXProductName = "Cut The Rope: DX";
+        /// <summary>The Cut the Rope DX name shown in the title.</summary>
+        internal const string CtrDXProductName = "Cut the Rope DX";
 
         /// <summary>
         /// How many devices may be built without one of them drawing anything before the run is
@@ -180,6 +180,8 @@ namespace CutTheRopeDX.Desktop
                 "angle" => GraphicsBackendKind.Angle,
                 _ => throw new ArgumentException($"Unknown SDL renderer '{renderer}'."),
             };
+            // Names the game to the OS instead of the executable.
+            _ = SDL.SetAppMetadata(CtrDXProductName, Version, "page.yell0wsuit.cuttherope.dx");
             if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Events | SDL.InitFlags.Gamepad))
             {
                 throw new InvalidOperationException(SDL.GetError());
@@ -817,7 +819,7 @@ namespace CutTheRopeDX.Desktop
         /// <remarks>
         /// Reported as recorded, including the "+&lt;hash&gt;" a revision-stamped development build
         /// appends: naming the exact commit is the point of showing a version on an unreleased
-        /// build. A release sets no suffix, so it reads as a plain four-part version.
+        /// build. A release sets no suffix, so it reads as a plain three-part version.
         /// </remarks>
         /// <returns>The version to show, or "Unknown" when the assembly carries none.</returns>
         private static string ResolveVersion()

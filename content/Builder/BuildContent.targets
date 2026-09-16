@@ -28,19 +28,60 @@
       into the publish directory, only to delete it while assembling the package.
     -->
     <DeployContent Condition="'$(DeployContent)' == ''">true</DeployContent>
+
+    <!--
+      The builder is a plain framework-dependent tool, whatever the game is being published as.
+      RuntimeIdentifier alone is not enough to strip: a publish passes _IsPublishing, and with
+      PublishAot, PublishReadyToRun or PublishSingleFile beside it the SDK infers the host RID on
+      its own. Only global properties can be removed this way, though. Environment variables still
+      reach the builder and can move its output (a machine-wide Platform variable, common on OEM
+      Windows installs, puts it under bin/<platform>/), so the builder is run from the path its own
+      build reports rather than from a fixed one.
+    -->
+    <_ContentBuilderRemovedProperties>Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;UseCurrentRuntimeIdentifier;PublishSingleFile;PublishAot;PublishReadyToRun;PublishTrimmed;_IsPublishing</_ContentBuilderRemovedProperties>
   </PropertyGroup>
 
-  <Target Name="BuildGameContent" BeforeTargets="BeforeBuild">
+  <!--
+    Split into steps so the one running is the one named while the build waits: the terminal
+    logger shows only the current target and hides the builder's output, and a first build spends
+    minutes in FetchGameAssets downloading the assets.
+  -->
+  <Target Name="BuildContentBuilder">
     <MSBuild Projects="$(ContentBuilderProject)" Targets="Restore"
              Condition="'$(BuildContent)' == 'true'"
-             RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishSingleFile" />
+             RemoveProperties="$(_ContentBuilderRemovedProperties)" />
     <MSBuild Projects="$(ContentBuilderProject)" Targets="Build"
              Condition="'$(BuildContent)' == 'true'"
-             RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishSingleFile" />
+             RemoveProperties="$(_ContentBuilderRemovedProperties)">
+      <Output TaskParameter="TargetOutputs" PropertyName="_ContentBuilderAssembly" />
+    </MSBuild>
+    <Error Condition="'$(BuildContent)' == 'true' AND !Exists('$(_ContentBuilderAssembly)')"
+           Text="The content builder was built, but no assembly was found at '$(_ContentBuilderAssembly)'." />
+  </Target>
+
+  <!--
+    The builder reports its own failures as build errors. The exit code is taken here so the
+    build ends on a sentence about which step failed rather than on MSB3073, which only
+    repeats the command line.
+  -->
+  <Target Name="FetchGameAssets" DependsOnTargets="BuildContentBuilder">
     <Exec Condition="'$(BuildContent)' == 'true'"
-          Command="dotnet &quot;$(MSBuildThisFileDirectory)bin/Debug/CutTheRopeDX.Content.dll&quot; fetch -s &quot;$(ContentSourcePath)&quot;" />
+          Command="dotnet &quot;$(_ContentBuilderAssembly)&quot; fetch -s &quot;$(ContentSourcePath)&quot;"
+          IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="_ContentFetchExitCode" />
+    </Exec>
+    <Error Condition="'$(BuildContent)' == 'true' AND '$(_ContentFetchExitCode)' != '0'"
+           Text="Could not get the game assets into '$(ContentSourcePath)'. The content builder's error above says why." />
+  </Target>
+
+  <Target Name="BuildGameContent" BeforeTargets="BeforeBuild" DependsOnTargets="FetchGameAssets">
     <Exec Condition="'$(BuildContent)' == 'true'"
-          Command="dotnet &quot;$(MSBuildThisFileDirectory)bin/Debug/CutTheRopeDX.Content.dll&quot; build -s &quot;$(ContentSourcePath)&quot; -o &quot;$(ContentIntermediateDir)&quot;" />
+          Command="dotnet &quot;$(_ContentBuilderAssembly)&quot; build -s &quot;$(ContentSourcePath)&quot; -o &quot;$(ContentIntermediateDir)&quot;"
+          IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="_ContentBuildExitCode" />
+    </Exec>
+    <Error Condition="'$(BuildContent)' == 'true' AND '$(_ContentBuildExitCode)' != '0'"
+           Text="Could not work out which game content to ship from '$(ContentSourcePath)'. The content builder's error above says why." />
   </Target>
 
   <!--

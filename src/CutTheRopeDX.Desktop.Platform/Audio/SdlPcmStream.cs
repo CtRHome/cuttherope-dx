@@ -28,14 +28,22 @@ namespace CutTheRopeDX.Desktop.Platform.Audio
         private long emptiedAt = -1;
 
         private SdlPcmStream(nint stream, int frequency, int channels, bool boundToDevice,
-            TimeSpan deviceBuffer)
+            DeviceFormat device)
         {
             this.stream = stream;
             this.frequency = frequency;
             BoundToDevice = boundToDevice;
             BytesPerFrame = channels * BytesPerSample;
-            DeviceBuffer = deviceBuffer;
+            DeviceBuffer = device.Buffer;
+            DeviceFrequency = device.Frequency;
+            DeviceChannels = device.Channels;
         }
+
+        /// <summary>What the device behind a stream is running, as it answered.</summary>
+        /// <param name="Frequency">Its sample rate, or zero when it did not say.</param>
+        /// <param name="Channels">Its channel count, or zero when it did not say.</param>
+        /// <param name="Buffer">How much audio it holds, or zero when it did not say.</param>
+        private readonly record struct DeviceFormat(int Frequency, int Channels, TimeSpan Buffer);
 
         /// <summary>
         /// How long the device can still be holding audio after the queue has emptied.
@@ -46,6 +54,19 @@ namespace CutTheRopeDX.Desktop.Platform.Audio
         /// than guessed, and zero for a stream with no device behind it.
         /// </remarks>
         public TimeSpan DeviceBuffer { get; }
+
+        /// <summary>
+        /// The rate the device runs at, which is not necessarily the rate it is fed.
+        /// </summary>
+        /// <remarks>
+        /// A device running at a rate the audio was not encoded at puts a resampler between the
+        /// two, which is what makes <see cref="Finish"/> necessary rather than merely tidy. Zero
+        /// when there is no device, or when it would not say.
+        /// </remarks>
+        public int DeviceFrequency { get; }
+
+        /// <summary>The channel count the device runs at. Zero when it would not say.</summary>
+        public int DeviceChannels { get; }
 
         /// <summary>
         /// Opens an output stream on the default playback device, or reports that there is none.
@@ -70,25 +91,27 @@ namespace CutTheRopeDX.Desktop.Platform.Audio
             }
 
             return new SdlPcmStream(stream, frequency, channels, boundToDevice: true,
-                DeviceBufferOf(stream, frequency));
+                FormatOf(stream, frequency));
         }
 
-        /// <summary>Asks the device how much it buffers, in the time that audio lasts.</summary>
+        /// <summary>Asks the device what it is running and how much of it it holds.</summary>
         /// <param name="stream">The opened device stream.</param>
         /// <param name="fallbackFrequency">Rate to use if the device does not answer.</param>
-        /// <returns>The buffer duration, or zero when the device will not say.</returns>
-        private static TimeSpan DeviceBufferOf(nint stream, int fallbackFrequency)
+        /// <returns>The device's format, with zeroes where it would not say.</returns>
+        private static DeviceFormat FormatOf(nint stream, int fallbackFrequency)
         {
             uint device = SDL.GetAudioStreamDevice(stream);
-            if (device == 0
-                || !SDL.GetAudioDeviceFormat(device, out SDL.AudioSpec spec, out int sampleFrames)
-                || sampleFrames <= 0)
+            if (device == 0 || !SDL.GetAudioDeviceFormat(device, out SDL.AudioSpec spec, out int sampleFrames))
             {
-                return TimeSpan.Zero;
+                return default;
             }
 
             int rate = spec.Freq > 0 ? spec.Freq : fallbackFrequency;
-            return rate > 0 ? TimeSpan.FromSeconds((double)sampleFrames / rate) : TimeSpan.Zero;
+            TimeSpan buffer = sampleFrames > 0 && rate > 0
+                ? TimeSpan.FromSeconds((double)sampleFrames / rate)
+                : TimeSpan.Zero;
+
+            return new DeviceFormat(spec.Freq, spec.Channels, buffer);
         }
 
         /// <summary>
@@ -113,11 +136,28 @@ namespace CutTheRopeDX.Desktop.Platform.Audio
         /// <returns>The stream, or <see langword="null"/> when it could not be created.</returns>
         internal static SdlPcmStream CreateForTesting(int frequency, int channels, TimeSpan deviceBuffer)
         {
+            return CreateForTesting(frequency, channels, deviceBuffer, frequency);
+        }
+
+        /// <summary>
+        /// Creates a device-less stream that plays out at a different rate than it is fed, so the
+        /// resampler a mismatched device puts in the path can be exercised without audio hardware.
+        /// </summary>
+        /// <param name="frequency">Sample rate of the audio that will be submitted.</param>
+        /// <param name="channels">Channel count of the audio that will be submitted.</param>
+        /// <param name="deviceBuffer">What to report as the device's own buffering.</param>
+        /// <param name="outputFrequency">Sample rate the stream converts to.</param>
+        /// <returns>The stream, or <see langword="null"/> when it could not be created.</returns>
+        internal static SdlPcmStream CreateForTesting(
+            int frequency, int channels, TimeSpan deviceBuffer, int outputFrequency)
+        {
             SDL.AudioSpec spec = new() { Format = SDL.AudioFormat.AudioS16LE, Channels = channels, Freq = frequency };
-            nint stream = SDL.CreateAudioStream(in spec, in spec);
+            SDL.AudioSpec outSpec = spec with { Freq = outputFrequency };
+            nint stream = SDL.CreateAudioStream(in spec, in outSpec);
             return stream == 0
                 ? null
-                : new SdlPcmStream(stream, frequency, channels, boundToDevice: false, deviceBuffer);
+                : new SdlPcmStream(stream, frequency, channels, boundToDevice: false,
+                    new DeviceFormat(outputFrequency, channels, deviceBuffer));
         }
 
         /// <summary>Bytes one interleaved frame occupies, which is what turns queued bytes into frames.</summary>
@@ -183,6 +223,25 @@ namespace CutTheRopeDX.Desktop.Platform.Audio
             if (!pcm.IsEmpty)
             {
                 _ = SDL.PutAudioStreamData(stream, pcm, pcm.Length);
+            }
+        }
+
+        /// <summary>
+        /// Tells the stream that the audio submitted so far is all there is.
+        /// </summary>
+        /// <remarks>
+        /// A device that runs at a different rate than the movie was encoded at puts a resampler in
+        /// the path, and a resampler cannot produce its last few frames without seeing what follows
+        /// them. Until it is told that nothing does, it holds them back: the queue stops one
+        /// fraction of a millisecond short of empty and stays there, so a caller waiting for the
+        /// soundtrack to play out waits forever. Submitting more afterwards is allowed and simply
+        /// starts the audio again, at the cost of a gap where the two meet.
+        /// </remarks>
+        public void Finish()
+        {
+            if (stream != 0)
+            {
+                _ = SDL.FlushAudioStream(stream);
             }
         }
 

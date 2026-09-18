@@ -366,6 +366,8 @@ namespace CutTheRopeDX.Framework.Media
                 DrainAudioQueue();
             }
 
+            FinishAudioInput();
+
             if (HasPlaybackFinished && IsAudioPlaybackDrained())
             {
                 VideoPlayerLog.UpdateCleanup(Logger, videoTexture != null);
@@ -373,6 +375,34 @@ namespace CutTheRopeDX.Framework.Media
                 VideoPlayerLog.UpdateFinishing(Logger);
                 PlaybackFinished?.Invoke();
             }
+        }
+
+        /// <summary>
+        /// Tells the audio stream that the soundtrack is complete, once it is.
+        /// </summary>
+        /// <remarks>
+        /// The last of a resampled soundtrack is held back until the stream knows nothing follows
+        /// it, and completion waits on that audio being heard. Said once the decoder has run out
+        /// and every buffer it produced has been handed over, so nothing is announced complete
+        /// while there is still some of it waiting in the queue.
+        /// </remarks>
+        private void FinishAudioInput()
+        {
+            if (!HasPlaybackFinished || audioInputFinished || audioInstance == null)
+            {
+                return;
+            }
+
+            lock (audioLock)
+            {
+                if (pendingAudioQueue.Count > 0)
+                {
+                    return;
+                }
+            }
+
+            audioInputFinished = true;
+            audioInstance.Finish();
         }
 
         /// <summary>How long completion may trail the end of decoding before it is reported.</summary>
@@ -411,8 +441,8 @@ namespace CutTheRopeDX.Framework.Media
                 pendingAudioBuffers = pendingAudioQueue.Count;
             }
 
-            double deviceQueuedMs = audioInstance?.Queued.TotalMilliseconds ?? 0;
-            VideoPlayerLog.CompletionStalled(Logger, waitedMs, IsPaused, pendingAudioBuffers, deviceQueuedMs);
+            int deviceQueuedFrames = audioInstance?.QueuedFrames ?? 0;
+            VideoPlayerLog.CompletionStalled(Logger, waitedMs, IsPaused, pendingAudioBuffers, deviceQueuedFrames);
         }
 
         /// <inheritdoc/>
@@ -890,6 +920,26 @@ namespace CutTheRopeDX.Framework.Media
             // A machine with no audio device still plays the movie; the soundtrack is what is lost.
             audioInstance = SdlPcmStream.TryOpen(audioSampleRate, audioChannels);
 
+            if (audioInstance == null)
+            {
+                VideoPlayerLog.AudioDeviceUnavailable(Logger);
+            }
+            else
+            {
+                VideoPlayerLog.AudioDeviceOpened(
+                    Logger,
+                    audioSampleRate,
+                    audioChannels,
+                    audioInstance.DeviceFrequency,
+                    audioInstance.DeviceChannels,
+                    audioInstance.DeviceBuffer.TotalMilliseconds,
+
+                    // A device that would not say its rate is reported as not resampling rather
+                    // than as resampling, because the zero printed beside it is what says the
+                    // answer is unknown; guessing either way here would read as fact.
+                    audioInstance.DeviceFrequency > 0 && audioInstance.DeviceFrequency != audioSampleRate);
+            }
+
             return true;
         }
 
@@ -1228,6 +1278,7 @@ namespace CutTheRopeDX.Framework.Media
             pendingAudioQueue.Clear();
             audioBytesDrained = 0;
             audioBuffersSubmitted = 0;
+            audioInputFinished = false;
 
             if (audioInstance != null)
             {
@@ -1377,6 +1428,9 @@ namespace CutTheRopeDX.Framework.Media
 
         /// <summary>Number of audio buffers submitted to the sound instance.</summary>
         private int audioBuffersSubmitted;
+
+        /// <summary>Whether the audio stream has been told the soundtrack is complete.</summary>
+        private bool audioInputFinished;
     }
 }
 #endif

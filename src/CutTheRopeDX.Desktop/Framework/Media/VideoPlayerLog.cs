@@ -189,6 +189,39 @@ namespace CutTheRopeDX.Framework.Media
             Message = "Decode ended early: {Stage} returned {ErrorCode} after {FramesDecoded} frames")]
         public static partial void DecodeFailed(ILogger logger, string stage, int errorCode, int framesDecoded);
 
+        /// <summary>Records what the audio device runs at, beside what the soundtrack is.</summary>
+        /// <param name="logger">Destination logger.</param>
+        /// <param name="sourceFrequency">Sample rate the movie's audio was encoded at.</param>
+        /// <param name="sourceChannels">Channel count the movie's audio was encoded with.</param>
+        /// <param name="deviceFrequency">Sample rate the device runs at, or zero if it would not say.</param>
+        /// <param name="deviceChannels">Channel count the device runs at, or zero if it would not say.</param>
+        /// <param name="deviceBufferMs">How much audio the device holds.</param>
+        /// <param name="resampling">Whether the two rates differ, so a resampler sits between them.</param>
+        /// <remarks>
+        /// The two rates are what decide whether a resampler sits in the path, and a resampler is
+        /// what makes the end of a soundtrack something that has to be announced rather than
+        /// simply reached. A machine whose cutscenes end differently from another's differs here
+        /// first, and nothing else in a log says so.
+        /// </remarks>
+        [LoggerMessage(
+            Level = LogLevel.Debug,
+            Message = "Audio device {DeviceFrequency} Hz {DeviceChannels}ch buffering "
+                + "{DeviceBufferMs:F0} ms; soundtrack {SourceFrequency} Hz {SourceChannels}ch, "
+                + "resampling={Resampling}")]
+        public static partial void AudioDeviceOpened(
+            ILogger logger,
+            int sourceFrequency,
+            int sourceChannels,
+            int deviceFrequency,
+            int deviceChannels,
+            double deviceBufferMs,
+            bool resampling);
+
+        /// <summary>Reports a machine with no audio output, where the movie plays silently.</summary>
+        /// <param name="logger">Destination logger.</param>
+        [LoggerMessage(Level = LogLevel.Debug, Message = "No audio device; the movie plays silently")]
+        public static partial void AudioDeviceUnavailable(ILogger logger);
+
         /// <summary>
         /// Reports a cutscene whose decoding is over but which has not told the game so.
         /// </summary>
@@ -196,17 +229,22 @@ namespace CutTheRopeDX.Framework.Media
         /// <param name="waitedMs">How long since decoding ended.</param>
         /// <param name="paused">Whether the player is held paused.</param>
         /// <param name="pendingAudioBuffers">Decoded audio buffers not yet handed to the device.</param>
-        /// <param name="deviceQueuedMs">Audio the device stream has not played yet.</param>
+        /// <param name="deviceQueuedFrames">Sample frames the device stream has not taken yet.</param>
         /// <remarks>
         /// Completion waits on the soundtrack playing out, which takes a fraction of a second.
         /// Anything longer leaves the last frame of the movie on screen with nothing to end it,
         /// and this names which of the two things it waits on is holding it.
+        /// <para>
+        /// The queue is reported in frames rather than in the time they last, because what holds a
+        /// stream short of empty is a handful of frames: rounded to milliseconds they read as
+        /// nothing at all, which is indistinguishable from the queue this is meant to rule out.
+        /// </para>
         /// </remarks>
         [LoggerMessage(
             Level = LogLevel.Warning,
             Message = "Decode ended {WaitedMs} ms ago but playback has not completed: paused={Paused}, "
-                + "pendingAudioBuffers={PendingAudioBuffers}, deviceQueuedMs={DeviceQueuedMs:F0}")]
+                + "pendingAudioBuffers={PendingAudioBuffers}, deviceQueuedFrames={DeviceQueuedFrames}")]
         public static partial void CompletionStalled(
-            ILogger logger, long waitedMs, bool paused, int pendingAudioBuffers, double deviceQueuedMs);
+            ILogger logger, long waitedMs, bool paused, int pendingAudioBuffers, int deviceQueuedFrames);
     }
 }

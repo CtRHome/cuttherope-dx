@@ -150,6 +150,66 @@ namespace CutTheRopeDX.Desktop.Platform.Tests
         }
 
         [Fact]
+        public void ResampledAudioIsHeldBackUntilTheEndOfItIsAnnounced()
+        {
+            // A device running at a rate the movie was not encoded at resamples, and a resampler
+            // keeps the last few frames back for as long as more audio could still follow them.
+            // Nothing the device does empties the queue, so a cutscene waiting for its soundtrack
+            // to play out before it ends waits for something that cannot happen.
+            using SdlPcmStream resampled = SdlPcmStream.CreateForTesting(
+                Frequency, Channels, TimeSpan.Zero, outputFrequency: 48000);
+            Assert.NotNull(resampled);
+            resampled.Submit(Pcm(100));
+
+            DrainEverything(resampled);
+
+            Assert.NotEqual(0, resampled.QueuedFrames);
+            Assert.False(resampled.IsDrained);
+
+            resampled.Finish();
+            DrainEverything(resampled);
+
+            Assert.Equal(0, resampled.QueuedFrames);
+            Assert.True(resampled.IsDrained);
+            Assert.True(resampled.IsPlayedOut);
+        }
+
+        [Fact]
+        public void AnnouncingTheEndOfAudioThatNeedsNoResamplingChangesNothing()
+        {
+            stream.Submit(Pcm(50));
+
+            stream.Finish();
+            DrainEverything(stream);
+
+            Assert.Equal(0, stream.QueuedFrames);
+            Assert.True(stream.IsDrained);
+        }
+
+        [Fact]
+        public void TheRateTheStreamPlaysOutAtIsReported()
+        {
+            // Which rate the device settled on is what decides whether a resampler sits in the
+            // path, and a log that does not say it cannot tell a stuck cutscene from a working one.
+            using SdlPcmStream resampled = SdlPcmStream.CreateForTesting(
+                Frequency, Channels, TimeSpan.FromMilliseconds(20), outputFrequency: 48000);
+            Assert.NotNull(resampled);
+
+            Assert.Equal(48000, resampled.DeviceFrequency);
+            Assert.Equal(Channels, resampled.DeviceChannels);
+            Assert.Equal(20, resampled.DeviceBuffer.TotalMilliseconds);
+        }
+
+        /// <summary>Takes everything the stream will hand over, standing in for the device.</summary>
+        private static void DrainEverything(SdlPcmStream target)
+        {
+            byte[] sink = new byte[64 * 1024];
+            while (target.DrainForTesting(sink) > 0)
+            {
+            }
+        }
+
+        [Fact]
         public void ADeviceThatBuffersNothingIsPlayedOutAsSoonAsItIsDrained()
         {
             using SdlPcmStream stream = SdlPcmStream.CreateForTesting(48000, 2);

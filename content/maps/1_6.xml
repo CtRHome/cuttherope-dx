@@ -1,40 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
 <map>
-<layer name="settings">
-<map gridSize="32" width="853" height="480" levelName="Triple Quest&#13;&#10;By 5eburek"/>
-<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
-</layer>
-<layer name="Objects">
-<spike2 x="277" y="380" angle="90" size="4" />
-<spike2 x="277" y="160" angle="-90" size="4" />
-<spike2 x="579" y="157" angle="90" size="4" />
-<spike2 x="577" y="370" angle="90" size="4" />
-<candy x="76" y="213" />
-<transporter x="279" y="383" angle="180" direction="forward" type="manual" width="50" length="250" />
-<steamTube x="220" y="381" angle="0" />
-<bubble x="145" y="446" />
-<pump x="74" y="101" angle="0" />
-<star x="140" y="126" />
-<sock x="223" y="146" group="0" angle="-90" />
-<tutorialText x="-210" y="231" locale="en" text="Quest-1" width="700" />
-<sock x="421" y="123" group="0" angle="90" />
-<grab x="75" y="156" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<grab x="355" y="156" length="1" wheel="true" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<grab x="493" y="160" length="75" wheel="true" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<tutorialText x="75" y="265" locale="en" text="Quest-2" width="700" />
-<spike2 x="507" y="256" angle="180" size="2" />
-<spike2 x="352" y="356" angle="0" size="2" />
-<sock x="357" y="415" group="1" angle="0" />
-<star x="489" y="405" />
-<hiddenElement x="230" y="436" radius="100" />
-<sock x="632" y="115" group="1" angle="90" />
-<grab x="642" y="167" length="100" wheel="false" gun="false" radius="0" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<rotatedCircle x="719" y="212" size="100" handleAngle="90" oneHandle="false"  />
-<spike2 x="629" y="261" angle="180" size="1" />
-<spike2 x="715" y="238" angle="90" size="2" />
-<star x="683" y="263" />
-<pump x="625" y="332" angle="0" />
-<tutorialText x="369" y="55" locale="en" text="Quest-3" width="700" />
-<target x="647" y="408" />
-<grab x="802" y="394" length="999999999" wheel="false" gun="false" radius="30" moveLength="75" moveVertical="false" moveOffset="75" spider="false" part="L" hidePath="false" />
-</layer>
+  <layer name="settings">
+    <map gridSize="32" width="853" height="480" levelName="Triple Quest&#xD;&#xA;By 5eburek" />
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <spike4 x="277" y="380" angle="90" size="4" />
+    <spike4 x="277" y="160" angle="-90" size="4" />
+    <spike4 x="579" y="157" angle="90" size="4" />
+    <spike4 x="577" y="370" angle="90" size="4" />
+    <candy x="76" y="213" candyNumber="0" />
+    <transporter x="279" y="383" angle="180" direction="forward" type="manual" width="50" length="250" />
+    <steamTube x="220" y="381" angle="0" />
+    <bubble x="145" y="446" />
+    <pump x="74" y="101" angle="0" />
+    <star x="140" y="126" />
+    <sock x="223" y="146" group="0" angle="-90" />
+    <tutorialText x="-210" y="231" locale="en" text="Quest-1" width="700" duration="-1" />
+    <sock x="421" y="123" group="0" angle="90" />
+    <grab x="75" y="156" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+    <grab x="355" y="156" length="1" wheel="true" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+    <grab x="493" y="160" length="75" wheel="true" gun="false" radius="75" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+    <tutorialText x="75" y="265" locale="en" text="Quest-2" width="700" duration="-1" />
+    <spike2 x="507" y="256" angle="180" size="2" />
+    <spike2 x="352" y="356" angle="0" size="2" />
+    <sock x="357" y="415" group="1" angle="0" />
+    <star x="489" y="405" />
+    <hiddenElement x="230" y="436" radius="100" />
+    <sock x="632" y="115" group="1" angle="90" />
+    <grab x="642" y="167" length="100" wheel="false" gun="false" radius="0" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
+    <rotatedCircle x="719" y="212" size="100" handleAngle="90" oneHandle="false" />
+    <spike1 x="629" y="261" angle="180" size="1" />
+    <spike2 x="715" y="238" angle="90" size="2" />
+    <star x="683" y="263" />
+    <pump x="625" y="332" angle="0" />
+    <tutorialText x="369" y="55" locale="en" text="Quest-3" width="700" duration="-1" />
+    <target x="647" y="408" />
+    <grab x="802" y="394" length="999999999" wheel="false" gun="false" radius="30" moveLength="75" moveVertical="false" moveOffset="75" spider="false" part="L" hidePath="false" />
+  </layer>
 </map>

@@ -149,7 +149,7 @@ namespace CutTheRopeDX.Framework.Visual
             visible = true;
             touchable = true;
             updateable = true;
-            name = null;
+            Name = null;
             x = 0f;
             y = 0f;
             drawX = 0f;
@@ -175,7 +175,7 @@ namespace CutTheRopeDX.Framework.Visual
             childs = [];
             timelines = [];
             currentTimeline = null;
-            currentTimelineIndex = -1;
+            CurrentTimelineIndex = -1;
             passTransformationsToChilds = true;
             passColorToChilds = true;
             passTouchEventsToAllChilds = false;
@@ -318,7 +318,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// to it just to keep it current.
         /// </remarks>
         /// <param name="visible">The logical region the viewport exposes.</param>
-        public virtual void Relayout(CTRRectangle visible)
+        public virtual void Relayout(Rectangle visible)
         {
             int processed = 0;
             int childId = 0;
@@ -371,7 +371,7 @@ namespace CutTheRopeDX.Framework.Visual
                 BaseElement value = child.Value;
                 if (value != null)
                 {
-                    if (value.name != null && value.name == n)
+                    if (value.Name != null && value.Name == n)
                     {
                         return value;
                     }
@@ -509,11 +509,11 @@ namespace CutTheRopeDX.Framework.Visual
                 }
                 childs.Add(i, c);
             }
-            else if (childs.TryGetValue(i, out BaseElement value2))
+            else if (childs.TryGetValue(i, out BaseElement existing))
             {
-                if (value2 != c)
+                if (existing != c)
                 {
-                    value2?.Dispose();
+                    existing?.Dispose();
                 }
                 childs[i] = c;
             }
@@ -579,7 +579,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>The slot ID of <paramref name="c"/>, or -1 if it is not a child.</returns>
         public virtual int GetChildId(BaseElement c)
         {
-            int result = -1;
+            int notFound = -1;
             foreach (KeyValuePair<int, BaseElement> child in childs)
             {
                 if (c.Equals(child.Value))
@@ -587,7 +587,7 @@ namespace CutTheRopeDX.Framework.Visual
                     return child.Key;
                 }
             }
-            return result;
+            return notFound;
         }
 
         /// <summary>
@@ -637,7 +637,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="i">Slot ID of the timeline to remove.</param>
         public virtual void RemoveTimeline(int i)
         {
-            if (currentTimelineIndex == i)
+            if (CurrentTimelineIndex == i)
             {
                 StopCurrentTimeline();
             }
@@ -657,7 +657,7 @@ namespace CutTheRopeDX.Framework.Visual
                 {
                     currentTimeline.StopTimeline();
                 }
-                currentTimelineIndex = t;
+                CurrentTimelineIndex = t;
                 currentTimeline = value;
                 currentTimeline.PlayTimeline();
             }
@@ -678,7 +678,7 @@ namespace CutTheRopeDX.Framework.Visual
         {
             currentTimeline.StopTimeline();
             currentTimeline = null;
-            currentTimelineIndex = -1;
+            CurrentTimelineIndex = -1;
         }
 
         /// <summary>
@@ -693,11 +693,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <summary>
         /// Returns the ID of the currently active timeline, or -1.
         /// </summary>
-        /// <returns>The slot ID of the active timeline, or -1 if none is playing.</returns>
-        public int GetCurrentTimelineIndex()
-        {
-            return currentTimelineIndex;
-        }
+        public int CurrentTimelineIndex { get; private set; }
 
         /// <summary>
         /// Returns the timeline at slot <paramref name="n"/>, or <see langword="null"/>.
@@ -808,17 +804,13 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="n">Name to assign.</param>
         public void SetName(string n)
         {
-            name = n;
+            Name = n;
         }
 
         /// <summary>
         /// Returns the element's name, or <see langword="null"/> if it has none.
         /// </summary>
-        /// <returns>The name assigned by <see cref="SetName"/>.</returns>
-        public string GetName()
-        {
-            return name;
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Recursively shows all visible children.
@@ -936,11 +928,6 @@ namespace CutTheRopeDX.Framework.Visual
         /// Whether this element is updated each frame.
         /// </summary>
         public bool updateable;
-
-        /// <summary>
-        /// Optional name used for lookup via <see cref="GetChildWithName"/>.
-        /// </summary>
-        private string name;
 
         /// <summary>
         /// Local X position relative to the parent.
@@ -1083,11 +1070,6 @@ namespace CutTheRopeDX.Framework.Visual
         /// Timelines keyed by slot ID.
         /// </summary>
         protected Dictionary<int, Timeline> timelines;
-
-        /// <summary>
-        /// Index of the currently active timeline, or -1 if none.
-        /// </summary>
-        private int currentTimelineIndex;
 
         /// <summary>
         /// The currently active timeline, or <see langword="null"/> if none.

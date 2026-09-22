@@ -19,7 +19,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>The width and height of the <paramref name="quad"/> as a vector.</returns>
         public static Vector GetQuadSize(string textureResourceName, int quad)
         {
-            CTRTexture2D texture2D = Application.GetTexture(textureResourceName);
+            Texture2D texture2D = Application.GetTexture(textureResourceName);
             return texture2D.quadRects != null
                 ? Vect(texture2D.quadRects[quad].w, texture2D.quadRects[quad].h)
                 : Vect(texture2D._realWidth, texture2D._realHeight);
@@ -33,7 +33,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>The offset of the <paramref name="quad"/>, or (0, 0) if no offsets are defined.</returns>
         public static Vector GetQuadOffset(string textureResourceName, int quad)
         {
-            CTRTexture2D texture = Application.GetTexture(textureResourceName);
+            Texture2D texture = Application.GetTexture(textureResourceName);
             return texture.quadOffsets != null ? texture.quadOffsets[quad] : Vect(0, 0);
         }
 
@@ -45,12 +45,12 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>The center point of the <paramref name="quad"/> in texture space.</returns>
         public static Vector GetQuadCenter(string textureResourceName, int quad)
         {
-            CTRTexture2D texture2D = Application.GetTexture(textureResourceName);
+            Texture2D texture2D = Application.GetTexture(textureResourceName);
             Vector offset = texture2D.quadOffsets != null ? texture2D.quadOffsets[quad] : Vect(0, 0);
             Vector size = texture2D.quadRects != null
                 ? Vect(texture2D.quadRects[quad].w, texture2D.quadRects[quad].h)
                 : Vect(texture2D._realWidth, texture2D._realHeight);
-            return VectAdd(offset, Vect(Ceil(size.X / 2), Ceil(size.Y / 2)));
+            return VectAdd(offset, Vect(MathF.Ceiling(size.X / 2), MathF.Ceiling(size.Y / 2)));
         }
 
         /// <summary>
@@ -94,36 +94,60 @@ namespace CutTheRopeDX.Framework.Visual
         }
 
         /// <summary>
-        /// Creates an image from the specified texture.
+        /// Creates an image from the specified texture. The engine's <c>+[Image create:]</c>.
         /// </summary>
         /// <param name="t">Texture to create the image from.</param>
         /// <returns>A new <see cref="Image"/> bound to <paramref name="t"/>.</returns>
-        public static Image Image_create(CTRTexture2D t)
+        public static Image FromTexture(Texture2D t)
         {
             return new Image().InitWithTexture(t);
         }
 
         /// <summary>
-        /// Creates an image from the specified texture resource name.
+        /// Creates an image from the specified texture resource name. The engine's
+        /// <c>+[Image createWithResID:]</c>.
         /// </summary>
         /// <param name="resourceName">Texture resource name.</param>
         /// <returns>A new <see cref="Image"/> bound to the resolved texture.</returns>
-        public static Image Image_createWithResID(string resourceName)
+        public static Image FromResource(string resourceName)
         {
-            return Image_create(Application.GetTexture(resourceName));
+            return InitializeFromResource(new Image(), resourceName);
         }
 
         /// <summary>
-        /// Creates an image from the specified texture resource name and sets the draw quad.
+        /// Creates an image from the specified texture resource name and sets the draw quad. The
+        /// engine's <c>+[Image createWithResID:Quad:]</c>.
         /// </summary>
         /// <param name="resourceName">Texture resource name.</param>
         /// <param name="q">Quad index to draw.</param>
         /// <returns>A new <see cref="Image"/> configured to draw the specified quad.</returns>
-        public static Image Image_createWithResIDQuad(string resourceName, int q)
+        public static Image FromResource(string resourceName, int q)
         {
-            Image image = Image_create(Application.GetTexture(resourceName));
-            image.SetDrawQuad(q);
-            return image;
+            return InitializeFromResource(new Image(), resourceName, q);
+        }
+
+        /// <summary>
+        /// Binds <paramref name="element"/> to the texture behind a resource name, optionally
+        /// selecting a quad, and hands the element back with its own type intact.
+        /// </summary>
+        /// <typeparam name="T">The element type being created.</typeparam>
+        /// <param name="element">A freshly constructed element to initialize.</param>
+        /// <param name="resourceName">Texture resource name to resolve.</param>
+        /// <param name="quad">Quad index to draw, or <c>-1</c> to leave the default.</param>
+        /// <returns><paramref name="element"/>, initialized.</returns>
+        /// <remarks>
+        /// The element is passed in rather than constructed from a <c>new()</c> constraint so that
+        /// no <see cref="Activator"/> call reaches the ahead-of-time compiled browser build.
+        /// </remarks>
+        public static T InitializeFromResource<T>(T element, string resourceName, int quad = -1)
+            where T : Image
+        {
+            _ = element.InitWithTexture(Application.GetTexture(resourceName));
+            if (quad >= 0)
+            {
+                element.SetDrawQuad(quad);
+            }
+            return element;
         }
 
         /// <summary>
@@ -132,7 +156,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="t">Texture to initialize with.</param>
         /// <returns>This image instance for chaining.</returns>
         /// <exception cref="InvalidOperationException">Thrown when <paramref name="t"/> is <see langword="null"/>.</exception>
-        public virtual Image InitWithTexture(CTRTexture2D t)
+        public virtual Image InitWithTexture(Texture2D t)
         {
             texture = t ?? throw new InvalidOperationException("Failed to initialize Image: texture is null. The texture resource may not exist or failed to load.");
             restoreCutTransparency = false;
@@ -253,7 +277,7 @@ namespace CutTheRopeDX.Framework.Visual
             }
             Quad2D quad = texture.quads[n];
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(texture.Name());
+            Renderer.BindTexture(texture);
             VertexPositionNormalTexture[] vertices = QuadVertexCache.GetTexturedQuad(
                 x, y, w, h,
                 quad.tlX, quad.tlY, quad.brX, quad.brY);
@@ -353,7 +377,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <summary>
         /// The texture used for drawing this image.
         /// </summary>
-        public CTRTexture2D texture;
+        public Texture2D texture;
 
         /// <summary>
         /// Whether to restore trimmed transparency offsets when drawing quads.

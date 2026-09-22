@@ -1,3 +1,5 @@
+using System;
+
 using CutTheRopeDX.Framework.Core;
 
 namespace CutTheRopeDX.Framework.Visual
@@ -12,7 +14,7 @@ namespace CutTheRopeDX.Framework.Visual
         {
             base.InitParticle(ref particle);
             particle.angle = 0f;
-            particle.deltaAngle = DEGREES_TO_RADIANS(rotateSpeed + (rotateSpeedVar * RND_MINUS1_1));
+            particle.deltaAngle = float.DegreesToRadians(rotateSpeed + (rotateSpeedVar * RND_MINUS1_1));
         }
 
         /// <inheritdoc />
@@ -31,11 +33,11 @@ namespace CutTheRopeDX.Framework.Visual
                 v.X = 0f - v.Y;
                 v.Y = tangentX;
                 v = VectMult(v, p.tangentialAccel);
-                Vector v2 = VectAdd(VectAdd(vector, v), gravity);
-                v2 = VectMult(v2, delta);
-                p.dir = VectAdd(p.dir, v2);
-                v2 = VectMult(p.dir, delta);
-                p.pos = VectAdd(p.pos, v2);
+                Vector step = VectAdd(VectAdd(vector, v), gravity);
+                step = VectMult(step, delta);
+                p.dir = VectAdd(p.dir, step);
+                step = VectMult(p.dir, delta);
+                p.pos = VectAdd(p.pos, step);
                 p.color.RedColor += p.deltaColor.RedColor * delta;
                 p.color.GreenColor += p.deltaColor.GreenColor * delta;
                 p.color.BlueColor += p.deltaColor.BlueColor * delta;
@@ -50,8 +52,8 @@ namespace CutTheRopeDX.Framework.Visual
                 Vector bottomLeft = Vect(p.pos.X - halfWidth, p.pos.Y + halfHeight);
                 Vector bottomRight = Vect(p.pos.X + halfWidth, p.pos.Y + halfHeight);
                 p.angle += p.deltaAngle * delta;
-                float cosA = Cosf(p.angle);
-                float sinA = Sinf(p.angle);
+                float cosA = MathF.Cos(p.angle);
+                float sinA = MathF.Sin(p.angle);
                 topLeft = RotatePreCalc(topLeft, cosA, sinA, cx, cy);
                 topRight = RotatePreCalc(topRight, cosA, sinA, cx, cy);
                 bottomLeft = RotatePreCalc(bottomLeft, cosA, sinA, cx, cy);

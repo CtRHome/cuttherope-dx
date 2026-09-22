@@ -1,3 +1,5 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Platform;
@@ -10,9 +12,9 @@ namespace CutTheRopeDX.Tests
     /// <summary>Covers what the easter egg emits, and when it emits nothing at all.</summary>
     public sealed class EasterEggOmNomDrawTests
     {
-        private static readonly CTRRectangle Screen = new(-100f, 0f, 2760f, 1440f);
+        private static readonly Rectangle Screen = new(-100f, 0f, 2760f, 1440f);
 
-        private static void WithRecorder(System.Action<RecordingRenderBackend> body)
+        private static void WithRecorder(Action<RecordingRenderBackend> body)
         {
             RecordingRenderBackend renderer = new();
             PlatformServices.Render = renderer;
@@ -83,9 +85,9 @@ namespace CutTheRopeDX.Tests
                 float maxY = float.MinValue;
                 foreach (VertexPositionColor vertex in renderer.CapturedLists[0])
                 {
-                    minX = System.MathF.Min(minX, vertex.Position.X);
-                    maxX = System.MathF.Max(maxX, vertex.Position.X);
-                    maxY = System.MathF.Max(maxY, vertex.Position.Y);
+                    minX = MathF.Min(minX, vertex.Position.X);
+                    maxX = MathF.Max(maxX, vertex.Position.X);
+                    maxY = MathF.Max(maxY, vertex.Position.Y);
                 }
                 Assert.Equal(-100f, minX);
                 Assert.Equal(2660f, maxX);

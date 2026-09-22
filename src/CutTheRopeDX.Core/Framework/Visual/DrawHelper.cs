@@ -19,9 +19,9 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="image">Texture to draw.</param>
         /// <param name="x">X position.</param>
         /// <param name="y">Y position.</param>
-        public static void DrawImage(CTRTexture2D image, float x, float y)
+        public static void DrawImage(Texture2D image, float x, float y)
         {
-            CTRTexture2D.DrawAtPoint(image, Vect(x, y));
+            Texture2D.DrawAtPoint(image, Vect(x, y));
         }
 
         /// <summary>
@@ -31,9 +31,9 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="rect">Source rectangle within the texture.</param>
         /// <param name="x">X position.</param>
         /// <param name="y">Y position.</param>
-        public static void DrawImagePart(CTRTexture2D image, CTRRectangle rect, float x, float y)
+        public static void DrawImagePart(Texture2D image, Rectangle rect, float x, float y)
         {
-            CTRTexture2D.DrawRectAtPoint(image, rect, Vect(x, y));
+            Texture2D.DrawRectAtPoint(image, rect, Vect(x, y));
         }
 
         /// <summary>
@@ -43,14 +43,14 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="quadIndex">Quad index, or -1 for full image.</param>
         /// <param name="x">X position.</param>
         /// <param name="y">Y position.</param>
-        public static void DrawImageQuad(CTRTexture2D image, int quadIndex, float x, float y)
+        public static void DrawImageQuad(Texture2D image, int quadIndex, float x, float y)
         {
             if (quadIndex == -1)
             {
                 DrawImage(image, x, y);
                 return;
             }
-            CTRTexture2D.DrawQuadAtPoint(image, quadIndex, Vect(x, y));
+            Texture2D.DrawQuadAtPoint(image, quadIndex, Vect(x, y));
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="y">Y position.</param>
         /// <param name="width">Width of the tiled area.</param>
         /// <param name="height">Height of the tiled area.</param>
-        public static void DrawImageTiledCool(CTRTexture2D image, int quadIndex, float x, float y, float width, float height)
+        public static void DrawImageTiledCool(Texture2D image, int quadIndex, float x, float y, float width, float height)
         {
             DrawImageTiledInternal(image, quadIndex, x, y, width, height, allowLegacyFallback: true);
         }
@@ -76,7 +76,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="y">Y position.</param>
         /// <param name="width">Width of the tiled area.</param>
         /// <param name="height">Height of the tiled area.</param>
-        public static void DrawImageTiled(CTRTexture2D image, int quadIndex, float x, float y, float width, float height)
+        public static void DrawImageTiled(Texture2D image, int quadIndex, float x, float y, float width, float height)
         {
             DrawImageTiledInternal(image, quadIndex, x, y, width, height, allowLegacyFallback: true);
         }
@@ -91,7 +91,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="width">Width of the tiled area.</param>
         /// <param name="height">Height of the tiled area.</param>
         /// <param name="allowLegacyFallback">Whether to use the per-tile fallback if batching is not possible.</param>
-        private static void DrawImageTiledInternal(CTRTexture2D image, int quadIndex, float x, float y, float width, float height, bool allowLegacyFallback)
+        private static void DrawImageTiledInternal(Texture2D image, int quadIndex, float x, float y, float width, float height, bool allowLegacyFallback)
         {
             float texX = 0f;
             float texY = 0f;
@@ -140,7 +140,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="width">Destination tiled width.</param>
         /// <param name="height">Destination tiled height.</param>
         /// <returns><see langword="true"/> when the tile batch was submitted; otherwise <see langword="false"/>.</returns>
-        private static bool TryDrawImageTiledBatch(CTRTexture2D image, float texX, float texY, float tileWidth, float tileHeight, float x, float y, float width, float height)
+        private static bool TryDrawImageTiledBatch(Texture2D image, float texX, float texY, float tileWidth, float tileHeight, float x, float y, float width, float height)
         {
             int tileColumns = (int)MathF.Ceiling(width / tileWidth);
             int tileRows = (int)MathF.Ceiling(height / tileHeight);
@@ -209,7 +209,7 @@ namespace CutTheRopeDX.Framework.Visual
             }
 
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(image.Name());
+            Renderer.BindTexture(image);
             Renderer.DrawTriangleList(vertices, indices, indexCount);
             return true;
         }
@@ -226,7 +226,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="y">Destination Y position.</param>
         /// <param name="width">Destination tiled width.</param>
         /// <param name="height">Destination tiled height.</param>
-        private static void DrawImageTiledFallback(CTRTexture2D image, float texX, float texY, float tileWidth, float tileHeight, float x, float y, float width, float height)
+        private static void DrawImageTiledFallback(Texture2D image, float texX, float texY, float tileWidth, float tileHeight, float x, float y, float width, float height)
         {
             for (float currentY = 0f; currentY < height; currentY += tileHeight)
             {
@@ -242,7 +242,7 @@ namespace CutTheRopeDX.Framework.Visual
                     {
                         remainingHeight = tileHeight;
                     }
-                    CTRRectangle rect = MakeRectangle(texX, texY, remainingWidth, remainingHeight);
+                    Rectangle rect = MakeRectangle(texX, texY, remainingWidth, remainingHeight);
                     DrawImagePart(image, rect, x + currentX, y + currentY);
                 }
             }
@@ -254,7 +254,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="texture">Texture to compute coordinates for.</param>
         /// <param name="rect">Source rectangle in pixel coordinates.</param>
         /// <returns>UV coordinates normalized to the texture size.</returns>
-        public static Quad2D GetTextureCoordinates(CTRTexture2D texture, CTRRectangle rect)
+        public static Quad2D GetTextureCoordinates(Texture2D texture, Rectangle rect)
         {
             return Quad2D.MakeQuad2D(
                 texture._invWidth * rect.x,
@@ -315,8 +315,8 @@ namespace CutTheRopeDX.Framework.Visual
             float angle = 0f;
             for (int i = 0; i < vertexCount; i++)
             {
-                glVertices[i * 2] = x + (radius * Cosf(angle));
-                glVertices[(i * 2) + 1] = y + (radius * Sinf(angle));
+                glVertices[i * 2] = x + (radius * MathF.Cos(angle));
+                glVertices[(i * 2) + 1] = y + (radius * MathF.Sin(angle));
                 angle += angleStep;
             }
         }
@@ -340,7 +340,7 @@ namespace CutTheRopeDX.Framework.Visual
             {
                 float intersectionDistance = ((radius1 * radius1) - (radius2 * radius2) + (centerDistance * centerDistance))
                     / (2f * centerDistance);
-                float angleOffset = Acosf((centerDistance - intersectionDistance) / radius2);
+                float angleOffset = MathF.Acos((centerDistance - intersectionDistance) / radius2);
                 float baseAngle = VectAngle(VectSub(Vect(cx1, cy1), Vect(cx2, cy2)));
                 float startAngle = baseAngle - angleOffset;
                 float endAngle = baseAngle + angleOffset;
@@ -367,63 +367,63 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="fill">Stroke color.</param>
         public static void DrawAntialiasedCurve2(float cx, float cy, float radius, float startAngle, float endAngle, int vertexCount, float width, float fadeWidth, RGBAColor fill)
         {
-            float[] array = GetFloatCache(ref s_curveVerticesCache, ((vertexCount - 1) * 12) + 4);
-            float[] array2 = GetFloatCache(ref s_curveOuterCache, vertexCount * 2);
-            float[] array3 = GetFloatCache(ref s_curveInnerCache, vertexCount * 2);
-            float[] array4 = GetFloatCache(ref s_curveInnerEdgeCache, vertexCount * 2);
-            float[] array5 = GetFloatCache(ref s_curveInnerFadeCache, vertexCount * 2);
-            RGBAColor[] array6 = GetColorCache(ref s_curveColorCache, ((vertexCount - 1) * 6) + 2);
-            CalcCurve(cx, cy, radius + fadeWidth, startAngle, endAngle, vertexCount, array2);
-            CalcCurve(cx, cy, radius, startAngle, endAngle, vertexCount, array3);
-            CalcCurve(cx, cy, radius - width, startAngle, endAngle, vertexCount, array4);
-            CalcCurve(cx, cy, radius - width - fadeWidth, startAngle, endAngle, vertexCount, array5);
-            array[0] = array2[0];
-            array[1] = array2[1];
-            array6[0] = RGBAColor.transparentRGBA;
+            float[] positions = GetFloatCache(ref s_curveVerticesCache, ((vertexCount - 1) * 12) + 4);
+            float[] outer = GetFloatCache(ref s_curveOuterCache, vertexCount * 2);
+            float[] inner = GetFloatCache(ref s_curveInnerCache, vertexCount * 2);
+            float[] innerEdge = GetFloatCache(ref s_curveInnerEdgeCache, vertexCount * 2);
+            float[] innerFade = GetFloatCache(ref s_curveInnerFadeCache, vertexCount * 2);
+            RGBAColor[] colors = GetColorCache(ref s_curveColorCache, ((vertexCount - 1) * 6) + 2);
+            CalcCurve(cx, cy, radius + fadeWidth, startAngle, endAngle, vertexCount, outer);
+            CalcCurve(cx, cy, radius, startAngle, endAngle, vertexCount, inner);
+            CalcCurve(cx, cy, radius - width, startAngle, endAngle, vertexCount, innerEdge);
+            CalcCurve(cx, cy, radius - width - fadeWidth, startAngle, endAngle, vertexCount, innerFade);
+            positions[0] = outer[0];
+            positions[1] = outer[1];
+            colors[0] = RGBAColor.transparentRGBA;
             for (int i = 1; i < vertexCount; i += 2)
             {
-                array[(12 * i) - 10] = array2[i * 2];
-                array[(12 * i) - 9] = array2[(i * 2) + 1];
-                array[(12 * i) - 8] = array3[(i * 2) - 2];
-                array[(12 * i) - 7] = array3[(i * 2) - 1];
-                array[(12 * i) - 6] = array3[i * 2];
-                array[(12 * i) - 5] = array3[(i * 2) + 1];
-                array[(12 * i) - 4] = array4[(i * 2) - 2];
-                array[(12 * i) - 3] = array4[(i * 2) - 1];
-                array[(12 * i) - 2] = array4[i * 2];
-                array[(12 * i) - 1] = array4[(i * 2) + 1];
-                array[12 * i] = array5[(i * 2) - 2];
-                array[(12 * i) + 1] = array5[(i * 2) - 1];
-                array[(12 * i) + 2] = array5[(i * 2) + 2];
-                array[(12 * i) + 3] = array5[(i * 2) + 3];
-                array[(12 * i) + 4] = array4[i * 2];
-                array[(12 * i) + 5] = array4[(i * 2) + 1];
-                array[(12 * i) + 6] = array4[(i * 2) + 2];
-                array[(12 * i) + 7] = array4[(i * 2) + 3];
-                array[(12 * i) + 8] = array3[i * 2];
-                array[(12 * i) + 9] = array3[(i * 2) + 1];
-                array[(12 * i) + 10] = array3[(i * 2) + 2];
-                array[(12 * i) + 11] = array3[(i * 2) + 3];
-                array[(12 * i) + 12] = array2[i * 2];
-                array[(12 * i) + 13] = array2[(i * 2) + 1];
-                array6[(6 * i) - 5] = RGBAColor.transparentRGBA;
-                array6[(6 * i) - 4] = fill;
-                array6[(6 * i) - 3] = fill;
-                array6[(6 * i) - 2] = fill;
-                array6[(6 * i) - 1] = fill;
-                array6[6 * i] = RGBAColor.transparentRGBA;
-                array6[(6 * i) + 1] = RGBAColor.transparentRGBA;
-                array6[(6 * i) + 2] = fill;
-                array6[(6 * i) + 3] = fill;
-                array6[(6 * i) + 4] = fill;
-                array6[(6 * i) + 5] = fill;
-                array6[(6 * i) + 6] = RGBAColor.transparentRGBA;
+                positions[(12 * i) - 10] = outer[i * 2];
+                positions[(12 * i) - 9] = outer[(i * 2) + 1];
+                positions[(12 * i) - 8] = inner[(i * 2) - 2];
+                positions[(12 * i) - 7] = inner[(i * 2) - 1];
+                positions[(12 * i) - 6] = inner[i * 2];
+                positions[(12 * i) - 5] = inner[(i * 2) + 1];
+                positions[(12 * i) - 4] = innerEdge[(i * 2) - 2];
+                positions[(12 * i) - 3] = innerEdge[(i * 2) - 1];
+                positions[(12 * i) - 2] = innerEdge[i * 2];
+                positions[(12 * i) - 1] = innerEdge[(i * 2) + 1];
+                positions[12 * i] = innerFade[(i * 2) - 2];
+                positions[(12 * i) + 1] = innerFade[(i * 2) - 1];
+                positions[(12 * i) + 2] = innerFade[(i * 2) + 2];
+                positions[(12 * i) + 3] = innerFade[(i * 2) + 3];
+                positions[(12 * i) + 4] = innerEdge[i * 2];
+                positions[(12 * i) + 5] = innerEdge[(i * 2) + 1];
+                positions[(12 * i) + 6] = innerEdge[(i * 2) + 2];
+                positions[(12 * i) + 7] = innerEdge[(i * 2) + 3];
+                positions[(12 * i) + 8] = inner[i * 2];
+                positions[(12 * i) + 9] = inner[(i * 2) + 1];
+                positions[(12 * i) + 10] = inner[(i * 2) + 2];
+                positions[(12 * i) + 11] = inner[(i * 2) + 3];
+                positions[(12 * i) + 12] = outer[i * 2];
+                positions[(12 * i) + 13] = outer[(i * 2) + 1];
+                colors[(6 * i) - 5] = RGBAColor.transparentRGBA;
+                colors[(6 * i) - 4] = fill;
+                colors[(6 * i) - 3] = fill;
+                colors[(6 * i) - 2] = fill;
+                colors[(6 * i) - 1] = fill;
+                colors[6 * i] = RGBAColor.transparentRGBA;
+                colors[(6 * i) + 1] = RGBAColor.transparentRGBA;
+                colors[(6 * i) + 2] = fill;
+                colors[(6 * i) + 3] = fill;
+                colors[(6 * i) + 4] = fill;
+                colors[(6 * i) + 5] = fill;
+                colors[(6 * i) + 6] = RGBAColor.transparentRGBA;
             }
-            array[((vertexCount - 1) * 12) + 2] = array2[(vertexCount * 2) - 2];
-            array[((vertexCount - 1) * 12) + 3] = array2[(vertexCount * 2) - 1];
-            array6[((vertexCount - 1) * 6) + 1] = RGBAColor.transparentRGBA;
+            positions[((vertexCount - 1) * 12) + 2] = outer[(vertexCount * 2) - 2];
+            positions[((vertexCount - 1) * 12) + 3] = outer[(vertexCount * 2) - 1];
+            colors[((vertexCount - 1) * 6) + 1] = RGBAColor.transparentRGBA;
             int stripVertexCount = ((vertexCount - 1) * 6) + 2;
-            VertexPositionColor[] vertices = BuildColoredVertices(array, array6, stripVertexCount);
+            VertexPositionColor[] vertices = BuildColoredVertices(positions, colors, stripVertexCount);
             Renderer.DrawTriangleStrip(vertices, stripVertexCount);
         }
 
@@ -440,10 +440,10 @@ namespace CutTheRopeDX.Framework.Visual
         private static void CalcCurve(float cx, float cy, float radius, float startAngle, float endAngle, int vertexCount, float[] glVertices)
         {
             float angleStep = (endAngle - startAngle) / (vertexCount - 1);
-            float tangentFactor = Tanf(angleStep);
-            float cosineFactor = Cosf(angleStep);
-            float currentX = radius * Cosf(startAngle);
-            float currentY = radius * Sinf(startAngle);
+            float tangentFactor = MathF.Tan(angleStep);
+            float cosineFactor = MathF.Cos(angleStep);
+            float currentX = radius * MathF.Cos(startAngle);
+            float currentY = radius * MathF.Sin(startAngle);
             for (int i = 0; i < vertexCount; i++)
             {
                 glVertices[i * 2] = currentX + cx;
@@ -469,33 +469,33 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>An 8-vertex strip suitable for antialiased line rendering.</returns>
         public static VertexPositionColor[] BuildAntialiasedLineVertices(float x1, float y1, float x2, float y2, float size, RGBAColor color)
         {
-            Vector v = Vect(x1, y1);
-            Vector vector = VectSub(Vect(x2, y2), v);
-            Vector v2 = VectPerp(vector);
-            Vector vector2 = VectNormalize(v2);
-            v2 = VectMult(vector2, size);
-            Vector v3 = VectNeg(v2);
-            Vector v4 = VectAdd(v2, vector);
-            Vector v5 = VectAdd(VectNeg(v2), vector);
-            v2 = VectAdd(v2, v);
-            v3 = VectAdd(v3, v);
-            v4 = VectAdd(v4, v);
-            v5 = VectAdd(v5, v);
-            Vector vector3 = VectSub(v2, vector2);
-            Vector vector4 = VectSub(v4, vector2);
-            Vector vector5 = VectAdd(v3, vector2);
-            Vector vector6 = VectAdd(v5, vector2);
+            Vector start = Vect(x1, y1);
+            Vector span = VectSub(Vect(x2, y2), start);
+            Vector leftStart = VectPerp(span);
+            Vector normal = VectNormalize(leftStart);
+            leftStart = VectMult(normal, size);
+            Vector rightStart = VectNeg(leftStart);
+            Vector leftEnd = VectAdd(leftStart, span);
+            Vector rightEnd = VectAdd(VectNeg(leftStart), span);
+            leftStart = VectAdd(leftStart, start);
+            rightStart = VectAdd(rightStart, start);
+            leftEnd = VectAdd(leftEnd, start);
+            rightEnd = VectAdd(rightEnd, start);
+            Vector leftInnerStart = VectSub(leftStart, normal);
+            Vector leftInnerEnd = VectSub(leftEnd, normal);
+            Vector rightInnerStart = VectAdd(rightStart, normal);
+            Vector rightInnerEnd = VectAdd(rightEnd, normal);
             VertexPositionColor[] vertices = GetVertexCache(ref s_antialiasedLineVerticesCache, 8);
             Color transparent = RGBAColor.transparentRGBA.ToColor();
             Color lineColor = color.ToColor();
-            vertices[0] = new VertexPositionColor(new Vector3(v2.X, v2.Y, 0f), transparent);
-            vertices[1] = new VertexPositionColor(new Vector3(v4.X, v4.Y, 0f), transparent);
-            vertices[2] = new VertexPositionColor(new Vector3(vector3.X, vector3.Y, 0f), lineColor);
-            vertices[3] = new VertexPositionColor(new Vector3(vector4.X, vector4.Y, 0f), lineColor);
-            vertices[4] = new VertexPositionColor(new Vector3(vector5.X, vector5.Y, 0f), lineColor);
-            vertices[5] = new VertexPositionColor(new Vector3(vector6.X, vector6.Y, 0f), lineColor);
-            vertices[6] = new VertexPositionColor(new Vector3(v3.X, v3.Y, 0f), transparent);
-            vertices[7] = new VertexPositionColor(new Vector3(v5.X, v5.Y, 0f), transparent);
+            vertices[0] = new VertexPositionColor(new Vector3(leftStart.X, leftStart.Y, 0f), transparent);
+            vertices[1] = new VertexPositionColor(new Vector3(leftEnd.X, leftEnd.Y, 0f), transparent);
+            vertices[2] = new VertexPositionColor(new Vector3(leftInnerStart.X, leftInnerStart.Y, 0f), lineColor);
+            vertices[3] = new VertexPositionColor(new Vector3(leftInnerEnd.X, leftInnerEnd.Y, 0f), lineColor);
+            vertices[4] = new VertexPositionColor(new Vector3(rightInnerStart.X, rightInnerStart.Y, 0f), lineColor);
+            vertices[5] = new VertexPositionColor(new Vector3(rightInnerEnd.X, rightInnerEnd.Y, 0f), lineColor);
+            vertices[6] = new VertexPositionColor(new Vector3(rightStart.X, rightStart.Y, 0f), transparent);
+            vertices[7] = new VertexPositionColor(new Vector3(rightEnd.X, rightEnd.Y, 0f), transparent);
             return vertices;
         }
 
@@ -752,7 +752,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="x">Draw X position (top-left).</param>
         /// <param name="y">Draw Y position (top-left).</param>
         /// <param name="fraction">Visible fraction (0 = invisible, 1 = fully visible).</param>
-        public static void DrawRadialClippedQuad(CTRTexture2D texture, int quadIndex, float x, float y, float fraction)
+        public static void DrawRadialClippedQuad(Texture2D texture, int quadIndex, float x, float y, float fraction)
         {
             if (fraction <= 0f)
             {
@@ -766,7 +766,7 @@ namespace CutTheRopeDX.Framework.Visual
             if (fraction >= 1f)
             {
                 Renderer.Enable(Renderer.GL_TEXTURE_2D);
-                Renderer.BindTexture(texture.Name());
+                Renderer.BindTexture(texture);
                 VertexPositionNormalTexture[] fullQuad = QuadVertexCache.GetTexturedQuad(
                     x, y, w, h, quad.tlX, quad.tlY, quad.brX, quad.brY);
                 Renderer.DrawTriangleStrip(fullQuad);
@@ -853,7 +853,7 @@ namespace CutTheRopeDX.Framework.Visual
             }
 
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(texture.Name());
+            Renderer.BindTexture(texture);
             Renderer.DrawTriangleList(vertices, indices, indexCount);
         }
 

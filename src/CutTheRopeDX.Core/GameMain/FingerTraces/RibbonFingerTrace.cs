@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using CutTheRopeDX.Framework;
@@ -15,21 +16,21 @@ namespace CutTheRopeDX.GameMain.FingerTraces
     /// <param name="segmentLife">The lifetime in seconds assigned to each stored ribbon segment.</param>
     /// <param name="particleBurstDuration">The duration in seconds that particle emission remains active after a segment is appended.</param>
     /// <param name="particleEmissionRate">The particle emission rate used during the active burst window.</param>
-    /// <param name="ribbonBaseWidth">The base half-width contribution applied along the ribbon body.</param>
-    /// <param name="minimumRibbonHalfWidth">The minimum half-width preserved at the ribbon tip.</param>
     /// <param name="glowQuadIndex">
     /// The optional glow quad index. Pass <see langword="null"/> to disable glow sprite generation.
     /// </param>
     /// <param name="glowTranslateY">The local Y translation applied to the glow sprite pivot.</param>
+    /// <param name="ribbonBaseWidth">The base half-width contribution applied along the ribbon body. Every named trace uses the default.</param>
+    /// <param name="minimumRibbonHalfWidth">The minimum half-width preserved at the ribbon tip. Every named trace uses the default.</param>
     /// <param name="particles">The particle emitters owned by the trace.</param>
     internal abstract class RibbonFingerTrace(
         float segmentLife,
         float particleBurstDuration,
         float particleEmissionRate,
-        float ribbonBaseWidth,
-        float minimumRibbonHalfWidth,
         int? glowQuadIndex,
         float glowTranslateY,
+        float ribbonBaseWidth = 12f,
+        float minimumRibbonHalfWidth = 1f,
         params FingerParticles[] particles) : ParticleFingerTrace(segmentLife, particleBurstDuration, particleEmissionRate, 10, particles)
     {
         /// <summary>
@@ -116,7 +117,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
         /// <inheritdoc />
         protected override void OnHeadStateUpdated(Vector averageDirection)
         {
-            glowAlpha = MIN(Segments.Count / 5f, VectLength(averageDirection) / 10f);
+            glowAlpha = Math.Min(Segments.Count / 5f, VectLength(averageDirection) / 10f);
         }
 
         /// <inheritdoc />
@@ -148,7 +149,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
             {
                 Vector point = sampledPoints[i];
                 Vector direction = GetPointDirection(sampledPoints, i);
-                float directionLength = MAX(0.0001f, VectLength(direction));
+                float directionLength = Math.Max(0.0001f, VectLength(direction));
                 Vector normal = new(-(direction.Y / directionLength), direction.X / directionLength);
                 float t = sampledPoints.Count == 1 ? 1f : i / (float)(sampledPoints.Count - 1);
                 float halfWidth = i == sampledPoints.Count - 1
@@ -182,7 +183,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
                 return false;
             }
 
-            int sampleCount = MAX(2, (controlPoints.Count * 2) - 1);
+            int sampleCount = Math.Max(2, (controlPoints.Count * 2) - 1);
             Vector[] controlPointArray = [.. controlPoints];
             for (int i = 0; i < sampleCount; i++)
             {

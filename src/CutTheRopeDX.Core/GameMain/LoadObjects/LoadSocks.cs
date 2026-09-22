@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Visual;
 
 using static CutTheRopeDX.Helpers.ParsingHelpers;
 
@@ -24,12 +25,12 @@ namespace CutTheRopeDX.GameMain
         /// <param name="mapOffsetY">The additional map Y offset applied during loading.</param>
         private void LoadSock(XElement xmlNode, float scale, float offsetX, float offsetY, int mapOffsetX, int mapOffsetY)
         {
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
+            RootController root = Application.SharedRootController();
             // Pairing uses the group exactly as the level authored it; only the art lookups
             // below round a malformed one up into range.
             int group = ParseIntOrZero(xmlNode.Attribute("group")?.Value);
             string resource = SockArt.TextureFor(group, SpecialEvents.IsXmas);
-            XmasSock = Sock.Sock_createWithResID(resource);
+            XmasSock = Image.InitializeFromResource(new Sock(), resource);
             Sock sock = XmasSock;
             sock.group = group;
 
@@ -58,7 +59,7 @@ namespace CutTheRopeDX.GameMain
             {
                 sock.mover.angle_ += DEG_90;
                 sock.mover.angle_initial = sock.mover.angle_;
-                if (cTRRootController.GetPack() == 3 && cTRRootController.GetLevel() == 24)
+                if (root.Pack == 3 && root.Level == 24)
                 {
                     sock.mover.use_angle_initial = true;
                 }

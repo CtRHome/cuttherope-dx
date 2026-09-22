@@ -1,5 +1,6 @@
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -13,7 +14,7 @@ namespace CutTheRopeDX.GameMain
                 || !GameWinChewing.ShouldSchedulePostEatSleep(
                     targets.Count,
                     nightLevel,
-                    target.controller?.UsesFlashXmlAnimations == true))
+                    target.animation?.UsesFlashXmlAnimations == true))
             {
                 return;
             }
@@ -40,7 +41,7 @@ namespace CutTheRopeDX.GameMain
                 || !GameWinChewing.ShouldSchedulePostEatSleep(
                     targets.Count,
                     nightLevel,
-                    target.controller?.UsesFlashXmlAnimations == true))
+                    target.animation?.UsesFlashXmlAnimations == true))
             {
                 return;
             }
@@ -52,7 +53,7 @@ namespace CutTheRopeDX.GameMain
 
             target.NightSleep.StartPostEatPresentation(NightSleepSoundInterval);
             SetNightSleepVisibility(target, false);
-            target.controller?.PlaySleepingWithoutIdleToSleepTrim();
+            target.animation?.PlaySleeping(trimIdleToSleepTransition: false);
         }
 
         private void UpdatePostEatSleep(float delta)
@@ -70,20 +71,20 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
 
-                bool shouldShowSleepOverlay = target.controller?.IsSleepingAnimationPlaying() == true;
+                bool shouldShowSleepOverlay = target.animation?.IsPlaying(TargetAnimationState.Sleeping) == true;
                 SetNightSleepVisibility(target, shouldShowSleepOverlay);
                 if (!shouldShowSleepOverlay)
                 {
                     continue;
                 }
 
-                target.controller?.UpdateSleepOverlays(delta);
-                target.controller?.SyncSleepOverlayPosition(target.targetObject.x, target.targetObject.y);
+                target.animation?.UpdateSleepOverlays(delta);
+                target.animation?.SyncSleepOverlayPosition(target.targetObject.x, target.targetObject.y);
 
                 if (target.NightSleep.AdvanceSound(delta, NightSleepSoundInterval))
                 {
-                    CTRSoundMgr.PlayRandomOmNomSound(
-                        target.controller?.SkinDefinition,
+                    SoundMgr.PlayRandomOmNomSound(
+                        target.animation?.SkinDefinition,
                         Resources.Snd.MonsterSleep1,
                         Resources.Snd.MonsterSleep2,
                         Resources.Snd.MonsterSleep3);

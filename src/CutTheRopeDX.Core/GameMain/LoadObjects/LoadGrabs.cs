@@ -34,8 +34,8 @@ namespace CutTheRopeDX.GameMain
             _ = bool.TryParse(xmlNode.Attribute("moveVertical")?.Value, out bool v);
             float o = ParseFloatOrZero(xmlNode.Attribute("moveOffset")?.Value) * scale;
             _ = bool.TryParse(xmlNode.Attribute("spider")?.Value, out bool spider);
-            bool flag = xmlNode.Attribute("part")?.Value == "L";
-            _ = bool.TryParse(xmlNode.Attribute("hidePath")?.Value, out bool flag2);
+            bool isLeftPart = xmlNode.Attribute("part")?.Value == "L";
+            _ = bool.TryParse(xmlNode.Attribute("hidePath")?.Value, out bool hidePath);
             _ = bool.TryParse(xmlNode.Attribute("bindBulb")?.Value, out bool bindBulb);
             string bulbNumber = xmlNode.Attribute("bulbNumber")?.Value ?? string.Empty;
             _ = bool.TryParse(xmlNode.Attribute("gun")?.Value, out bool gun);
@@ -79,13 +79,13 @@ namespace CutTheRopeDX.GameMain
             if (grab.mover != null)
             {
                 grab.SetBee();
-                if (!flag2)
+                if (!hidePath)
                 {
                     int pollenPathStep = 3;
-                    bool flag3 = (xmlNode.Attribute("path")?.Value ?? string.Empty).StartsWith('R');
+                    bool sparsePollenPath = (xmlNode.Attribute("path")?.Value ?? string.Empty).StartsWith('R');
                     for (int l = 0; l < grab.mover.pathLen - 1; l++)
                     {
-                        if (!flag3 || l % pollenPathStep == 0)
+                        if (!sparsePollenPath || l % pollenPathStep == 0)
                         {
                             pollenDrawer.FillWithPolenFromPathIndexToPathIndexGrab(l, l + 1, grab);
                         }
@@ -123,49 +123,49 @@ namespace CutTheRopeDX.GameMain
 
             if (grab.Source is PreAttachedSource)
             {
-                ConstraintedPoint constraintedPoint;
+                ConstrainedPoint constrainedPoint;
                 CandyContext targetBomb = bombed && grabBombNumber != null ? FindBombByNumber(grabBombNumber) : null;
                 CandyContext targetAxe = targetBomb == null && grabAxeNumber != null ? FindAxeByNumber(grabAxeNumber) : null;
                 CandyContext targetCandy = targetBomb == null && targetAxe == null && grabCandyNumber != null ? FindCandyByNumber(grabCandyNumber) : null;
                 // Single-candy / split-candy behavior: the primary candy's split state, built
                 // from the same metadata pass, says which half a part="L"/"R" grab binds to.
                 SplitCandyState split = candies[0].Lifecycle.Split;
-                ConstraintedPoint authoredHalf = split == null ? null
-                    : flag ? split.Left.Body.Point : split.Right.Body.Point;
+                ConstrainedPoint authoredHalf = split == null ? null
+                    : isLeftPart ? split.Left.Body.Point : split.Right.Body.Point;
                 if (bindBulb)
                 {
                     CandyContext bulb = FindLightEmitterByNumber(bulbNumber);
-                    constraintedPoint = bulb != null ? bulb.WholeBody.Point : authoredHalf ?? star;
+                    constrainedPoint = bulb != null ? bulb.WholeBody.Point : authoredHalf ?? CandyPoint;
                 }
                 else if (targetBomb != null)
                 {
-                    constraintedPoint = targetBomb.WholeBody.Point;
+                    constrainedPoint = targetBomb.WholeBody.Point;
                 }
                 else if (targetAxe != null)
                 {
-                    constraintedPoint = targetAxe.WholeBody.Point;
+                    constrainedPoint = targetAxe.WholeBody.Point;
                 }
                 else if (targetCandy != null)
                 {
                     // Multi-candy: bind to the candy named by candyNumber.
-                    constraintedPoint = targetCandy.WholeBody.Point;
+                    constrainedPoint = targetCandy.WholeBody.Point;
                 }
                 else
                 {
-                    constraintedPoint = authoredHalf ?? star;
+                    constrainedPoint = authoredHalf ?? CandyPoint;
                 }
 
                 // A part="L"/"R" grab binds to a half, so the owner lookup has to resolve halves too;
                 // an unowned point (no candy at all) simply carries no lantern state.
-                CandyContext ropeTarget = CandyForPointOrNull(constraintedPoint);
+                CandyContext ropeTarget = CandyForPointOrNull(constrainedPoint);
                 if (NormalRopeLoad.ShouldCreate(ropeTarget?.Lifecycle.Attachments.InLantern == true))
                 {
-                    Bungee bungee = new Bungee().InitWithHeadAtXYTailAtTXTYandLength(null, hx, hy, constraintedPoint, constraintedPoint.pos.X, constraintedPoint.pos.Y, len);
+                    Bungee bungee = new Bungee().InitWithHeadAtXYTailAtTXTYandLength(null, hx, hy, constrainedPoint, constrainedPoint.pos.X, constrainedPoint.pos.Y, len);
                     bungee.bungeeAnchor.pin = bungee.bungeeAnchor.pos;
                     if (!breakable)
                     {
                         // breakable="false" is a chain: it renders as a chain and can only be cut by the
-                        // axe (the original's single `isUnBreakable` flag). `axed`/axeNumber is purely a
+                        // axe (the original's single `isUnBreakable` isLeftPart). `axed`/axeNumber is purely a
                         // bind target and does not make the rope axe-only.
                         bungee.SetCutOnlyByAxe();
                     }
@@ -182,10 +182,10 @@ namespace CutTheRopeDX.GameMain
             if (grab.GunSource != null && grab.GunSource.Arrow != null)
             {
                 SplitCandyState split = candies[0].Lifecycle.Split;
-                ConstraintedPoint constraintedPoint = split == null ? star
-                    : flag ? split.Left.Body.Point : split.Right.Body.Point;
-                Vector vector = VectSub(Vect(grab.x, grab.y), constraintedPoint.pos);
-                grab.GunSource.Arrow.rotation = RADIANS_TO_DEGREES(VectAngleNormalized(vector));
+                ConstrainedPoint constrainedPoint = split == null ? CandyPoint
+                    : isLeftPart ? split.Left.Body.Point : split.Right.Body.Point;
+                Vector vector = VectSub(Vect(grab.x, grab.y), constrainedPoint.pos);
+                grab.GunSource.Arrow.rotation = float.RadiansToDegrees(VectAngleNormalized(vector));
             }
             bungees.Add(grab);
         }

@@ -1,8 +1,11 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Visual;
 
-using static CutTheRopeDX.Framework.Helpers.CTRMathHelper;
+using static CutTheRopeDX.Framework.Helpers.MathHelper;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -92,7 +95,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             State = SpiderRiderState.Walking;
-            CTRSoundMgr.PlaySound(Resources.Snd.SpiderActivate);
+            SoundMgr.PlaySound(Resources.Snd.SpiderActivate);
             Animation?.PlayTimeline(0);
         }
 
@@ -119,7 +122,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            if (Animation.GetCurrentTimelineIndex() != 0)
+            if (Animation.CurrentTimelineIndex != 0)
             {
                 Position += delta * ActivePhysicsConstants.SpiderTraversalSpeed;
             }
@@ -136,7 +139,7 @@ namespace CutTheRopeDX.GameMain
             {
                 Vector segmentStart = Vect(rope.drawPts[i], rope.drawPts[i + 1]);
                 Vector segmentEnd = Vect(rope.drawPts[i + 2], rope.drawPts[i + 3]);
-                float segmentLength = MAX(
+                float segmentLength = Math.Max(
                     2f * Bungee.BUNGEE_REST_LEN / 3f,
                     VectDistance(segmentStart, segmentEnd));
 
@@ -154,9 +157,9 @@ namespace CutTheRopeDX.GameMain
                         HasReachedCandy = true;
                     }
 
-                    if (Animation.GetCurrentTimelineIndex() != 0)
+                    if (Animation.CurrentTimelineIndex != 0)
                     {
-                        Animation.rotation = RADIANS_TO_DEGREES(VectAngleNormalized(along)) + DEG_270;
+                        Animation.rotation = float.RadiansToDegrees(VectAngleNormalized(along)) + DEG_270;
                     }
 
                     return;

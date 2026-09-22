@@ -296,7 +296,7 @@ namespace CutTheRopeDX.GameMain
             {
                 if (parts[i].GetTimeline(timelineId) != null)
                 {
-                    return parts[i].GetCurrentTimelineIndex() == timelineId
+                    return parts[i].CurrentTimelineIndex == timelineId
                         && parts[i].GetCurrentTimeline()?.state == Timeline.TimelineState.TIMELINE_PLAYING;
                 }
             }
@@ -486,7 +486,7 @@ namespace CutTheRopeDX.GameMain
         private static bool TryGetCompletionTargetTimelineId(OmNomSkinDefinition skinDefinition,
             int finishedTimelineId, out int followupTimelineId)
         {
-            return skinDefinition.TryGetFollowupTimeline(finishedTimelineId, out followupTimelineId);
+            return skinDefinition.Followups.TryGetValue(finishedTimelineId, out followupTimelineId);
         }
 
         /// <summary>
@@ -516,14 +516,12 @@ namespace CutTheRopeDX.GameMain
             List<Image> targetParts, int idleLoopTimelineId, int sleepingTimelineId)
         {
             // First pass: create all parts so cross-part action targets can be resolved.
-#pragma warning disable IDE0028
             Dictionary<string, Image> partsByName = new(definition.Parts.Count);
-#pragma warning restore IDE0028
             for (int i = 0; i < definition.Parts.Count; i++)
             {
                 FlashXmlPartDefinition partDefinition = definition.Parts[i];
 
-                FlashXmlImage part = FlashXmlImage.CreateWithResID(partDefinition.TextureResourceName);
+                FlashXmlImage part = Image.InitializeFromResource(new FlashXmlImage(), partDefinition.TextureResourceName);
                 part.anchor = 9;
                 part.parentAnchor = 9;
                 part.visible = ShouldStartVisible(partDefinition, idleLoopTimelineId);
@@ -636,7 +634,7 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
 
-                return targetParts[i].GetCurrentTimelineIndex() == timelineId
+                return targetParts[i].CurrentTimelineIndex == timelineId
                     && targetParts[i].GetCurrentTimeline()?.state == Timeline.TimelineState.TIMELINE_PLAYING;
             }
 
@@ -718,7 +716,7 @@ namespace CutTheRopeDX.GameMain
             for (int i = 0; i < targetParts.Count; i++)
             {
                 Timeline timeline = targetParts[i].GetTimeline(timelineId);
-                if (timeline == null || targetParts[i].GetCurrentTimelineIndex() != timelineId)
+                if (timeline == null || targetParts[i].CurrentTimelineIndex != timelineId)
                 {
                     continue;
                 }
@@ -742,7 +740,7 @@ namespace CutTheRopeDX.GameMain
                 : timeSeconds;
 
             Timeline rootTimeline = TargetObject.GetTimeline(timelineId);
-            if (rootTimeline != null && TargetObject.GetCurrentTimelineIndex() == timelineId)
+            if (rootTimeline != null && TargetObject.CurrentTimelineIndex == timelineId)
             {
                 rootTimeline.DeactivateTracks();
                 rootTimeline.time = clampedTimeSeconds;
@@ -810,7 +808,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>Delay in seconds before the next pirate bubble overlay.</returns>
         private static float GetPirateBubbleLoopIntervalSeconds()
         {
-            return CTRMathHelper.RND_RANGE(1, 4);
+            return MathHelper.RND_RANGE(1, 4);
         }
 
         /// <summary>
@@ -907,7 +905,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            if (SkinDefinition.ShouldBindFollowupDelegate(timelineId))
+            if (SkinDefinition.Followups.ContainsKey(timelineId))
             {
                 timeline.delegateTimelineDelegate = this;
                 _driverTimeline = timeline;
@@ -1166,15 +1164,15 @@ namespace CutTheRopeDX.GameMain
                 for (int i = 0; i < timelineDefinition.ActionKeyFrames.Count; i++)
                 {
                     FlashXmlActionGroupKeyFrame frame = timelineDefinition.ActionKeyFrames[i];
-                    List<CTRAction> actions = [];
+                    List<TimelineAction> actions = [];
 
                     for (int actionIndex = 0; actionIndex < frame.Actions.Count; actionIndex++)
                     {
                         FlashXmlActionCommand action = frame.Actions[actionIndex];
-                        CTRAction ctrAction = BuildAction(part, action, partsByName);
-                        if (ctrAction != null)
+                        TimelineAction timelineAction = BuildAction(part, action, partsByName);
+                        if (timelineAction != null)
                         {
-                            actions.Add(ctrAction);
+                            actions.Add(timelineAction);
                         }
                     }
 
@@ -1246,7 +1244,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="action">Action command to convert.</param>
         /// <param name="partsByName">Lookup table for named action targets.</param>
         /// <returns>The generated action, or <see langword="null"/> when the action cannot be resolved.</returns>
-        private static CTRAction BuildAction(Image part, FlashXmlActionCommand action, Dictionary<string, Image> partsByName)
+        private static TimelineAction BuildAction(Image part, FlashXmlActionCommand action, Dictionary<string, Image> partsByName)
         {
             Image target;
             if (action.Target == "self")
@@ -1260,22 +1258,22 @@ namespace CutTheRopeDX.GameMain
 
             return action.Command switch
             {
-                "AC_SDQ" => CTRAction.CreateAction(
+                "AC_SDQ" => TimelineAction.CreateAction(
                     target,
                     Image.ACTION_SET_DRAWQUAD,
                     ParseActionInt(action.Param1),
                     0),
-                "AC_SV" => CTRAction.CreateAction(
+                "AC_SV" => TimelineAction.CreateAction(
                     target,
                     BaseElement.ACTION_SET_VISIBLE,
                     0,
                     ParseActionInt(action.Param2)),
-                "AC_SAP" => CTRAction.CreateAction(
+                "AC_SAP" => TimelineAction.CreateAction(
                     target,
                     BaseElement.ACTION_SET_CUSTOM_ANCHOR,
                     ParseActionFloat(action.Param1),
                     ParseActionFloat(action.Param2)),
-                "AC_SRC" => CTRAction.CreateAction(
+                "AC_SRC" => TimelineAction.CreateAction(
                     target,
                     BaseElement.ACTION_SET_ROTATION_CENTER,
                     ParseActionFloat(action.Param1),

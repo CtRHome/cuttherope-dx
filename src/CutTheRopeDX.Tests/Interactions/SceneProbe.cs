@@ -423,7 +423,7 @@ namespace CutTheRopeDX.Tests.Interactions
         /// <param name="scene">Scene to read.</param>
         /// <param name="point">Physics point to resolve.</param>
         /// <returns>The owning body, or <see langword="null"/>.</returns>
-        public static CandyBody BodyForPoint(this GameScene scene, ConstraintedPoint point)
+        public static CandyBody BodyForPoint(this GameScene scene, ConstrainedPoint point)
         {
             return scene.CandyBodyForPointOrNull(point);
         }
@@ -585,7 +585,7 @@ namespace CutTheRopeDX.Tests.Interactions
         public static int BubblePopEffectCount(this GameScene scene)
         {
             AnimationsPool pool = Field<AnimationsPool>(scene, "aniPool");
-            CTRTexture2D bubbleTexture = Application.GetTexture(Resources.Img.ObjBubble);
+            Texture2D bubbleTexture = Application.GetTexture(Resources.Img.ObjBubble);
             return pool.GetChilds().Values
                 .OfType<Animation>()
                 .Count(animation => ReferenceEquals(animation.texture, bubbleTexture));
@@ -597,7 +597,7 @@ namespace CutTheRopeDX.Tests.Interactions
         public static int SpiderVictoryEffectCount(this GameScene scene)
         {
             AnimationsPool pool = Field<AnimationsPool>(scene, "aniPool");
-            CTRTexture2D spiderTexture = Application.GetTexture(Resources.Img.ObjSpider);
+            Texture2D spiderTexture = Application.GetTexture(Resources.Img.ObjSpider);
             return pool.GetChilds().Values
                 .OfType<Image>()
                 .Count(effect => ReferenceEquals(effect.texture, spiderTexture) && effect.GetChilds().Count > 0);

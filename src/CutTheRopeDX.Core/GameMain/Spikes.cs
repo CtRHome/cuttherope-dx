@@ -11,7 +11,7 @@ namespace CutTheRopeDX.GameMain
     /// <summary>
     /// Spike hazard that can be static, rotatable by a button group, or electrified with timed on/off cycles.
     /// </summary>
-    internal sealed class Spikes : CTRGameObject, ITimelineDelegate, IButtonDelegation
+    internal sealed class Spikes : GameObject, ITimelineDelegate, IButtonDelegation
     {
         /// <summary>
         /// Initializes spikes at a level position with the configured width, angle, and toggle group.
@@ -38,17 +38,17 @@ namespace CutTheRopeDX.GameMain
                 DoRestoreCutTransparency();
                 int buttonQuad = ButtonFirstQuad + ((t - 1) * ButtonFramesPerToggle);
                 int q = ButtonFirstQuad + ButtonPressedQuadOffset + ((t - 1) * ButtonFramesPerToggle);
-                Image image = Image_createWithResIDQuad(Resources.Img.ObjSpikes, buttonQuad);
-                Image image2 = Image_createWithResIDQuad(Resources.Img.ObjSpikes, q);
-                image.DoRestoreCutTransparency();
-                image2.DoRestoreCutTransparency();
-                rotateButton = new Button().InitWithUpElementDownElementandID(image, image2, SpikesButtonId.Rotate);
+                Image upImage = FromResource(Resources.Img.ObjSpikes, buttonQuad);
+                Image downImage = FromResource(Resources.Img.ObjSpikes, q);
+                upImage.DoRestoreCutTransparency();
+                downImage.DoRestoreCutTransparency();
+                rotateButton = new Button().InitWithUpElementDownElementandID(upImage, downImage, SpikesButtonId.Rotate);
                 rotateButton.delegateButtonDelegate = this;
                 rotateButton.anchor = rotateButton.parentAnchor = 18;
                 _ = AddChild(rotateButton);
                 Vector quadOffset = GetQuadOffset(Resources.Img.ObjSpikes, buttonQuad);
                 Vector quadSize = GetQuadSize(Resources.Img.ObjSpikes, buttonQuad);
-                Vector vector = VectSub(Vect(image.texture.preCutSize.X, image.texture.preCutSize.Y), VectAdd(quadSize, quadOffset));
+                Vector vector = VectSub(Vect(upImage.texture.preCutSize.X, upImage.texture.preCutSize.Y), VectAdd(quadSize, quadOffset));
                 rotateButton.SetTouchIncreaseLeftRightTopBottom(0f - quadOffset.X + (quadSize.X / 2f), 0f - vector.X + (quadSize.X / 2f), 0f - quadOffset.Y + (quadSize.Y / 2f), 0f - vector.Y + (quadSize.Y / 2f));
             }
             passColorToChilds = false;
@@ -75,7 +75,7 @@ namespace CutTheRopeDX.GameMain
         public void UpdateRotation()
         {
             float halfWidth = !electro
-                ? ActivePhysicsConstants.SpikesCollisionLineWidth(toggled != -1, widthIndex)
+                ? ActivePhysicsConstants.SpikesCollisionLineWidth(Toggled != -1, widthIndex)
                 : ActivePhysicsConstants.ElectroSpikesCollisionObjectWidth() - ActivePhysicsConstants.ElectroSpikesWidthReduction;
             halfWidth /= 2f;
             float bandHalfHeight = ActivePhysicsConstants.SpikesCollisionBandHalfHeight;
@@ -85,7 +85,7 @@ namespace CutTheRopeDX.GameMain
             b1.X = t1.X;
             b2.X = t2.X;
             b1.Y = b2.Y = y + bandHalfHeight;
-            angle = DEGREES_TO_RADIANS(rotation);
+            angle = float.DegreesToRadians(rotation);
             t1 = VectRotateAround(t1, angle, x, y);
             t2 = VectRotateAround(t2, angle, x, y);
             b1 = VectRotateAround(b1, angle, x, y);
@@ -100,7 +100,7 @@ namespace CutTheRopeDX.GameMain
             electroOn = false;
             PlayTimeline(0);
             electroTimer = offTime;
-            CTRSoundMgr.StopLoopedSound(sndElectric);
+            SoundMgr.StopLoopedSound(sndElectric);
             sndElectric = null;
         }
 
@@ -112,13 +112,13 @@ namespace CutTheRopeDX.GameMain
             electroOn = true;
             PlayTimeline(1);
             electroTimer = onTime;
-            sndElectric = CTRSoundMgr.PlaySoundLooped(Resources.Snd.Electric);
+            sndElectric = SoundMgr.PlaySoundLooped(Resources.Snd.Electric);
         }
 
         /// <summary>Stops the electric loop without changing the electrified cycle state.</summary>
         public void SuspendElectricLoop()
         {
-            CTRSoundMgr.StopLoopedSound(sndElectric);
+            SoundMgr.StopLoopedSound(sndElectric);
             sndElectric = null;
         }
 
@@ -127,7 +127,7 @@ namespace CutTheRopeDX.GameMain
         {
             if (electro && electroOn && sndElectric == null)
             {
-                sndElectric = CTRSoundMgr.PlaySoundLooped(Resources.Snd.Electric);
+                sndElectric = SoundMgr.PlaySoundLooped(Resources.Snd.Electric);
             }
         }
 
@@ -159,17 +159,13 @@ namespace CutTheRopeDX.GameMain
         /// <param name="t">Toggle group id.</param>
         public void SetToggled(int t)
         {
-            toggled = t;
+            Toggled = t;
         }
 
         /// <summary>
         /// Gets the toggle group for this rotatable spike set.
         /// </summary>
-        /// <returns>The toggle group id.</returns>
-        public int GetToggled()
-        {
-            return toggled;
-        }
+        public int Toggled { get; private set; }
 
         /// <inheritdoc />
         public override void Update(float delta)
@@ -220,13 +216,13 @@ namespace CutTheRopeDX.GameMain
         {
             if (n == SpikesButtonId.Rotate)
             {
-                delegateRotateAllSpikesWithID(toggled);
+                delegateRotateAllSpikesWithID(Toggled);
                 if (spikesNormal)
                 {
-                    CTRSoundMgr.PlaySound(Resources.Snd.SpikeRotateIn);
+                    SoundMgr.PlaySound(Resources.Snd.SpikeRotateIn);
                     return;
                 }
-                CTRSoundMgr.PlaySound(Resources.Snd.SpikeRotateOut);
+                SoundMgr.PlaySound(Resources.Snd.SpikeRotateOut);
             }
         }
 
@@ -240,9 +236,6 @@ namespace CutTheRopeDX.GameMain
         public void TimelinereachedKeyFramewithIndex(Timeline _, KeyFrame _1, int _2)
         {
         }
-
-        /// <summary>Toggle group id for rotating linked spike sets.</summary>
-        private int toggled;
 
         /// <summary>Spike width/type index (1-4, 5 = electrodes) used to resolve the WP7 collision width.</summary>
         private int widthIndex;
@@ -339,30 +332,6 @@ namespace CutTheRopeDX.GameMain
             return rotatable
                 ? (Resources.Img.ObjSpikes, RotatableSpikeFirstQuad + index)
                 : (Resources.Img.ObjSpikes, StaticSpikeFirstQuad + index);
-        }
-
-        /// <summary>
-        /// Electrode animation timeline identifiers.
-        /// </summary>
-        private enum SPIKES_ANIM
-        {
-            /// <summary>Base electrodes timeline.</summary>
-            ELECTRODES_BASE,
-
-            /// <summary>Electric electrodes timeline.</summary>
-            ELECTRODES_ELECTRIC,
-
-            /// <summary>Rotation adjustment timeline.</summary>
-            ROTATION_ADJUSTED
-        }
-
-        /// <summary>
-        /// Spike rotation button identifiers.
-        /// </summary>
-        private enum SPIKES_ROTATION
-        {
-            /// <summary>Rotate button identifier.</summary>
-            BUTTON
         }
 
         /// <summary>

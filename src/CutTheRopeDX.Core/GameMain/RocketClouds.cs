@@ -37,22 +37,10 @@ namespace CutTheRopeDX.GameMain
             sizeVar = 0f;
             endSize = 1f;
             emissionRate = 20f;
-            startColor.RedColor = 1f;
-            startColor.GreenColor = 1f;
-            startColor.BlueColor = 1f;
-            startColor.AlphaChannel = 1f;
-            startColorVar.RedColor = 0f;
-            startColorVar.GreenColor = 0f;
-            startColorVar.BlueColor = 0f;
-            startColorVar.AlphaChannel = 0f;
-            endColor.RedColor = 0f;
-            endColor.GreenColor = 0f;
-            endColor.BlueColor = 0f;
-            endColor.AlphaChannel = 0f;
-            endColorVar.RedColor = 0f;
-            endColorVar.GreenColor = 0f;
-            endColorVar.BlueColor = 0f;
-            endColorVar.AlphaChannel = 0f;
+            startColor = RGBAColor.MakeRGBA(1f, 1f, 1f, 1f);
+            startColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
+            endColor = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
+            endColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
             blendAdditive = true;
             return this;
         }
@@ -61,9 +49,7 @@ namespace CutTheRopeDX.GameMain
         public override void InitParticle(ref Particle particle)
         {
             base.InitParticle(ref particle);
-            Quad2D quad2D = imageGrid.texture.quads[5];
-            Quad3D quad3D = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
-            drawer.SetTextureQuadatVertexQuadatIndex(quad2D, quad3D, particleCount);
+            SetParticleQuad(5);
             Vector quadSize = Image.GetQuadSize(Resources.Img.ObjRocket, 5);
             particle.width = quadSize.X;
             particle.height = quadSize.Y;

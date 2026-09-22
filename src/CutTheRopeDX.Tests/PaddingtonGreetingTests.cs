@@ -20,7 +20,6 @@ namespace CutTheRopeDX.Tests
         /// </summary>
         private const int GreetingFrameCount = 39;
 
-
         /// <summary>The greeting runs at 24 fps, not the 20 fps the rest of the sheet uses.</summary>
         private const float GreetingFrameDelay = 1f / 24f;
 
@@ -50,7 +49,7 @@ namespace CutTheRopeDX.Tests
 
             Assert.True(hat.visible);
             Assert.False(target.GetAnimation(Resources.Img.CharAnimationsPaddington).visible);
-            Assert.Equal(OriginalTargetAnimationBackend.IdleLoopTimeline, target.GetCurrentTimelineIndex());
+            Assert.Equal(OriginalTargetAnimationBackend.IdleLoopTimeline, target.CurrentTimelineIndex);
         }
 
         [Fact]

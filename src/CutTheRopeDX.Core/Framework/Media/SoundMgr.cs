@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 
+using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Diagnostics;
 using CutTheRopeDX.GameMain;
 using CutTheRopeDX.Helpers;
@@ -11,7 +12,9 @@ namespace CutTheRopeDX.Framework.Media
 {
     /// <summary>
     /// Manages sound effects and music playback through the host's audio backend.
-    /// Handles loading, caching, and playing of sound effects and background music.
+    /// Handles loading, caching, and playing of sound effects and background music. The static
+    /// API honours the player's sound and music settings; the <c>*Core</c> instance methods
+    /// behind it do not.
     /// </summary>
     internal sealed class SoundMgr : FrameworkTypes
     {
@@ -43,13 +46,299 @@ namespace CutTheRopeDX.Framework.Media
         }
 
         /// <summary>
+        /// Plays a sound effect identified by its resource name.
+        /// </summary>
+        /// <param name="soundResourceName">The sound resource name to play.</param>
+        public static void PlaySound(string soundResourceName)
+        {
+            _ = PlaySoundTracked(soundResourceName);
+        }
+
+        /// <summary>
+        /// Plays a sound effect and hands back its instance, for callers that own an individual
+        /// effect and may need to stop it via <see cref="StopSound(ISoundInstance)"/>.
+        /// </summary>
+        /// <param name="soundResourceName">The sound resource name to play.</param>
+        /// <returns>The playing <see cref="ISoundInstance"/>, or <see langword="null"/> when sound
+        /// is off or the effect failed to start.</returns>
+        public static ISoundInstance PlaySoundTracked(string soundResourceName)
+        {
+            return string.IsNullOrWhiteSpace(soundResourceName) || !Preferences.GetBooleanForKey("SOUND_ON")
+                ? null
+                : Application.SharedSoundMgr().PlaySoundTrackedCore(soundResourceName);
+        }
+
+        /// <summary>
+        /// Plays an Om Nom sound, swapping to a skin-specific variant when available.
+        /// </summary>
+        /// <param name="soundResourceName">The base sound resource name to resolve and play.</param>
+        public static void PlayOmNomSound(string soundResourceName)
+        {
+            if (soundResourceName is Resources.Snd.MonsterExcited or Resources.Snd.MonsterGreeting
+                && RND_RANGE(0, 1) == 0)
+            {
+                return;
+            }
+
+            PlaySound(OmNomSoundResolver.ResolveSelectedSkinSoundResource(soundResourceName));
+        }
+
+        /// <summary>
+        /// Plays an Om Nom sound resolved against a specific skin.
+        /// </summary>
+        /// <param name="soundResourceName">The base sound resource name to resolve and play.</param>
+        /// <param name="skin">The skin to resolve against, or <see langword="null"/> for the classic skin.</param>
+        public static void PlayOmNomSound(string soundResourceName, OmNomSkinDefinition skin)
+        {
+            if (soundResourceName is Resources.Snd.MonsterExcited or Resources.Snd.MonsterGreeting
+                && RND_RANGE(0, 1) == 0)
+            {
+                return;
+            }
+
+            PlaySound(OmNomSoundResolver.ResolveSoundResource(skin, soundResourceName));
+        }
+
+        /// <summary>
+        /// Enables or disables looped sound playback globally.
+        /// </summary>
+        /// <param name="bEnable">If <see langword="true" />, looped sounds are enabled; otherwise, they are stopped and disabled.</param>
+        public static void EnableLoopedSounds(bool bEnable)
+        {
+            s_EnableLoopedSounds = bEnable;
+            if (!s_EnableLoopedSounds)
+            {
+                StopLoopedSounds();
+            }
+        }
+
+        /// <summary>
+        /// Plays a looped sound effect identified by its resource name.
+        /// </summary>
+        /// <param name="soundResourceName">The sound resource name to loop.</param>
+        /// <returns>The looping <see cref="ISoundInstance"/>, or <see langword="null"/> if looped sounds are disabled.</returns>
+        public static ISoundInstance PlaySoundLooped(string soundResourceName)
+        {
+            return !s_EnableLoopedSounds || !Preferences.GetBooleanForKey("SOUND_ON")
+                ? null
+                : Application.SharedSoundMgr().PlaySoundLoopedCore(soundResourceName);
+        }
+
+        /// <summary>
+        /// Plays a random sound from the provided list of sound resource names.
+        /// </summary>
+        /// <param name="soundNames">One or more sound resource names to choose from.</param>
+        public static void PlayRandomSound(params string[] soundNames)
+        {
+            if (soundNames == null || soundNames.Length == 0)
+            {
+                return;
+            }
+
+            int validCount = 0;
+            for (int i = 0; i < soundNames.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(soundNames[i]))
+                {
+                    validCount++;
+                }
+            }
+
+            if (validCount == 0)
+            {
+                return;
+            }
+
+            string[] validSoundNames = new string[validCount];
+            int validIndex = 0;
+            for (int i = 0; i < soundNames.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(soundNames[i]))
+                {
+                    validSoundNames[validIndex++] = soundNames[i];
+                }
+            }
+
+            string soundName = validSoundNames[RND_RANGE(0, validSoundNames.Length - 1)];
+            PlaySound(soundName);
+        }
+
+        /// <summary>
+        /// Plays a random Om Nom sound, resolving candidates for the selected skin first.
+        /// </summary>
+        /// <param name="soundNames">One or more base sound resource names to resolve and choose from.</param>
+        public static void PlayRandomOmNomSound(params string[] soundNames)
+        {
+            if (soundNames == null || soundNames.Length == 0)
+            {
+                return;
+            }
+
+            string[] resolvedSounds = new string[soundNames.Length];
+            for (int i = 0; i < soundNames.Length; i++)
+            {
+                resolvedSounds[i] = OmNomSoundResolver.ResolveSelectedSkinSoundResource(soundNames[i]);
+            }
+
+            PlayRandomSound(resolvedSounds);
+        }
+
+        /// <summary>
+        /// Plays a random Om Nom sound, resolving candidates against a specific skin.
+        /// </summary>
+        /// <param name="skin">The skin to resolve against, or <see langword="null"/> for the classic skin.</param>
+        /// <param name="soundNames">One or more base sound resource names to resolve and choose from.</param>
+        public static void PlayRandomOmNomSound(OmNomSkinDefinition skin, params string[] soundNames)
+        {
+            if (soundNames == null || soundNames.Length == 0)
+            {
+                return;
+            }
+
+            string[] resolvedSounds = new string[soundNames.Length];
+            for (int i = 0; i < soundNames.Length; i++)
+            {
+                resolvedSounds[i] = OmNomSoundResolver.ResolveSoundResource(skin, soundNames[i]);
+            }
+
+            PlayRandomSound(resolvedSounds);
+        }
+
+        /// <summary>
+        /// Plays background music identified by its resource name.
+        /// </summary>
+        /// <param name="musicResourceName">The music resource name to play.</param>
+        public static void PlayMusic(string musicResourceName)
+        {
+            if (Preferences.GetBooleanForKey("MUSIC_ON") && !string.IsNullOrWhiteSpace(musicResourceName))
+            {
+                PlayMusicCore(musicResourceName);
+            }
+        }
+
+        /// <summary>
+        /// Plays a random music track from the supplied resource names, avoiding immediate repetition.
+        /// </summary>
+        /// <param name="musicNames">One or more music resource names to choose from.</param>
+        public static void PlayRandomMusic(params string[] musicNames)
+        {
+            if (musicNames == null || musicNames.Length == 0)
+            {
+                return;
+            }
+
+            // Duplicates in musicNames would otherwise let this loop run forever, so cap retries.
+            string name = musicNames[RND_RANGE(0, musicNames.Length - 1)];
+            for (int attempt = 0; attempt < 4 && name == prevMusic && musicNames.Length > 1; attempt++)
+            {
+                name = musicNames[RND_RANGE(0, musicNames.Length - 1)];
+            }
+            prevMusic = name;
+            PlayMusic(name);
+        }
+
+        /// <summary>
+        /// Stops all currently playing looped sound effects.
+        /// </summary>
+        public static void StopLoopedSounds()
+        {
+            Application.SharedSoundMgr().StopLoopedSoundsCore();
+        }
+
+        /// <summary>
+        /// Stops a single looped sound instance previously returned by
+        /// <see cref="PlaySoundLooped(string)"/>, leaving other looped and one-shot sounds playing.
+        /// </summary>
+        /// <param name="instance">The looped instance to stop; ignored when <see langword="null"/>.</param>
+        public static void StopLoopedSound(ISoundInstance instance)
+        {
+            Application.SharedSoundMgr().StopLoopedSoundCore(instance);
+        }
+
+        /// <summary>
+        /// Stops a single one-shot sound instance previously returned by
+        /// <see cref="PlaySound(string)"/>, leaving other sounds playing.
+        /// </summary>
+        /// <param name="instance">The one-shot instance to stop; ignored when <see langword="null"/>.</param>
+        public static void StopSound(ISoundInstance instance)
+        {
+            Application.SharedSoundMgr().StopSoundCore(instance);
+        }
+
+        /// <summary>
+        /// Stops all currently playing sound effects.
+        /// </summary>
+        public static void StopSounds()
+        {
+            Application.SharedSoundMgr().StopAllSounds();
+        }
+
+        /// <summary>
+        /// Stops all currently playing sounds and music.
+        /// </summary>
+        public static void StopAll()
+        {
+            StopSounds();
+            StopMusic();
+        }
+
+        /// <summary>
+        /// Stops the currently playing background music.
+        /// </summary>
+        public static void StopMusic()
+        {
+            try
+            {
+                _backend?.StopMusic();
+            }
+            catch (Exception failure)
+            {
+                ILogger logger = Log.For(LogCategories.MediaSound);
+                SoundMgrLog.BackendCallFailed(logger, "stop music", failure);
+            }
+        }
+
+        /// <summary>
+        /// Pauses all sound effects and music playback.
+        /// </summary>
+        public static void Pause()
+        {
+            Application.SharedSoundMgr().PauseCore();
+        }
+
+        /// <summary>
+        /// Resumes all paused sound effects and music playback.
+        /// </summary>
+        public static void Unpause()
+        {
+            Application.SharedSoundMgr().UnpauseCore();
+        }
+
+        /// <summary>
+        /// Suspends looped sound effects in response to the user disabling sound. Loops are
+        /// paused (not stopped) so they can be resumed in-place by <see cref="RestoreSoundEffects"/>.
+        /// </summary>
+        public static void SuspendSoundEffects()
+        {
+            Application.SharedSoundMgr().SuspendSoundEffectsCore();
+        }
+
+        /// <summary>
+        /// Resumes looped sound effects that were suspended by <see cref="SuspendSoundEffects"/>.
+        /// </summary>
+        public static void RestoreSoundEffects()
+        {
+            Application.SharedSoundMgr().RestoreSoundEffectsCore();
+        }
+
+        /// <summary>
         /// Removes a cached sound effect from memory by resource name.
         /// Any active instances spawned from this effect are stopped and disposed first.
         /// </summary>
         /// <param name="soundResourceName">Logical sound resource name to remove from the cache.</param>
         public void FreeSound(string soundResourceName)
         {
-            string localizedName = CTRResourceMgr.HandleLocalizedResource(soundResourceName);
+            string localizedName = ResourceMgr.HandleLocalizedResource(soundResourceName);
             if (string.IsNullOrEmpty(localizedName) || !loadedSounds.Remove(localizedName, out ISoundEffect sound))
             {
                 return;
@@ -72,7 +361,7 @@ namespace CutTheRopeDX.Framework.Media
                 return null;
             }
 
-            string localizedName = CTRResourceMgr.HandleLocalizedResource(soundResourceName);
+            string localizedName = ResourceMgr.HandleLocalizedResource(soundResourceName);
             if (string.IsNullOrEmpty(localizedName))
             {
                 return null;
@@ -91,7 +380,7 @@ namespace CutTheRopeDX.Framework.Media
 
             try
             {
-                string soundPath = ContentPaths.GetSoundEffectPath(CTRResourceMgr.XNA_ResName(localizedName));
+                string soundPath = ContentPaths.GetSoundEffectPath(localizedName);
                 ISoundEffect loaded = _backend.LoadSound(soundPath);
                 loadedSounds.Add(localizedName, loaded);
                 return loaded;
@@ -161,21 +450,12 @@ namespace CutTheRopeDX.Framework.Media
         }
 
         /// <summary>
-        /// Plays a one-shot sound effect by its resource name.
-        /// </summary>
-        /// <param name="soundResourceName">Logical sound resource name to play once.</param>
-        public void PlaySound(string soundResourceName)
-        {
-            _ = PlaySoundTracked(soundResourceName);
-        }
-
-        /// <summary>
         /// Plays a one-shot sound effect and hands back its instance, for callers that may need to
-        /// cut it short before it ends via <see cref="StopSound(ISoundInstance)"/>.
+        /// cut it short before it ends via <see cref="StopSoundCore(ISoundInstance)"/>.
         /// </summary>
         /// <param name="soundResourceName">Logical sound resource name to play once.</param>
         /// <returns>The sound effect instance, or <see langword="null" /> on failure.</returns>
-        public ISoundInstance PlaySoundTracked(string soundResourceName)
+        internal ISoundInstance PlaySoundTrackedCore(string soundResourceName)
         {
             ClearStopped(activeSounds);
             return TryPlay(soundResourceName, loop: false, activeSounds);
@@ -186,7 +466,7 @@ namespace CutTheRopeDX.Framework.Media
         /// </summary>
         /// <param name="soundResourceName">Logical sound resource name to play in a loop.</param>
         /// <returns>The sound effect instance for controlling playback, or <see langword="null" /> on failure.</returns>
-        public ISoundInstance PlaySoundLooped(string soundResourceName)
+        internal ISoundInstance PlaySoundLoopedCore(string soundResourceName)
         {
             ClearStopped(activeLoopedSounds);
             return TryPlay(soundResourceName, loop: true, activeLoopedSounds);
@@ -196,7 +476,7 @@ namespace CutTheRopeDX.Framework.Media
         /// Plays background music by its resource name. Stops any currently playing music first.
         /// </summary>
         /// <param name="musicResourceName">Logical music resource name to load and play.</param>
-        public static void PlayMusic(string musicResourceName)
+        private static void PlayMusicCore(string musicResourceName)
         {
             // Headless runs install no audio backend and are silent. GetSound already tolerates
             // this via its try/catch; the music load below sits outside one, so it is checked here.
@@ -205,14 +485,14 @@ namespace CutTheRopeDX.Framework.Media
                 return;
             }
 
-            string localizedName = CTRResourceMgr.HandleLocalizedResource(musicResourceName);
+            string localizedName = ResourceMgr.HandleLocalizedResource(musicResourceName);
             if (string.IsNullOrEmpty(localizedName))
             {
                 return;
             }
 
             StopMusic();
-            string musicPath = ContentPaths.GetMusicPath(CTRResourceMgr.XNA_ResName(localizedName));
+            string musicPath = ContentPaths.GetMusicPath(localizedName);
             try
             {
                 _backend.PlayMusic(_backend.LoadMusic(musicPath), true);
@@ -227,7 +507,7 @@ namespace CutTheRopeDX.Framework.Media
         /// <summary>
         /// Stops all currently playing looped sound effects.
         /// </summary>
-        public void StopLoopedSounds()
+        private void StopLoopedSoundsCore()
         {
             StopList(activeLoopedSounds);
             activeLoopedSounds.Clear();
@@ -240,7 +520,7 @@ namespace CutTheRopeDX.Framework.Media
         /// does not silence unrelated audio.
         /// </summary>
         /// <param name="instance">The looped instance to stop; ignored when <see langword="null"/>.</param>
-        public void StopLoopedSound(ISoundInstance instance)
+        internal void StopLoopedSoundCore(ISoundInstance instance)
         {
             StopTrackedSound(activeLoopedSounds, instance);
         }
@@ -251,7 +531,7 @@ namespace CutTheRopeDX.Framework.Media
         /// (e.g. a rocket's launch sound) and need to cut it short.
         /// </summary>
         /// <param name="instance">The one-shot instance to stop; ignored when <see langword="null"/>.</param>
-        public void StopSound(ISoundInstance instance)
+        internal void StopSoundCore(ISoundInstance instance)
         {
             StopTrackedSound(activeSounds, instance);
         }
@@ -280,7 +560,7 @@ namespace CutTheRopeDX.Framework.Media
         {
             StopList(activeSounds);
             activeSounds.Clear();
-            StopLoopedSounds();
+            StopLoopedSoundsCore();
             pauseDepth = 0;
             musicPauseTickets.Clear();
             sfxSuspended = false;
@@ -304,27 +584,11 @@ namespace CutTheRopeDX.Framework.Media
         }
 
         /// <summary>
-        /// Stops the currently playing background music.
-        /// </summary>
-        public static void StopMusic()
-        {
-            try
-            {
-                _backend?.StopMusic();
-            }
-            catch (Exception failure)
-            {
-                ILogger logger = Log.For(LogCategories.MediaSound);
-                SoundMgrLog.BackendCallFailed(logger, "stop music", failure);
-            }
-        }
-
-        /// <summary>
         /// Pauses looped sound effects and any background music currently playing. Calls stack:
         /// each pause records whether it suspended music so its matching <see cref="Unpause"/>
         /// can restore that music independently of an outer pause.
         /// </summary>
-        public void Pause()
+        internal void PauseCore()
         {
             try
             {
@@ -355,7 +619,7 @@ namespace CutTheRopeDX.Framework.Media
         /// are ignored. Loops stay paused if sound effects have been independently suspended via
         /// <see cref="SuspendSoundEffects"/>.
         /// </summary>
-        public void Unpause()
+        internal void UnpauseCore()
         {
             try
             {
@@ -392,7 +656,7 @@ namespace CutTheRopeDX.Framework.Media
         /// Unlike <see cref="Pause"/>, this is independent of the transient pause stack, so focus
         /// restores or gameplay unpauses will not implicitly reactivate suspended loops.
         /// </summary>
-        public void SuspendSoundEffects()
+        private void SuspendSoundEffectsCore()
         {
             sfxSuspended = true;
             try
@@ -411,7 +675,7 @@ namespace CutTheRopeDX.Framework.Media
         /// If the game or app is still transiently paused, resumption is deferred until the
         /// outermost <see cref="Unpause"/> runs.
         /// </summary>
-        public void RestoreSoundEffects()
+        private void RestoreSoundEffectsCore()
         {
             sfxSuspended = false;
             if (pauseDepth > 0)
@@ -516,7 +780,6 @@ namespace CutTheRopeDX.Framework.Media
         /// </summary>
         private static IAudioBackend _backend;
 
-
         /// <summary>
         /// Cache of loaded sound effects keyed by localized resource name.
         /// </summary>
@@ -551,6 +814,16 @@ namespace CutTheRopeDX.Framework.Media
 
         /// <summary>Names already reported as unloadable, so each is logged once.</summary>
         private readonly HashSet<string> reportedLoadFailures = [];
+
+        /// <summary>
+        /// Indicates whether looped sound playback is currently enabled.
+        /// </summary>
+        private static bool s_EnableLoopedSounds = true;
+
+        /// <summary>
+        /// Tracks the previously played music name to avoid immediate repetition in random playback.
+        /// </summary>
+        private static string prevMusic;
     }
 
     /// <summary>Log messages for sound effect and music playback.</summary>

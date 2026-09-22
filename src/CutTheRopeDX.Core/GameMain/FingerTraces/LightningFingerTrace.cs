@@ -115,7 +115,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
             Vector end = new(endX, endY);
             Vector delta = VectSub(end, start);
             float length = VectLength(delta);
-            float life = FIT_TO_BOUNDARIES((length * SegmentLifeMultiplier) + SegmentLifeBase, MinSegmentLife, MaxSegmentLife);
+            float life = Math.Clamp((length * SegmentLifeMultiplier) + SegmentLifeBase, MinSegmentLife, MaxSegmentLife);
 
             particleTimer = ParticleBurstDuration;
             StoreSegment(start, end, life);
@@ -178,9 +178,9 @@ namespace CutTheRopeDX.GameMain.FingerTraces
             }
 
             Vector averageDirection = GetAverageDirection();
-            averageRotation = RADIANS_TO_DEGREES(MathF.Atan2(averageDirection.Y, averageDirection.X));
+            averageRotation = float.RadiansToDegrees(MathF.Atan2(averageDirection.Y, averageDirection.X));
             particles.SetRotation(averageRotation + DEG_180);
-            headScale = MIN(Segments.Count / 5f, VectLength(averageDirection) / 10f);
+            headScale = Math.Min(Segments.Count / 5f, VectLength(averageDirection) / 10f);
 
             if (glowImage != null)
             {
@@ -221,8 +221,8 @@ namespace CutTheRopeDX.GameMain.FingerTraces
             for (int i = 0; i < quads.Count; i++)
             {
                 LightningQuad quad = quads[i];
-                float rotation = RADIANS_TO_DEGREES(MathF.Atan2(quad.End.Y - quad.Start.Y, quad.End.X - quad.Start.X)) + DEG_90;
-                float scale = MAX(0.01f, VectDistance(quad.Start, quad.End) / QuadSpacing);
+                float rotation = float.RadiansToDegrees(MathF.Atan2(quad.End.Y - quad.Start.Y, quad.End.X - quad.Start.X)) + DEG_90;
+                float scale = Math.Max(0.01f, VectDistance(quad.Start, quad.End) / QuadSpacing);
                 sprites.Add(new FingerTraceSpritePose(
                     i == 0 ? FingerTraceSpriteKind.Head : FingerTraceSpriteKind.Body,
                     Resources.Img.FingerTraces,
@@ -248,7 +248,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
                 return;
             }
 
-            CTRTexture2D texture = Application.GetTexture(Resources.Img.FingerTraces);
+            Texture2D texture = Application.GetTexture(Resources.Img.FingerTraces);
             EnsureBuffers(quads.Count);
 
             for (int i = 0; i < quads.Count; i++)
@@ -278,7 +278,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
 
             Renderer.SetBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(texture.Name());
+            Renderer.BindTexture(texture);
             Renderer.DrawTriangleList(verticesCache, indicesCache, quads.Count * 6);
             Renderer.SetBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
         }
@@ -452,7 +452,7 @@ namespace CutTheRopeDX.GameMain.FingerTraces
                 return;
             }
 
-            glowImage = Image.Image_createWithResIDQuad(Resources.Img.FingerTraceGlow, GlowQuadIndex);
+            glowImage = Image.FromResource(Resources.Img.FingerTraceGlow, GlowQuadIndex);
             glowImage.anchor = CENTER;
             glowImage.translateY = GlowTranslateY;
         }

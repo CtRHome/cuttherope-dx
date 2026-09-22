@@ -1,5 +1,6 @@
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 
 namespace CutTheRopeDX.GameMain
@@ -72,7 +73,7 @@ namespace CutTheRopeDX.GameMain
             body.Point.disableGravity = false;
         }
 
-        private void ReleaseDetachedHand(MechanicalHand hand, ConstraintedPoint point)
+        private void ReleaseDetachedHand(MechanicalHand hand, ConstrainedPoint point)
         {
             if (hand == null)
             {
@@ -82,12 +83,12 @@ namespace CutTheRopeDX.GameMain
             hand.cPoint.RemoveConstraint(point);
             hand.ReleaseCandyAfterDropSound();
             hand.AnimateReleaseWithAnimationsPool(aniPool);
-            CTRSoundMgr.PlaySound(Resources.Snd.ExpHandDrop);
+            SoundMgr.PlaySound(Resources.Snd.ExpHandDrop);
         }
 
         private void ReleaseTransportAttachments(
             CandyAttachmentSnapshot detached,
-            ConstraintedPoint point)
+            ConstrainedPoint point)
         {
             ReleaseDetachedHand(detached?.Hand, point);
             DropMouseCandyForPoint(point);
@@ -105,7 +106,7 @@ namespace CutTheRopeDX.GameMain
 
         private void ReleaseLanternCaptureAttachments(
             CandyAttachmentSnapshot detached,
-            ConstraintedPoint point)
+            ConstrainedPoint point)
         {
             ReleaseDetachedHand(detached?.Hand, point);
             DropMouseCandyForPoint(point);
@@ -133,7 +134,7 @@ namespace CutTheRopeDX.GameMain
             rocket.StopAnimation();
         }
 
-        private void CancelPendingLanternCaptureForRemoval(ConstraintedPoint point)
+        private void CancelPendingLanternCaptureForRemoval(ConstrainedPoint point)
         {
             if (pendingLanternCapture?.Point == point)
             {
@@ -153,7 +154,7 @@ namespace CutTheRopeDX.GameMain
             capture.Complete(CandyForPointOrNull(capture.Point));
         }
 
-        private void DetachRopeConstraintsForPoint(ConstraintedPoint point)
+        private void DetachRopeConstraintsForPoint(ConstrainedPoint point)
         {
             foreach (RopeEntry entry in ropes.All)
             {
@@ -163,8 +164,8 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
 
-                ConstraintedPoint ropeEnd = entry.Rope.parts[cutPart.Value];
-                ConstraintedPoint attachedPoint = entry.Rope.parts[cutPart.Value + 1];
+                ConstrainedPoint ropeEnd = entry.Rope.parts[cutPart.Value];
+                ConstrainedPoint attachedPoint = entry.Rope.parts[cutPart.Value + 1];
                 if (attachedPoint.HasConstraintTo(ropeEnd))
                 {
                     entry.Rope.RemovePart(cutPart.Value);

@@ -10,7 +10,7 @@ namespace CutTheRopeDX.Framework
     /// Base class for most framework types, providing screen-coordinate transforms,
     /// resolution helpers, and the disposable pattern.
     /// </summary>
-    internal class FrameworkTypes : CTRMathHelper, IDisposable
+    internal class FrameworkTypes : MathHelper, IDisposable
     {
         /// <inheritdoc />
         public void Dispose()
@@ -63,26 +63,16 @@ namespace CutTheRopeDX.Framework
         }
 
         /// <summary>
-        /// Creates a <see cref="CTRRectangle"/> from position and size.
+        /// Creates a <see cref="Rectangle"/> from position and size.
         /// </summary>
         /// <param name="xParam">X position.</param>
         /// <param name="yParam">Y position.</param>
         /// <param name="width">Width.</param>
         /// <param name="height">Height.</param>
-        /// <returns>A new <see cref="CTRRectangle"/> with the given position and size.</returns>
-        public static CTRRectangle MakeRectangle(float xParam, float yParam, float width, float height)
+        /// <returns>A new <see cref="Rectangle"/> with the given position and size.</returns>
+        public static Rectangle MakeRectangle(float xParam, float yParam, float width, float height)
         {
-            return new CTRRectangle(xParam, yParam, width, height);
-        }
-
-        /// <summary>
-        /// Returns the achievement identifier string unchanged (pass-through).
-        /// </summary>
-        /// <param name="s">Achievement identifier string.</param>
-        /// <returns>The same string passed in.</returns>
-        public static string ACHIEVEMENT_STRING(string s)
-        {
-            return s;
+            return new Rectangle(xParam, yParam, width, height);
         }
 
         /// <summary>
@@ -135,17 +125,6 @@ namespace CutTheRopeDX.Framework
         public static float RTPD(float V)
         {
             return IS_RETINA | IS_IPAD ? V * 2 : V;
-        }
-
-        /// <summary>
-        /// Returns the WVGA or non-WVGA value via <see cref="WVGAH"/>.
-        /// </summary>
-        /// <param name="P1">Value for non-WVGA resolution.</param>
-        /// <param name="P2">Value for WVGA resolution.</param>
-        /// <returns><paramref name="P2"/> on WVGA; otherwise <paramref name="P1"/>.</returns>
-        public static float CHOOSE3(float P1, float P2)
-        {
-            return WVGAH(P2, P1);
         }
 
         /// <summary>
@@ -235,7 +214,7 @@ namespace CutTheRopeDX.Framework
         /// size to this; world logic stays on <see cref="SCREEN_WIDTH"/> and
         /// <see cref="SCREEN_HEIGHT"/>, which describe the fixed space levels are authored in.
         /// </summary>
-        protected static CTRRectangle VisibleBounds =>
+        protected static Rectangle VisibleBounds =>
             ScreenPresentation.Instance.Snapshot.VisibleBounds;
 
         /// <summary>
@@ -280,19 +259,6 @@ namespace CutTheRopeDX.Framework
         public static bool IS_WVGA =>
             ScreenPresentation.Instance.Snapshot.SurfaceWidth > 500
             || ScreenPresentation.Instance.Snapshot.SurfaceHeight > 500;
-
-        /// <summary>
-        /// Stub API surface retained from the original analytics integration.
-        /// </summary>
-        public sealed class FlurryAPI
-        {
-            /// <summary>
-            /// No-op: Log an analytics event.
-            /// </summary>
-            public static void LogEvent()
-            {
-            }
-        }
 
         /// <summary>
         /// Opens the specified URL through the host. Hosts that cannot open one do nothing.

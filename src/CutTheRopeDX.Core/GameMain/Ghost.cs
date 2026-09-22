@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -68,7 +69,7 @@ namespace CutTheRopeDX.GameMain
 
             float random = RND_0_1;
 
-            ghostImageBody = Image.Image_createWithResIDQuad(Resources.Img.ObjGhost, 0);
+            ghostImageBody = Image.FromResource(Resources.Img.ObjGhost, 0);
             ghostImageBody.x = position.X;
             ghostImageBody.y = position.Y;
             ghostImageBody.anchor = 18;
@@ -81,7 +82,7 @@ namespace CutTheRopeDX.GameMain
             ghostImageBody.AddTimelinewithID(bodyFloat, 13);
             ghostImageBody.PlayTimeline(13);
 
-            ghostImageFace = Image.Image_createWithResIDQuad(Resources.Img.ObjGhost, 1);
+            ghostImageFace = Image.FromResource(Resources.Img.ObjGhost, 1);
             ghostImageFace.x = position.X;
             ghostImageFace.y = position.Y;
             ghostImageFace.anchor = 18;
@@ -123,7 +124,7 @@ namespace CutTheRopeDX.GameMain
             if (Apparition is GhostGrab grab
                 && grab.Rope != null
                 && grab.Rope.cut != -1
-                && grab.GetCurrentTimelineIndex() == 10)
+                && grab.CurrentTimelineIndex == 10)
             {
                 ResetToForm(GhostForm.Idle);
             }
@@ -149,7 +150,7 @@ namespace CutTheRopeDX.GameMain
                 BeginRetiringApparition(outgoing);
                 retiringApparitions.Add(new RetiringGhostApparition(outgoingForm, newForm, outgoing));
             }
-            else if (ghostImage.GetCurrentTimelineIndex() == 10)
+            else if (ghostImage.CurrentTimelineIndex == 10)
             {
                 ghostImage.PlayTimeline(11);
             }
@@ -163,14 +164,14 @@ namespace CutTheRopeDX.GameMain
                     break;
                 case GhostForm.Bubble:
                     {
-                        GhostBubble ghostBubble = GhostBubble.CreateWithResIDQuad(Resources.Img.ObjBubble, RND_RANGE(1, 3));
+                        GhostBubble ghostBubble = Image.InitializeFromResource(new GhostBubble(), Resources.Img.ObjBubble, RND_RANGE(1, 3));
                         ghostBubble.DoRestoreCutTransparency();
                         ghostBubble.bb = GameScene.GetBubbleBoundingBox();
                         ghostBubble.x = x;
                         ghostBubble.y = y;
                         ghostBubble.anchor = 18;
                         ghostBubble.popped = false;
-                        Image image = Image.Image_createWithResIDQuad(Resources.Img.ObjBubble, 0);
+                        Image image = Image.FromResource(Resources.Img.ObjBubble, 0);
                         image.DoRestoreCutTransparency();
                         image.parentAnchor = image.anchor = 18;
                         _ = ghostBubble.AddChild(image);
@@ -196,7 +197,7 @@ namespace CutTheRopeDX.GameMain
                     grab.CreateAxisVisuals();
                     if (grabRadius == -1f)
                     {
-                        ConstraintedPoint ropeAnchor = hostScene?.GetGhostRopeAnchor(Vect(x, y));
+                        ConstrainedPoint ropeAnchor = hostScene?.GetGhostRopeAnchor(Vect(x, y));
                         if (ropeAnchor != null)
                         {
                             Vector anchorPos = ropeAnchor.pos;
@@ -236,7 +237,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             morphingBubbles.StartSystem(GHOST_MORPHING_BUBBLES_COUNT);
-            CTRSoundMgr.PlaySound(Resources.Snd.GhostPuff);
+            SoundMgr.PlaySound(Resources.Snd.GhostPuff);
         }
 
         /// <summary>
@@ -391,7 +392,7 @@ namespace CutTheRopeDX.GameMain
             {
                 RetiringGhostApparition retirement = retiringApparitions[i];
                 BaseElement element = retirement.Apparition.Element;
-                if (element.GetCurrentTimelineIndex() != 11
+                if (element.CurrentTimelineIndex != 11
                     || element.GetCurrentTimeline()?.state != Timeline.TimelineState.TIMELINE_STOPPED)
                 {
                     continue;
@@ -411,7 +412,7 @@ namespace CutTheRopeDX.GameMain
                     break;
                 case GhostGrab grab:
                     hostScene?.UnregisterRope(grab.Rope);
-                    grab.DestroyRope();
+                    grab.Attachment.Release();
                     _ = gsBungees.Remove(grab);
                     break;
                 case GhostBouncer bouncer:
@@ -430,7 +431,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             BaseElement incoming = Apparition?.Element ?? ghostImage;
-            if (incoming.GetCurrentTimelineIndex() == 10
+            if (incoming.CurrentTimelineIndex == 10
                 && incoming.GetCurrentTimeline()?.state == Timeline.TimelineState.TIMELINE_STOPPED)
             {
                 MorphPhase = null;

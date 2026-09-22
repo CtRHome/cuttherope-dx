@@ -43,22 +43,10 @@ namespace CutTheRopeDX.GameMain
             sizeVar = 0f;
             duration = 4f;
             emissionRate = 0f;
-            startColor.RedColor = 1f;
-            startColor.GreenColor = 1f;
-            startColor.BlueColor = 1f;
-            startColor.AlphaChannel = 1f;
-            startColorVar.RedColor = 0f;
-            startColorVar.GreenColor = 0f;
-            startColorVar.BlueColor = 0f;
-            startColorVar.AlphaChannel = 0f;
-            endColor.RedColor = 0f;
-            endColor.GreenColor = 0f;
-            endColor.BlueColor = 0f;
-            endColor.AlphaChannel = 0f;
-            endColorVar.RedColor = 0f;
-            endColorVar.GreenColor = 0f;
-            endColorVar.BlueColor = 0f;
-            endColorVar.AlphaChannel = 0f;
+            startColor = RGBAColor.MakeRGBA(1f, 1f, 1f, 1f);
+            startColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
+            endColor = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
+            endColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
             rotateSpeed = 0f;
             rotateSpeedVar = 100f;
             blendAdditive = false;
@@ -70,12 +58,7 @@ namespace CutTheRopeDX.GameMain
         {
             base.InitParticle(ref particle);
             int quadIndex = RND_RANGE(FirstDebrisQuad, LastDebrisQuad);
-            Quad2D qt = imageGrid.texture.quads[quadIndex];
-            Quad3D qv = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
-            drawer.SetTextureQuadatVertexQuadatIndex(qt, qv, particleCount);
-            CTRRectangle rectangle = imageGrid.texture.quadRects[quadIndex];
-            particle.width = rectangle.w * particle.size;
-            particle.height = rectangle.h * particle.size;
+            SetParticleQuad(ref particle, quadIndex, particle.size);
         }
 
         /// <summary>
@@ -94,7 +77,7 @@ namespace CutTheRopeDX.GameMain
             // Straight-alpha blend so the per-particle alpha fade reads correctly.
             Renderer.SetBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONEMINUSSRCALPHA);
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(drawer.image.texture.Name());
+            Renderer.BindTexture(drawer.image.texture);
             int quadCount = particleIdx;
             if (quadCount > 0)
             {

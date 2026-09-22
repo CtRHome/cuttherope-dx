@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 using CutTheRopeDX.GameMain.Tutorials;
@@ -132,7 +133,7 @@ namespace CutTheRopeDX.GameMain
         /// <see langword="null"/> when no active body owns it — including the dormant whole body of a
         /// split candy and the body of a candy that was removed or hidden.
         /// </returns>
-        internal CandyBody CandyBodyForPointOrNull(ConstraintedPoint point)
+        internal CandyBody CandyBodyForPointOrNull(ConstrainedPoint point)
         {
             if (point == null)
             {
@@ -191,13 +192,13 @@ namespace CutTheRopeDX.GameMain
         /// when the primary has no active body at all, so the camera never loses its target.
         /// </summary>
         /// <returns>The camera's focus point.</returns>
-        private ConstraintedPoint CameraFocusPoint()
+        private ConstrainedPoint CameraFocusPoint()
         {
             IReadOnlyList<CandyBody> primaryBodies = candies[0].Lifecycle.ActiveBodies;
             return primaryBodies.Count > 0 ? primaryBodies[0].Point : candies[0].WholeBody.Point;
         }
 
-        private bool IsSpiderGrabbableCandyPoint(ConstraintedPoint point)
+        private bool IsSpiderGrabbableCandyPoint(ConstrainedPoint point)
         {
             CandyBody body = CandyBodyForPointOrNull(point);
             return body != null && body.Owner.Capabilities.CanBeGrabbedBySpider;
@@ -278,7 +279,7 @@ namespace CutTheRopeDX.GameMain
                     ctx.Lifecycle.Attachments.Rocket.visible = true;
                     Vector holeOut = session.BambooTube.HoleOut;
                     Vector tubeCenter = Vect(session.BambooTube.x, session.BambooTube.y);
-                    ctx.Lifecycle.Attachments.Rocket.rotation = RADIANS_TO_DEGREES(VectAngleNormalized(VectSub(tubeCenter, holeOut)));
+                    ctx.Lifecycle.Attachments.Rocket.rotation = float.RadiansToDegrees(VectAngleNormalized(VectSub(tubeCenter, holeOut)));
                     ctx.Lifecycle.Attachments.Rocket.startRotation = ctx.Lifecycle.Attachments.Rocket.rotation;
                     ctx.Lifecycle.Attachments.Rocket.startCandyRotation = 0f;
                     GameObject rocketCandyVisual = body.Main ?? body.Visual;
@@ -300,13 +301,13 @@ namespace CutTheRopeDX.GameMain
                 session.Sock.light.PlayTimeline(0);
                 session.Sock.light.visible = true;
                 Vector v = Vect(0f, ActivePhysicsConstants.SockExitOffsetY);
-                v = VectRotate(v, DEGREES_TO_RADIANS(session.Sock.rotation));
+                v = VectRotate(v, float.DegreesToRadians(session.Sock.rotation));
                 body.Point.pos.X = session.Sock.x;
                 body.Point.pos.Y = session.Sock.y;
                 body.Point.pos = VectAdd(body.Point.pos, v);
                 body.Point.prevPos.X = body.Point.pos.X;
                 body.Point.prevPos.Y = body.Point.pos.Y;
-                body.Point.v = VectMult(VectRotate(Vect(0f, -1f), DEGREES_TO_RADIANS(session.Sock.rotation)), session.SavedExitSpeed);
+                body.Point.v = VectMult(VectRotate(Vect(0f, -1f), float.DegreesToRadians(session.Sock.rotation)), session.SavedExitSpeed);
                 body.Point.posDelta = VectDiv(body.Point.v, 60f);
                 body.Point.prevPos = VectSub(body.Point.pos, body.Point.posDelta);
 
@@ -378,7 +379,7 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>Cuts/hides all uncut ropes whose tail is the given candy point.</summary>
-        public void ReleaseRopesForPoint(ConstraintedPoint candyPoint)
+        public void ReleaseRopesForPoint(ConstrainedPoint candyPoint)
         {
             // One pass over every rope: RopeEntry knows which end a released candy sits on, which is
             // the connector's one asymmetry - a hook's rope only ever holds a candy at its tail.
@@ -492,13 +493,13 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private static void AlignRocketAngleToRope(Rocket rocket, Bungee rope, float delta)
         {
-            ConstraintedPoint anchor = rope.bungeeAnchor;
-            ConstraintedPoint tail = rope.parts[^1];
+            ConstrainedPoint anchor = rope.bungeeAnchor;
+            ConstrainedPoint tail = rope.parts[^1];
             Vector ropeVector = VectSub(anchor.pos, tail.pos);
-            Vector v1 = VectPerp(ropeVector);
-            Vector v2 = VectRperp(ropeVector);
-            float fa = RADIANS_TO_DEGREES(VectAngleNormalized(v1) - DEGREES_TO_RADIANS(rocket.rotation));
-            float fb = RADIANS_TO_DEGREES(VectAngleNormalized(v2) - DEGREES_TO_RADIANS(rocket.rotation));
+            Vector ropeLeftNormal = VectPerp(ropeVector);
+            Vector ropeRightNormal = VectRperp(ropeVector);
+            float fa = float.RadiansToDegrees(VectAngleNormalized(ropeLeftNormal) - float.DegreesToRadians(rocket.rotation));
+            float fb = float.RadiansToDegrees(VectAngleNormalized(ropeRightNormal) - float.DegreesToRadians(rocket.rotation));
             rocket.additionalAngle = AngleTo0_360(rocket.additionalAngle);
             fa = NearestAngleTofrom(rocket.additionalAngle, fa);
             fb = NearestAngleTofrom(rocket.additionalAngle, fb);
@@ -552,7 +553,7 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
                 t.NightSleep.ClearPresentation();
-                t.controller?.SetSleepOverlayVisible(false);
+                t.animation?.SetSleepOverlayVisible(false);
                 if (t.targetObject != null)
                 {
                     t.targetObject.scaleX = t.baseScaleX;
@@ -566,22 +567,22 @@ namespace CutTheRopeDX.GameMain
             // The primary is already Removed(Eaten) here: the single caller runs behind AllEaten,
             // which cannot pass while an eatable candy still has a body. So the win timeline below
             // owns the visual outright and no longer has to raise a gone-flag of its own first.
-            candy.passTransformationsToChilds = true;
-            candyMain.scaleX = candyMain.scaleY = 1f;
-            candyTop.scaleX = candyTop.scaleY = 1f;
+            Candy.passTransformationsToChilds = true;
+            CandyMain.scaleX = CandyMain.scaleY = 1f;
+            CandyTop.scaleX = CandyTop.scaleY = 1f;
             Timeline timeline = new Timeline().InitWithMaxKeyFramesOnTrack(2);
-            timeline.AddKeyFrame(KeyFrame.MakePos((int)candy.x, (int)candy.y, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-            float targetX = targetObject != null ? targetObject.x : candy.x;
-            float targetY = targetObject != null ? targetObject.y : candy.y;
+            timeline.AddKeyFrame(KeyFrame.MakePos((int)Candy.x, (int)Candy.y, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+            float targetX = TargetObject != null ? TargetObject.x : Candy.x;
+            float targetY = TargetObject != null ? TargetObject.y : Candy.y;
             timeline.AddKeyFrame(KeyFrame.MakePos((int)targetX, (int)(targetY + 10), KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.1f));
             timeline.AddKeyFrame(KeyFrame.MakeScale(0.71f, 0.71f, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
             timeline.AddKeyFrame(KeyFrame.MakeScale(0, 0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.1f));
             timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
             timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.1f));
-            candy.AddTimelinewithID(timeline, 0);
-            candy.PlayTimeline(0);
+            Candy.AddTimelinewithID(timeline, 0);
+            Candy.PlayTimeline(0);
             timeline.delegateTimelineDelegate = aniPool;
-            _ = aniPool.AddChild(candy);
+            _ = aniPool.AddChild(Candy);
             dd.CallObjectSelectorParamafterDelay(new DelayedDispatcher.DispatchFunc(Selector_gameWon), null, 2);
             ReleaseRopesForBody(candies[0].WholeBody);
             ExhaustAllActiveRockets();
@@ -616,7 +617,7 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
                 t.NightSleep.ClearPresentation();
-                t.controller?.SetSleepOverlayVisible(false);
+                t.animation?.SetSleepOverlayVisible(false);
                 if (t.targetObject != null)
                 {
                     t.targetObject.scaleX = t.baseScaleX;
@@ -636,8 +637,8 @@ namespace CutTheRopeDX.GameMain
                 {
                     continue;
                 }
-                t.controller?.PlaySad();
-                CTRSoundMgr.PlayOmNomSound(Resources.Snd.MonsterSad, t.controller?.SkinDefinition);
+                t.animation?.Play(TargetAnimationState.Sad);
+                SoundMgr.PlayOmNomSound(Resources.Snd.MonsterSad, t.animation?.SkinDefinition);
             }
             dd.CallObjectSelectorParamafterDelay(new DelayedDispatcher.DispatchFunc(Selector_animateLevelRestart), null, 1);
             gameSceneDelegate.GameLost();
@@ -669,7 +670,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            ConstraintedPoint released = miceManager.ActiveMouseCarriedStar();
+            ConstrainedPoint released = miceManager.ActiveMouseCarriedCandyPoint();
             miceManager.ReleaseAllCandy();
             if (CandyForPointOrNull(released) is CandyContext releasedCandy)
             {
@@ -734,8 +735,8 @@ namespace CutTheRopeDX.GameMain
         /// <param name="by">World-space Y position for the pop effect.</param>
         public void PopBubbleAtXY(float bx, float by)
         {
-            CTRSoundMgr.PlaySound(Resources.Snd.BubbleBreak);
-            Animation animation = Animation.Animation_createWithResID(Resources.Img.ObjBubble);
+            SoundMgr.PlaySound(Resources.Snd.BubbleBreak);
+            Animation animation = Image.InitializeFromResource(new Animation(), Resources.Img.ObjBubble);
             animation.DoRestoreCutTransparency();
             animation.x = bx;
             animation.y = by;
@@ -757,11 +758,11 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="point">Candy physics point whose motion cut the chain.</param>
         /// <returns>Motion angle in degrees, or -90 when no previous position is available.</returns>
-        internal static float GetChainCutSwingAngleDegrees(ConstraintedPoint point)
+        internal static float GetChainCutSwingAngleDegrees(ConstrainedPoint point)
         {
             return point == null || point.prevPos.X == UNDEFINED_COORDINATE
                 ? -90f
-                : RADIANS_TO_DEGREES(MathF.Atan2(
+                : float.RadiansToDegrees(MathF.Atan2(
                     point.pos.Y - point.prevPos.Y,
                     point.pos.X - point.prevPos.X));
         }
@@ -779,7 +780,7 @@ namespace CutTheRopeDX.GameMain
             s_chainCutEffect.SpawnInto(aniPool, x, y, 0);
             SpawnChainCutDebris(x, y, swingAngleDegrees);
             SpawnChainFlashLight(x, y, swingAngleDegrees);
-            CTRSoundMgr.PlaySound(Resources.Snd.ChainCut);
+            SoundMgr.PlaySound(Resources.Snd.ChainCut);
         }
 
         /// <summary>
@@ -798,7 +799,7 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
 
-                ConstraintedPoint bladePoint = axeCtx.WholeBody.Point;
+                ConstrainedPoint bladePoint = axeCtx.WholeBody.Point;
                 foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Hazard))
                 {
                     CandyContext ctx = body.Owner;
@@ -828,7 +829,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="swingAngleDegrees">Direction the sparks are flung (the cutter's swing direction in the original).</param>
         private void SpawnChainFlashLight(float x, float y, float swingAngleDegrees)
         {
-            Image grid = Image.Image_createWithResID(Resources.Img.FxCutChain);
+            Image grid = Image.FromResource(Resources.Img.FxCutChain);
             grid.DoRestoreCutTransparency();
             ChainFlashLight sparks = (ChainFlashLight)new ChainFlashLight().InitWithTotalParticlesandImageGrid(10, grid);
             sparks.angle = swingAngleDegrees;
@@ -852,7 +853,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="swingAngleDegrees">Direction the fragments are flung (the cutter's swing direction in the original).</param>
         private void SpawnChainCutDebris(float x, float y, float swingAngleDegrees)
         {
-            Image grid = Image.Image_createWithResID(Resources.Img.FxCutChain);
+            Image grid = Image.FromResource(Resources.Img.FxCutChain);
             grid.DoRestoreCutTransparency();
             ChainCutDebris debris = (ChainCutDebris)new ChainCutDebris().InitWithTotalParticlesandImageGrid(2, grid);
             debris.angle = swingAngleDegrees;
@@ -877,9 +878,9 @@ namespace CutTheRopeDX.GameMain
         {
             int selectedCandySkin = Preferences.GetIntForKey("PREFS_SELECTED_CANDY");
             string candyResource = CandySkinHelper.GetCandyResource(selectedCandySkin);
-            Image image2 = Image.Image_createWithResID(candyResource);
-            image2.DoRestoreCutTransparency();
-            CandyBreak candyBreak = (CandyBreak)new CandyBreak().InitWithTotalParticlesandImageGrid(5, image2);
+            Image candyImage = Image.FromResource(candyResource);
+            candyImage.DoRestoreCutTransparency();
+            CandyBreak candyBreak = (CandyBreak)new CandyBreak().InitWithTotalParticlesandImageGrid(5, candyImage);
             if (gravityState.IsInverted)
             {
                 candyBreak.gravity.Y = -ActivePhysicsConstants.CandyBreakGravityY;
@@ -890,7 +891,7 @@ namespace CutTheRopeDX.GameMain
             candyBreak.y = by;
             candyBreak.StartSystem(5);
             _ = aniPool.AddChild(candyBreak);
-            CTRSoundMgr.PlaySound(Resources.Snd.CandyBreak);
+            SoundMgr.PlaySound(Resources.Snd.CandyBreak);
         }
 
         /// <summary>
@@ -946,7 +947,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="except">Grab whose candy is targeted and whose own rope is preserved.</param>
         private void DestroyRopesForCandy(Grab except)
         {
-            ConstraintedPoint candyPoint = except?.Rope?.tail;
+            ConstrainedPoint candyPoint = except?.Rope?.tail;
             if (candyPoint == null)
             {
                 return;
@@ -1003,9 +1004,9 @@ namespace CutTheRopeDX.GameMain
         /// Capture devices (hand grab, sock, bamboo, lantern) strip the mouse per-candy; a mouse
         /// carrying a different candy keeps it.
         /// </summary>
-        public void DropMouseCandyForPoint(ConstraintedPoint point)
+        public void DropMouseCandyForPoint(ConstrainedPoint point)
         {
-            if (MouseOwnership.CarriesCandy(miceManager?.ActiveMouseCarriedStar(), point))
+            if (MouseOwnership.CarriesCandy(miceManager?.ActiveMouseCarriedCandyPoint(), point))
             {
                 miceManager.ForceDropCandy();
                 CandyContext ctx = CandyForPointOrNull(point);
@@ -1033,7 +1034,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="point">Candy physics point to count attached snails for.</param>
         /// <returns>The count of snails in the active state whose attached point is <paramref name="point"/>; 0 if none or <paramref name="point"/> is null.</returns>
-        public int ActiveSnailCountForPoint(ConstraintedPoint point)
+        public int ActiveSnailCountForPoint(ConstrainedPoint point)
         {
             if (snailobjects == null || snailobjects.Count <= 0 || point == null)
             {
@@ -1053,7 +1054,7 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>Detaches active snails riding the given candy point (no-op if null).</summary>
-        public void DetachSnailsForPoint(ConstraintedPoint point)
+        public void DetachSnailsForPoint(ConstrainedPoint point)
         {
             if (snailobjects == null || snailobjects.Count <= 0 || point == null)
             {
@@ -1088,7 +1089,7 @@ namespace CutTheRopeDX.GameMain
                 if (hand != null && hand.State == MechanicalHandState.HoldingCandy)
                 {
                     CandyContext held = HandHeldCandy(hand);
-                    ConstraintedPoint heldPoint = held?.WholeBody.Point ?? star;
+                    ConstrainedPoint heldPoint = held?.WholeBody.Point ?? CandyPoint;
                     hand.cPoint.RemoveConstraint(heldPoint);
                     hand.ReleaseCandy();
                     hand.AnimateReleaseWithAnimationsPool(aniPool);
@@ -1108,7 +1109,7 @@ namespace CutTheRopeDX.GameMain
         /// silently in the release state until the mouse eventually carried it away. Marking the sound
         /// as played keeps the transition from repeating it. This mirrors the player tapping the claw.
         /// </remarks>
-        public void DetachHandsForPoint(ConstraintedPoint point)
+        public void DetachHandsForPoint(ConstrainedPoint point)
         {
             if (hands == null || hands.Count <= 0 || point == null)
             {
@@ -1120,7 +1121,7 @@ namespace CutTheRopeDX.GameMain
                 if (hand != null && hand.State == MechanicalHandState.HoldingCandy)
                 {
                     CandyContext held = HandHeldCandy(hand);
-                    ConstraintedPoint heldPoint = held?.WholeBody.Point ?? star;
+                    ConstrainedPoint heldPoint = held?.WholeBody.Point ?? CandyPoint;
                     if (heldPoint != point)
                     {
                         continue;
@@ -1129,7 +1130,7 @@ namespace CutTheRopeDX.GameMain
                     hand.ReleaseCandyAfterDropSound();
                     hand.AnimateReleaseWithAnimationsPool(aniPool);
                     _ = held?.Lifecycle.Attachments.TryReleaseHand(hand);
-                    CTRSoundMgr.PlaySound(Resources.Snd.ExpHandDrop);
+                    SoundMgr.PlaySound(Resources.Snd.ExpHandDrop);
                 }
             }
         }
@@ -1142,7 +1143,7 @@ namespace CutTheRopeDX.GameMain
         {
             gravityState.Toggle();
             tutorialDirector.Fire(TutorialEvent.GravityFlip);
-            CTRSoundMgr.PlaySound(gravityState.IsInverted
+            SoundMgr.PlaySound(gravityState.IsInverted
                 ? Resources.Snd.GravityOn
                 : Resources.Snd.GravityOff);
         }
@@ -1159,10 +1160,9 @@ namespace CutTheRopeDX.GameMain
         /// <param name="sid">Spike toggle identifier to match.</param>
         public void RotateAllSpikesWithID(int sid)
         {
-            foreach (object obj in spikes)
+            foreach (Spikes spike in spikes)
             {
-                Spikes spike = (Spikes)obj;
-                if (spike.GetToggled() == sid)
+                if (spike.Toggled == sid)
                 {
                     spike.RotateSpikes();
                 }
@@ -1178,9 +1178,8 @@ namespace CutTheRopeDX.GameMain
             {
                 return null;
             }
-            foreach (object obj in ghosts)
+            foreach (Ghost ghost in ghosts)
             {
-                Ghost ghost = (Ghost)obj;
                 if (ghost?.OwnsBubble(bubble) == true)
                 {
                     return ghost;

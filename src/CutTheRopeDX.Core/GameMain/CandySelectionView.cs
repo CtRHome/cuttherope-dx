@@ -271,11 +271,11 @@ namespace CutTheRopeDX.GameMain
             int bgUpQuad = isEquipped ? 2 : 0;
             int bgDownQuad = isEquipped ? 3 : 1;
 
-            Image slotBgUp = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, bgUpQuad);
-            Image slotBgDown = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, bgDownQuad);
+            Image slotBgUp = Image.FromResource(Resources.Img.SkinSelection, bgUpQuad);
+            Image slotBgDown = Image.FromResource(Resources.Img.SkinSelection, bgDownQuad);
 
             // Add item image to both up and down states
-            Image itemImage = Image.Image_createWithResIDQuad(itemResourceName, itemQuadIndex);
+            Image itemImage = Image.FromResource(itemResourceName, itemQuadIndex);
             itemImage.anchor = itemImage.parentAnchor = 18;
             itemImage.y = itemYOffset;
             if (doRestoreTransparency)
@@ -284,14 +284,14 @@ namespace CutTheRopeDX.GameMain
             }
             _ = slotBgUp.AddChild(itemImage);
 
-            Image itemImage2 = Image.Image_createWithResIDQuad(itemResourceName, itemQuadIndex);
-            itemImage2.anchor = itemImage2.parentAnchor = 18;
-            itemImage2.y = itemYOffset;
+            Image downItemImage = Image.FromResource(itemResourceName, itemQuadIndex);
+            downItemImage.anchor = downItemImage.parentAnchor = 18;
+            downItemImage.y = itemYOffset;
             if (doRestoreTransparency)
             {
-                itemImage2.DoRestoreCutTransparency();
+                downItemImage.DoRestoreCutTransparency();
             }
-            _ = slotBgDown.AddChild(itemImage2);
+            _ = slotBgDown.AddChild(downItemImage);
 
             Button slotButton = new Button().InitWithUpElementDownElementandID(slotBgUp, slotBgDown, buttonId);
             slotButton.delegateButtonDelegate = currentButtonDelegate;
@@ -605,7 +605,7 @@ namespace CutTheRopeDX.GameMain
             currentContainer.y = layout.WindowTop;
 
             Vector scroll = currentContainer.GetScroll();
-            scroll.Y = CTRMathHelper.FIT_TO_BOUNDARIES(scroll.Y, 0f, currentContainer.GetMaxScroll().Y);
+            scroll.Y = Math.Clamp(scroll.Y, 0f, MathF.Max(0f, currentContainer.GetMaxScroll().Y));
             currentContainer.SetScroll(scroll);
         }
 
@@ -986,8 +986,8 @@ namespace CutTheRopeDX.GameMain
             int bgUpQuad = isEquipped ? 2 : 0;
             int bgDownQuad = isEquipped ? 3 : 1;
 
-            Image slotBgUp = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, bgUpQuad);
-            Image slotBgDown = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, bgDownQuad);
+            Image slotBgUp = Image.FromResource(Resources.Img.SkinSelection, bgUpQuad);
+            Image slotBgDown = Image.FromResource(Resources.Img.SkinSelection, bgDownQuad);
 
             Button slotButton = new Button().InitWithUpElementDownElementandID(slotBgUp, slotBgDown, buttonId);
             slotButton.delegateButtonDelegate = currentButtonDelegate;
@@ -1141,8 +1141,8 @@ namespace CutTheRopeDX.GameMain
             FontGeneric font,
             IButtonDelegation buttonDelegate)
         {
-            Image buttonUp = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, 4);
-            Image buttonDown = Image.Image_createWithResIDQuad(Resources.Img.SkinSelection, 5);
+            Image buttonUp = Image.FromResource(Resources.Img.SkinSelection, 4);
+            Image buttonDown = Image.FromResource(Resources.Img.SkinSelection, 5);
 
             Text upText = new Text().InitWithFont(font);
             upText.SetString(Application.GetString(textKey));
@@ -1164,7 +1164,7 @@ namespace CutTheRopeDX.GameMain
         /// Covers the visible bounds with the selection background.
         /// </summary>
         /// <param name="visible">The logical region the viewport exposes.</param>
-        private static void CoverBackground(CTRRectangle visible)
+        private static void CoverBackground(Rectangle visible)
         {
             backgroundImage.scaleX = backgroundImage.scaleY =
                 LayoutMath.Cover(backgroundImage.width, backgroundImage.height, visible).Scale;
@@ -1188,7 +1188,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRRectangle visible = snapshot.VisibleBounds;
+            Rectangle visible = snapshot.VisibleBounds;
             backgroundRoot.width = (int)visible.w;
             backgroundRoot.height = (int)visible.h;
             CoverBackground(visible);
@@ -1317,14 +1317,14 @@ namespace CutTheRopeDX.GameMain
             omNomWarmupState = null;
             omNomXmlPreparseTask = null;
 
-            CTRRectangle visibleBounds = ScreenPresentation.Instance.Snapshot.VisibleBounds;
+            Rectangle visibleBounds = ScreenPresentation.Instance.Snapshot.VisibleBounds;
             BaseElement background = new()
             {
                 width = (int)visibleBounds.w,
                 height = (int)visibleBounds.h
             }; // ensure child anchors use the full screen bounds instead of 0x0
 
-            Image bgImage = Image.Image_createWithResID(Resources.BackgroundImg.SkinBackground);
+            Image bgImage = Image.FromResource(Resources.BackgroundImg.SkinBackground);
             bgImage.anchor = bgImage.parentAnchor = 18; // center
             _ = background.AddChild(bgImage);
             backgroundRoot = background;

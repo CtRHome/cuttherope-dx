@@ -1,6 +1,5 @@
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
-using CutTheRopeDX.Framework.Visual;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -15,39 +14,6 @@ namespace CutTheRopeDX.GameMain
         public const float MouthOffset = 80f;
 
         /// <summary>
-        /// Creates a pump from a texture.
-        /// </summary>
-        /// <param name="t">Texture used by the pump.</param>
-        /// <returns>The initialized pump.</returns>
-        public static Pump Pump_create(CTRTexture2D t)
-        {
-            return (Pump)new Pump().InitWithTexture(t);
-        }
-
-        /// <summary>
-        /// Creates a pump from a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <returns>The initialized pump.</returns>
-        public static Pump Pump_createWithResID(string resourceName)
-        {
-            return Pump_create(Application.GetTexture(resourceName));
-        }
-
-        /// <summary>
-        /// Creates a pump using a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <param name="q">Quad index to draw.</param>
-        /// <returns>The initialized pump.</returns>
-        public static Pump Pump_createWithResID(string resourceName, int q)
-        {
-            Pump pump = Pump_create(Application.GetTexture(resourceName));
-            pump.SetDrawQuad(q);
-            return pump;
-        }
-
-        /// <summary>
         /// Updates the internal endpoints and angle based on the current rotation.
         /// </summary>
         public void UpdateRotation()
@@ -55,7 +21,7 @@ namespace CutTheRopeDX.GameMain
             t1.X = x - (bb.w / 2f);
             t2.X = x + (bb.w / 2f);
             t1.Y = t2.Y = y;
-            angle = DEGREES_TO_RADIANS(rotation);
+            angle = float.DegreesToRadians(rotation);
             t1 = VectRotateAround(t1, angle, x, y);
             t2 = VectRotateAround(t2, angle, x, y);
         }
@@ -113,7 +79,7 @@ namespace CutTheRopeDX.GameMain
         {
             get
             {
-                float angleRad = DEGREES_TO_RADIANS(rotation);
+                float angleRad = float.DegreesToRadians(rotation);
                 Vector offset = VectRotate(Vect(width * 0.01f * scaleX, 0f), angleRad);
                 return VectAdd(Vect(x, y), offset);
             }
@@ -122,7 +88,7 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public void SetBindPoint(Vector point)
         {
-            float angleRad = DEGREES_TO_RADIANS(rotation);
+            float angleRad = float.DegreesToRadians(rotation);
             Vector offset = VectRotate(Vect(width * 0.01f * scaleX, 0f), angleRad);
             Vector adjusted = VectSub(point, offset);
             x = adjusted.X;

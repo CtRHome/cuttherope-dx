@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using CutTheRopeDX.Framework.Core;
@@ -97,7 +98,7 @@ namespace CutTheRopeDX.Framework.Visual
 
                     if (maxHeight != -1f)
                     {
-                        height = (int)MIN(height, maxHeight);
+                        height = (int)Math.Min(height, maxHeight);
                     }
                 }
                 return;
@@ -134,64 +135,59 @@ namespace CutTheRopeDX.Framework.Visual
             float lineY = 0f;
             int fontHeight = (int)font.FontHeight();
             int renderedCharCount = 0;
-            char[] characters2 = "..".ToCharArray();
-            int dotSpacing = (int)font.GetCharOffset(characters2, 0, 2);
-            int visibleLineCount = (int)(maxHeight == -1f ? formattedStrings.Count : MIN(formattedStrings.Count, maxHeight / (fontHeight + font.GetLineOffset())));
+            char[] dots = "..".ToCharArray();
+            int dotSpacing = (int)font.GetCharOffset(dots, 0, 2);
+            int visibleLineCount = (int)(maxHeight == -1f ? formattedStrings.Count : Math.Min(formattedStrings.Count, maxHeight / (fontHeight + font.GetLineOffset())));
             bool isTruncated = visibleLineCount != formattedStrings.Count;
-            int[] array2 = new int[totalCharmaps];
+            int[] nextDrawIndex = new int[totalCharmaps];
             for (int k = 0; k < visibleLineCount; k++)
             {
                 FormattedString formattedString = formattedStrings[k];
                 int lineLength = formattedString.string_.Length;
-                char[] characters3 = formattedString.string_.ToCharArray();
+                char[] lineChars = formattedString.string_.ToCharArray();
                 float lineX = align == 1 ? 0f : align != 2 ? wrapWidth - formattedString.width : (wrapWidth - formattedString.width) / 2f;
                 for (int l = 0; l < lineLength; l++)
                 {
-                    if (characters3[l] != '*')
+                    if (lineChars[l] != '*')
                     {
-                        if (characters3[l] == ' ')
+                        if (lineChars[l] == ' ')
                         {
-                            lineX += font.GetCharWidth(' ') + font.GetCharOffset(characters3, l, lineLength);
+                            lineX += font.GetCharWidth(' ') + font.GetCharOffset(lineChars, l, lineLength);
                         }
                         else
                         {
-                            int charmapIndex = font.GetCharmapIndex(characters3[l]);
-                            int charQuad = font.GetCharQuad(characters3[l]);
+                            int charmapIndex = font.GetCharmapIndex(lineChars[l]);
+                            int charQuad = font.GetCharQuad(lineChars[l]);
 
                             // Skip rendering if character is not in the font
                             if (charQuad >= 0)
                             {
-                                ImageMultiDrawer imageMultiDrawer3 = multiDrawers[charmapIndex];
-                                int quadIndex = charQuad;
-                                float quadX = lineX;
-                                float quadY = lineY;
-                                int[] array3 = array2;
-                                int mapIndex = charmapIndex;
-                                int drawIndex = array3[mapIndex];
-                                array3[mapIndex] = drawIndex + 1;
-                                imageMultiDrawer3.MapTextureQuadAtXYatIndex(quadIndex, quadX, quadY, drawIndex);
+                                ImageMultiDrawer drawer = multiDrawers[charmapIndex];
+                                int drawIndex = nextDrawIndex[charmapIndex];
+                                nextDrawIndex[charmapIndex] = drawIndex + 1;
+                                drawer.MapTextureQuadAtXYatIndex(charQuad, lineX, lineY, drawIndex);
                                 renderedCharCount++;
                             }
 
-                            lineX += font.GetCharWidth(characters3[l]) + font.GetCharOffset(characters3, l, lineLength);
+                            lineX += font.GetCharWidth(lineChars[l]) + font.GetCharOffset(lineChars, l, lineLength);
                         }
                         if (isTruncated && k == visibleLineCount - 1)
                         {
-                            int charmapIndex2 = font.GetCharmapIndex('.');
-                            int charQuad2 = font.GetCharQuad('.');
+                            int dotCharmapIndex = font.GetCharmapIndex('.');
+                            int dotQuad = font.GetCharQuad('.');
 
                             // Only render ellipsis if '.' character is available
-                            if (charQuad2 >= 0)
+                            if (dotQuad >= 0)
                             {
-                                ImageMultiDrawer imageMultiDrawer2 = multiDrawers[charmapIndex2];
+                                ImageMultiDrawer dotDrawer = multiDrawers[dotCharmapIndex];
                                 int dotWidth = (int)font.GetCharWidth('.');
                                 if (l == lineLength - 1 || (l == lineLength - 2 && lineX + (3 * (dotWidth + dotSpacing)) + font.GetCharWidth(' ') > wrapWidth))
                                 {
-                                    imageMultiDrawer2.MapTextureQuadAtXYatIndex(charQuad2, lineX, lineY, renderedCharCount++);
+                                    dotDrawer.MapTextureQuadAtXYatIndex(dotQuad, lineX, lineY, renderedCharCount++);
                                     lineX += dotWidth + dotSpacing;
-                                    imageMultiDrawer2.MapTextureQuadAtXYatIndex(charQuad2, lineX, lineY, renderedCharCount++);
+                                    dotDrawer.MapTextureQuadAtXYatIndex(dotQuad, lineX, lineY, renderedCharCount++);
                                     lineX += dotWidth + dotSpacing;
-                                    imageMultiDrawer2.MapTextureQuadAtXYatIndex(charQuad2, lineX, lineY, renderedCharCount++);
+                                    dotDrawer.MapTextureQuadAtXYatIndex(dotQuad, lineX, lineY, renderedCharCount++);
                                     break;
                                 }
                             }
@@ -213,7 +209,7 @@ namespace CutTheRopeDX.Framework.Visual
             }
             if (maxHeight != -1f)
             {
-                height = (int)MIN(height, maxHeight);
+                height = (int)Math.Min(height, maxHeight);
             }
         }
 
@@ -329,9 +325,6 @@ namespace CutTheRopeDX.Framework.Visual
         }
 
         /// <summary>
-        /// Word-wraps the current string into <see cref="FormattedString"/> lines based on <see cref="wrapWidth"/>.
-        /// </summary>
-        /// <summary>
         /// Extra advance between lines for this element, with both the font's configured spacing and
         /// the authored line-height multiplier applied.
         /// </summary>
@@ -342,6 +335,9 @@ namespace CutTheRopeDX.Framework.Visual
                 - (font.FontHeight() * sizeScale);
         }
 
+        /// <summary>
+        /// Word-wraps the current string into <see cref="FormattedString"/> lines based on <see cref="wrapWidth"/>.
+        /// </summary>
         public virtual void FormatText()
         {
             // Glyph advances come back at the font's own size, so the budget a line is measured
@@ -403,7 +399,7 @@ namespace CutTheRopeDX.Framework.Visual
                     // line of negative length. What the text means there is an empty line, which
                     // is what an end held at the start describes.
                     array[rangesLength++] = (short)lineStart;
-                    array[rangesLength++] = (short)MAX(lineEnd, lineStart);
+                    array[rangesLength++] = (short)Math.Max(lineEnd, lineStart);
                     while (wordStart < textLength && characters[wordStart] == ' ')
                     {
                         wordStart++;
@@ -426,9 +422,9 @@ namespace CutTheRopeDX.Framework.Visual
                 int rangeStart = array[i << 1];
                 int rangeEnd = array[(i << 1) + 1];
                 int length = rangeEnd - rangeStart;
-                string str = string_.Substring(rangeStart, length);
-                float w = font.StringWidth(str);
-                FormattedString item = new FormattedString().InitWithStringAndWidth(str, w);
+                string line = string_.Substring(rangeStart, length);
+                float w = font.StringWidth(line);
+                FormattedString item = new FormattedString().InitWithStringAndWidth(line, w);
                 formattedStrings.Add(item);
             }
         }

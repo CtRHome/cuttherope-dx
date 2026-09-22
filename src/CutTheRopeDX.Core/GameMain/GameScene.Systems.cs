@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 using CutTheRopeDX.GameMain.Tutorials;
@@ -18,17 +19,17 @@ namespace CutTheRopeDX.GameMain
         /// <param name="p">Pump producing the flow impulse.</param>
         /// <param name="s">Constrained point to receive the impulse.</param>
         /// <param name="c">Game object tested against the pump flow area.</param>
-        public static void HandlePumpFlowPtSkin(Pump p, ConstraintedPoint s, GameObject c)
+        public static void HandlePumpFlowPtSkin(Pump p, ConstrainedPoint s, GameObject c)
         {
             float flowLength = ActivePhysicsConstants.PumpFlowLength;
             if (GameObject.RectInObject(p.x - flowLength, p.y - flowLength, p.x + flowLength, p.y + flowLength, c))
             {
                 Vector v = Vect(c.x, c.y);
-                Vector vector = default;
-                vector.X = p.x - (p.bb.w / 2f);
-                Vector vector2 = default;
-                vector2.X = p.x + (p.bb.w / 2f);
-                vector.Y = vector2.Y = p.y;
+                Vector leftEdge = default;
+                leftEdge.X = p.x - (p.bb.w / 2f);
+                Vector rightEdge = default;
+                rightEdge.X = p.x + (p.bb.w / 2f);
+                leftEdge.Y = rightEdge.Y = p.y;
                 if (p.angle != 0)
                 {
                     v = VectRotateAround(v, 0 - p.angle, p.x, p.y);
@@ -37,12 +38,12 @@ namespace CutTheRopeDX.GameMain
                 // reference, which tests the target object's own bbox against the flow column.
                 float flowBoxW = ActivePhysicsConstants.UseMobilePhysicsModel ? c.bb.w : p.bb.w;
                 float flowBoxH = ActivePhysicsConstants.UseMobilePhysicsModel ? c.bb.h : p.bb.h;
-                if (v.Y < vector.Y && RectInRect(v.X - (flowBoxW / 2), v.Y - (flowBoxH / 2), v.X + (flowBoxW / 2), v.Y + (flowBoxH / 2), vector.X, vector.Y - flowLength, vector2.X, vector2.Y))
+                if (v.Y < leftEdge.Y && RectInRect(v.X - (flowBoxW / 2), v.Y - (flowBoxH / 2), v.X + (flowBoxW / 2), v.Y + (flowBoxH / 2), leftEdge.X, leftEdge.Y - flowLength, rightEdge.X, rightEdge.Y))
                 {
-                    float verticalImpulse = flowLength * 2f * (flowLength - (vector.Y - v.Y)) / flowLength;
-                    Vector v2 = Vect(0f, 0f - verticalImpulse);
-                    v2 = VectRotate(v2, p.angle);
-                    s.ApplyImpulseDelta(v2, 0.016f);
+                    float verticalImpulse = flowLength * 2f * (flowLength - (leftEdge.Y - v.Y)) / flowLength;
+                    Vector impulse = Vect(0f, 0f - verticalImpulse);
+                    impulse = VectRotate(impulse, p.angle);
+                    s.ApplyImpulseDelta(impulse, 0.016f);
                 }
             }
         }
@@ -53,15 +54,15 @@ namespace CutTheRopeDX.GameMain
         /// <param name="b">Bouncer source.</param>
         /// <param name="s">Constrained point affected by the bounce.</param>
         /// <param name="delta">Frame delta time used when applying impulse.</param>
-        public static void HandleBouncePtDelta(Bouncer b, ConstraintedPoint s, float delta)
+        public static void HandleBouncePtDelta(Bouncer b, ConstrainedPoint s, float delta)
         {
             if (!b.skip)
             {
                 // b.skip = true;
                 Vector vector = VectSub(s.prevPos, s.pos);
                 int directionSign = VectRotateAround(s.prevPos, 0f - b.angle, b.x, b.y).Y >= b.y ? 1 : -1;
-                float s2 = MAX(VectLength(vector) * ActivePhysicsConstants.BouncerImpulseVelocityScale, ActivePhysicsConstants.BouncerMinImpulse) * directionSign;
-                Vector impulse = VectMult(VectPerp(VectForAngle(b.angle)), s2);
+                float impulseMagnitude = Math.Max(VectLength(vector) * ActivePhysicsConstants.BouncerImpulseVelocityScale, ActivePhysicsConstants.BouncerMinImpulse) * directionSign;
+                Vector impulse = VectMult(VectPerp(VectForAngle(b.angle)), impulseMagnitude);
                 s.pos = VectRotateAround(s.pos, 0f - b.angle, b.x, b.y);
                 s.prevPos = VectRotateAround(s.prevPos, 0f - b.angle, b.x, b.y);
                 s.prevPos.Y = s.pos.Y;
@@ -69,7 +70,7 @@ namespace CutTheRopeDX.GameMain
                 s.prevPos = VectRotateAround(s.prevPos, b.angle, b.x, b.y);
                 s.ApplyImpulseDelta(impulse, delta);
                 b.PlayTimeline(0);
-                CTRSoundMgr.PlaySound(Resources.Snd.Bouncer);
+                SoundMgr.PlaySound(Resources.Snd.Bouncer);
             }
         }
 
@@ -81,9 +82,9 @@ namespace CutTheRopeDX.GameMain
         /// <param name="delta">Frame delta time used when applying impulses.</param>
         public void OperateSteamTube(SteamTube tube, float delta)
         {
-            float tubeScale = tube.GetHeightScale();
+            float tubeScale = tube.HeightScale;
             float damping = ActivePhysicsConstants.SteamTubeDamping;
-            float angle = DEGREES_TO_RADIANS(tube.rotation);
+            float angle = float.DegreesToRadians(tube.rotation);
             float tubeWidth = ActivePhysicsConstants.SteamTubeWidthScale * tubeScale;
             float currentHeight = tube.GetCurrentHeightModulated();
             float verticalOffset = ActivePhysicsConstants.SteamTubeVerticalOffsetScale * tubeScale;
@@ -96,7 +97,7 @@ namespace CutTheRopeDX.GameMain
             float rectRight = tube.x + (tubeWidth / 2f);
             float rectBottom = tube.y - collisionRadius;
 
-            bool ApplyImpulse(ConstraintedPoint pt)
+            bool ApplyImpulse(ConstrainedPoint pt)
             {
                 Vector position = Vect(pt.pos.X, pt.pos.Y);
                 Vector velocity = Vect(pt.v.X, pt.v.Y);
@@ -128,9 +129,9 @@ namespace CutTheRopeDX.GameMain
                     if (tube.rotation == 0f)
                     {
                         float deltaX = tube.x - position.X;
-                        horizontalImpulse = ABS(deltaX) > tubeWidth / 4f
+                        horizontalImpulse = MathF.Abs(deltaX) > tubeWidth / 4f
                             ? ((0f - velocity.X) / damping) + (0.25f * deltaX)
-                            : ABS(velocity.X) < ActivePhysicsConstants.SteamTubeVelocityDeadzone ? 0f - velocity.X : (0f - velocity.X) / damping;
+                            : MathF.Abs(velocity.X) < ActivePhysicsConstants.SteamTubeVelocityDeadzone ? 0f - velocity.X : (0f - velocity.X) / damping;
                     }
 
                     // Windows Phone force, mapped to world scale (tubeScale is world/Windows Phone transform).
@@ -156,9 +157,9 @@ namespace CutTheRopeDX.GameMain
                     if (applyHorizontalCentering)
                     {
                         float deltaX = tube.x - position.X;
-                        horizontalImpulse = ABS(deltaX) > tubeWidth / 4f
+                        horizontalImpulse = MathF.Abs(deltaX) > tubeWidth / 4f
                             ? ((0f - velocity.X) / damping) + (0.25f * deltaX)
-                            : ABS(velocity.X) < 1f ? 0f - velocity.X : (0f - velocity.X) / damping;
+                            : MathF.Abs(velocity.X) < 1f ? 0f - velocity.X : (0f - velocity.X) / damping;
                     }
 
                     bool alignedWithGravity =
@@ -208,10 +209,10 @@ namespace CutTheRopeDX.GameMain
         {
             p.PlayTimeline(0);
             tutorialDirector.Fire(TutorialEvent.PumpFire);
-            CTRSoundMgr.PlayRandomSound(Resources.Snd.Pump1, Resources.Snd.Pump2, Resources.Snd.Pump3, Resources.Snd.Pump4);
-            Image grid = Image.Image_createWithResID(Resources.Img.ObjPump);
+            SoundMgr.PlayRandomSound(Resources.Snd.Pump1, Resources.Snd.Pump2, Resources.Snd.Pump3, Resources.Snd.Pump4);
+            Image grid = Image.FromResource(Resources.Img.ObjPump);
             float flowLength = MathF.Max(0f, ActivePhysicsConstants.PumpFlowLength - Pump.MouthOffset);
-            PumpDirt pumpDirt = new PumpDirt().InitWithTotalParticlesAngleandImageGrid(5, RADIANS_TO_DEGREES(p.angle) - DEG_90, grid, flowLength);
+            PumpDirt pumpDirt = new PumpDirt().InitWithTotalParticlesAngleandImageGrid(5, float.RadiansToDegrees(p.angle) - DEG_90, grid, flowLength);
             pumpDirt.particlesDelegate = new Particles.ParticlesFinished(aniPool.ParticlesFinished);
             Vector v = Vect(p.x + Pump.MouthOffset, p.y);
             v = VectRotateAround(v, p.angle - (MathF.PI / 2), p.x, p.y);
@@ -224,9 +225,8 @@ namespace CutTheRopeDX.GameMain
             {
                 HandlePumpFlowPtSkin(p, body.Point, body.Visual);
             }
-            foreach (object bungee in bungees)
+            foreach (Grab grab in bungees)
             {
-                Grab grab = (Grab)bungee;
                 // A kicked cup's rope holds still while time is frozen, so the pump cannot blow it.
                 if (grab?.Rope != null && grab.Mount?.IsMounted == false && !timeFrozen)
                 {
@@ -327,12 +327,12 @@ namespace CutTheRopeDX.GameMain
 
                 for (int j = 0; j < rope.parts.Count - 1; j++)
                 {
-                    ConstraintedPoint a = rope.parts[j];
-                    ConstraintedPoint b = rope.parts[j + 1];
+                    ConstrainedPoint a = rope.parts[j];
+                    ConstrainedPoint b = rope.parts[j + 1];
                     bool hit;
                     if (r == null)
                     {
-                        CTRRectangle? exclusion = entry.Owner?.CutExclusionZone;
+                        Rectangle? exclusion = entry.Owner?.CutExclusionZone;
                         bool outsideExclusion = exclusion == null
                             || !LineInRect(v1.X, v1.Y, v2.X, v2.Y, exclusion.Value.x, exclusion.Value.y, exclusion.Value.w, exclusion.Value.h);
                         hit = outsideExclusion
@@ -368,7 +368,7 @@ namespace CutTheRopeDX.GameMain
                         2 => Resources.Snd.RopeBleak3,
                         _ => Resources.Snd.RopeBleak4
                     };
-                    CTRSoundMgr.PlaySound(ropeSound);
+                    SoundMgr.PlaySound(ropeSound);
                     rope.SetCut(j);
                     if (im)
                     {
@@ -440,10 +440,10 @@ namespace CutTheRopeDX.GameMain
 
         private bool TryCutAxeOnlyChain(CandyContext axeCtx, Bungee rope)
         {
-            ConstraintedPoint bladePoint = axeCtx.WholeBody.Point;
+            ConstrainedPoint bladePoint = axeCtx.WholeBody.Point;
             for (int i = 0; i < rope.parts.Count; i++)
             {
-                ConstraintedPoint part = rope.parts[i];
+                ConstrainedPoint part = rope.parts[i];
                 if (part == null || ReferenceEquals(part, bladePoint))
                 {
                     continue;
@@ -454,7 +454,7 @@ namespace CutTheRopeDX.GameMain
                     continue;
                 }
 
-                int cutPart = MIN(i, rope.parts.Count - 2);
+                int cutPart = Math.Min(i, rope.parts.Count - 2);
                 if (cutPart < 0)
                 {
                     return false;
@@ -478,14 +478,14 @@ namespace CutTheRopeDX.GameMain
             Preferences.SetIntForKey(spidersBustedCount, "PREFS_SPIDERS_BUSTED", false);
             if (spidersBustedCount == 40)
             {
-                CTRRootController.PostAchievementName("681486608", ACHIEVEMENT_STRING("\"Spider Busted\""));
+                Scorer.PostAchievementName("681486608", "\"Spider Busted\"");
             }
             if (spidersBustedCount == 200)
             {
-                CTRRootController.PostAchievementName("1058341284", ACHIEVEMENT_STRING("\"Spider Tammer\""));
+                Scorer.PostAchievementName("1058341284", "\"Spider Tammer\"");
             }
-            CTRSoundMgr.PlaySound(Resources.Snd.SpiderFall);
-            Image image = Image.Image_createWithResIDQuad(Resources.Img.ObjSpider, 11);
+            SoundMgr.PlaySound(Resources.Snd.SpiderFall);
+            Image image = Image.FromResource(Resources.Img.ObjSpider, 11);
             image.DoRestoreCutTransparency();
             Timeline timeline = new Timeline().InitWithMaxKeyFramesOnTrack(3);
             if (gravityState.IsInverted)
@@ -517,11 +517,11 @@ namespace CutTheRopeDX.GameMain
         /// <param name="sg">Grab whose spider captured the candy.</param>
         public void SpiderWon(Grab sg)
         {
-            ConstraintedPoint capturedStar = sg.Rope?.tail;
+            ConstrainedPoint capturedPoint = sg.Rope?.tail;
             // spiderTookCandy = true;
             // The spider takes whichever body its rope ends on - a whole candy or one split half. A
             // rope that ends on no live body has nothing to steal; it used to steal the primary candy.
-            CandyBody capturedBody = CandyBodyForPointOrNull(capturedStar);
+            CandyBody capturedBody = CandyBodyForPointOrNull(capturedPoint);
             if (capturedBody == null)
             {
                 return;
@@ -536,9 +536,9 @@ namespace CutTheRopeDX.GameMain
             }
 
             tutorialDirector.Fire(TutorialEvent.SpiderSteal, capturedBody);
-            CTRSoundMgr.PlaySound(Resources.Snd.SpiderWin);
+            SoundMgr.PlaySound(Resources.Snd.SpiderWin);
             GameObject capturedCandy = capturedBody.Visual;
-            Image image = Image.Image_createWithResIDQuad(Resources.Img.ObjSpider, 12);
+            Image image = Image.FromResource(Resources.Img.ObjSpider, 12);
             image.DoRestoreCutTransparency();
             capturedCandy.anchor = capturedCandy.parentAnchor = 18;
             capturedCandy.x = 0f;
@@ -586,8 +586,8 @@ namespace CutTheRopeDX.GameMain
             Vector v = Vect(tx, ty);
             for (int i = 0; i < bungees.Count; i++)
             {
-                Grab grab2 = bungees[i];
-                Bungee rope = grab2.Rope;
+                Grab ropeGrab = bungees[i];
+                Bungee rope = ropeGrab.Rope;
                 if (rope != null)
                 {
                     for (int j = 0; j < rope.drawPtsCount; j += 2)
@@ -599,7 +599,7 @@ namespace CutTheRopeDX.GameMain
                             nearestDistance = distanceToPoint;
                             result = rope;
                             s = vector;
-                            grab = grab2;
+                            grab = ropeGrab;
                         }
                     }
                 }
@@ -626,13 +626,13 @@ namespace CutTheRopeDX.GameMain
             }
             for (int i = 0; i < rope.parts.Count - 1; i++)
             {
-                ConstraintedPoint constraintedPoint = rope.parts[i];
-                float distanceToConstraint = VectDistance(constraintedPoint.pos, v);
-                if (distanceToConstraint < closestDistance && (g.Wheel == null || !PointInRect(constraintedPoint.pos.X, constraintedPoint.pos.Y, g.x - WheelControl.TapHalfExtent, g.y - WheelControl.TapHalfExtent, WheelControl.TapHalfExtent * 2f, WheelControl.TapHalfExtent * 2f)))
+                ConstrainedPoint constrainedPoint = rope.parts[i];
+                float distanceToConstraint = VectDistance(constrainedPoint.pos, v);
+                if (distanceToConstraint < closestDistance && (g.Wheel == null || !PointInRect(constrainedPoint.pos.X, constrainedPoint.pos.Y, g.x - WheelControl.TapHalfExtent, g.y - WheelControl.TapHalfExtent, WheelControl.TapHalfExtent * 2f, WheelControl.TapHalfExtent * 2f)))
                 {
                     closestDistance = distanceToConstraint;
                     result = rope;
-                    s = constraintedPoint.pos;
+                    s = constrainedPoint.pos;
                 }
             }
             return result;

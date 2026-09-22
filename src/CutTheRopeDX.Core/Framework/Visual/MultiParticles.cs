@@ -34,16 +34,39 @@ namespace CutTheRopeDX.Framework.Visual
             return this;
         }
 
+        /// <summary>
+        /// Binds the atlas quad at <paramref name="quadIndex"/> to the particle slot being filled.
+        /// </summary>
+        /// <param name="quadIndex">Index of the quad in the particle texture atlas.</param>
+        protected void SetParticleQuad(int quadIndex)
+        {
+            Quad2D textureQuad = imageGrid.texture.quads[quadIndex];
+            Quad3D vertexQuad = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
+            drawer.SetTextureQuadatVertexQuadatIndex(textureQuad, vertexQuad, particleCount);
+        }
+
+        /// <summary>
+        /// Binds the atlas quad at <paramref name="quadIndex"/> to the particle slot being filled and
+        /// sizes <paramref name="particle"/> from that quad's rect, scaled by <paramref name="scale"/>.
+        /// </summary>
+        /// <param name="particle">Particle to size.</param>
+        /// <param name="quadIndex">Index of the quad in the particle texture atlas.</param>
+        /// <param name="scale">Factor applied to the quad's width and height.</param>
+        protected void SetParticleQuad(ref Particle particle, int quadIndex, float scale)
+        {
+            SetParticleQuad(quadIndex);
+            Rectangle textureRect = imageGrid.texture.quadRects[quadIndex];
+            particle.width = textureRect.w * scale;
+            particle.height = textureRect.h * scale;
+        }
+
         /// <inheritdoc />
         public override void InitParticle(ref Particle particle)
         {
-            Image image = imageGrid;
-            int quadIndex = RND(image.texture.quadsCount - 1);
-            Quad2D textureQuad = image.texture.quads[quadIndex];
-            Quad3D vertexQuad = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
-            CTRRectangle textureRect = image.texture.quadRects[quadIndex];
-            drawer.SetTextureQuadatVertexQuadatIndex(textureQuad, vertexQuad, particleCount);
+            int quadIndex = RND(imageGrid.texture.quadsCount - 1);
+            SetParticleQuad(quadIndex);
             base.InitParticle(ref particle);
+            Rectangle textureRect = imageGrid.texture.quadRects[quadIndex];
             particle.width = textureRect.w * particle.size;
             particle.height = textureRect.h * particle.size;
         }
@@ -64,11 +87,11 @@ namespace CutTheRopeDX.Framework.Visual
                 v.X = 0f - v.Y;
                 v.Y = tangentX;
                 v = VectMult(v, p.tangentialAccel);
-                Vector v2 = VectAdd(VectAdd(vector, v), gravity);
-                v2 = VectMult(v2, delta);
-                p.dir = VectAdd(p.dir, v2);
-                v2 = VectMult(p.dir, delta);
-                p.pos = VectAdd(p.pos, v2);
+                Vector step = VectAdd(VectAdd(vector, v), gravity);
+                step = VectMult(step, delta);
+                p.dir = VectAdd(p.dir, step);
+                step = VectMult(p.dir, delta);
+                p.pos = VectAdd(p.pos, step);
                 p.color.RedColor += p.deltaColor.RedColor * delta;
                 p.color.GreenColor += p.deltaColor.GreenColor * delta;
                 p.color.BlueColor += p.deltaColor.BlueColor * delta;
@@ -130,7 +153,7 @@ namespace CutTheRopeDX.Framework.Visual
                 Renderer.SetBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
             }
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(drawer.image.texture.Name());
+            Renderer.BindTexture(drawer.image.texture);
             int quadCount = particleIdx;
             if (quadCount > 0)
             {

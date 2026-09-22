@@ -21,7 +21,7 @@ namespace CutTheRopeDX.GameMain
     /// The light bulb can be attached to ropes via its constraint point and can
     /// capture or be captured by bubbles.
     /// </remarks>
-    internal sealed class LightBulb : CTRGameObject
+    internal sealed class LightBulb : GameObject
     {
         /// <summary>Sprite index for the light glow effect.</summary>
         private const int ImgObjLighterLight = 0;
@@ -37,7 +37,6 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Last frame index of the firefly animation sequence.</summary>
         private const int ImgObjLighterFireflyEnd = 42;
-
 
         /// <summary>Base scale factor applied to the light bulb root object.</summary>
         private const float LightBulbRootScale = 1f;
@@ -55,7 +54,7 @@ namespace CutTheRopeDX.GameMain
         /// The physics constraint point that determines the bulb's position.
         /// Used for rope attachment and physics simulation.
         /// </summary>
-        public readonly ConstraintedPoint constraint;
+        public readonly ConstrainedPoint constraint;
 
         /// <summary>
         /// Identifier string for this light bulb instance, used for level loading
@@ -90,7 +89,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="lightRadius">The radius of the light effect for gameplay mechanics.</param>
         /// <param name="constraint">The physics constraint point for positioning.</param>
         /// <param name="bulbNumber">An optional identifier for this light bulb instance.</param>
-        public LightBulb(float lightRadius, ConstraintedPoint constraint, string bulbNumber)
+        public LightBulb(float lightRadius, ConstrainedPoint constraint, string bulbNumber)
         {
             // Initialize state
             this.lightRadius = lightRadius;
@@ -99,28 +98,28 @@ namespace CutTheRopeDX.GameMain
             scaleX = scaleY = LightBulbRootScale;
 
             // Create light glow with additive blending for a soft halo effect
-            lightGlow = GameObject_createWithResIDQuad(Resources.Img.ObjLighter, ImgObjLighterLight);
+            lightGlow = InitializeFromResource(new GameObject(), Resources.Img.ObjLighter, ImgObjLighterLight);
             lightGlow.anchor = lightGlow.parentAnchor = 18; // Center anchor
             lightGlow.color = RGBAColor.MakeRGBA(1f, 1f, 1f, 0.6f); // Semi-transparent white
             lightGlow.blendingMode = 2; // Additive blending (SRC_ALPHA, ONE)
             _ = AddChild(lightGlow);
 
             // Create bottle sprite with normal alpha blending
-            bottle = GameObject_createWithResIDQuad(Resources.Img.ObjLighter, ImgObjLighterBottle);
+            bottle = InitializeFromResource(new GameObject(), Resources.Img.ObjLighter, ImgObjLighterBottle);
             bottle.anchor = bottle.parentAnchor = 18;
             bottle.DoRestoreCutTransparency();
             bottle.blendingMode = 1; // Normal blending (SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
             _ = AddChild(bottle);
 
             // Create bottle top/lid sprite
-            top = GameObject_createWithResIDQuad(Resources.Img.ObjLighter, ImgObjLighterTop);
+            top = InitializeFromResource(new GameObject(), Resources.Img.ObjLighter, ImgObjLighterTop);
             top.anchor = top.parentAnchor = 18;
             top.DoRestoreCutTransparency();
             top.blendingMode = 1; // Normal blending
             _ = AddChild(top);
 
             // Create animated firefly that loops through frames 3-42
-            firefly = Animation_createWithResID(Resources.Img.ObjLighter);
+            firefly = InitializeFromResource(new Animation(), Resources.Img.ObjLighter);
             firefly.anchor = firefly.parentAnchor = 18;
             firefly.blendingMode = 1; // Normal blending
             _ = firefly.AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_REPLAY, ImgObjLighterFireflyStart, ImgObjLighterFireflyEnd);
@@ -136,13 +135,13 @@ namespace CutTheRopeDX.GameMain
             _ = AddChild(GhostBubbleAnimation);
 
             // Set bounding box based on bottle dimensions (the main visual element)
-            CTRRectangle bottleRect = bottle.texture.quadRects[ImgObjLighterBottle];
+            Rectangle bottleRect = bottle.texture.quadRects[ImgObjLighterBottle];
             int boundWidth = (int)bottleRect.w;
             int boundHeight = (int)bottleRect.h;
             width = boundWidth;
             height = boundHeight;
             anchor = parentAnchor = 18;
-            bb = new CTRRectangle(0f, 0f, width, height);
+            bb = new Rectangle(0f, 0f, width, height);
             rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
             rotatedBB = false;
             topLeftCalculated = false;
@@ -284,17 +283,12 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public override void Update(float delta)
         {
-            RefreshPresentation();
+            PrepareToDraw();
             base.Update(delta);
         }
 
         /// <summary>Refreshes the view from authoritative state immediately before rendering.</summary>
         internal void PrepareToDraw()
-        {
-            RefreshPresentation();
-        }
-
-        private void RefreshPresentation()
         {
             CandyTransportSession transport = owner.Lifecycle.Transport;
             visible = !owner.HasNoWholeBodyInPlay && transport?.Sock == null;

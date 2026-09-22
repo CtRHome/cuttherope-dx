@@ -82,18 +82,18 @@ namespace CutTheRopeDX.GameMain
         /// <see langword="true" /> if the active mouse exists, is active, and within grab radius;
         /// otherwise <see langword="false" />.
         /// </returns>
-        public bool IsActiveMouseInRange(ConstraintedPoint target)
+        public bool IsActiveMouseInRange(ConstrainedPoint target)
         {
             Mouse active = activeMouse;
             return active != null && active.IsActive && active.IsWithinGrabRadius(target);
         }
 
         /// <summary>
-        /// Commands the active mouse to grab a candy from a star point.
+        /// Commands the active mouse to grab a candy by its physics point.
         /// </summary>
-        /// <param name="star">The constrained star point.</param>
+        /// <param name="candyPoint">The candy's constrained physics point.</param>
         /// <param name="candy">The candy game object.</param>
-        public void GrabWithActiveMouse(ConstraintedPoint star, GameObject candy)
+        public void GrabWithActiveMouse(ConstrainedPoint candyPoint, GameObject candy)
         {
             if (activeMouse == null || activeMouse.HasCandy)
             {
@@ -102,10 +102,10 @@ namespace CutTheRopeDX.GameMain
 
             // Release only the ropes of the candy being grabbed, keyed by its own point.
             // Using the global ReleaseAllRopes here would cut the first candy's ropes when
-            // a later candy is grabbed, since that path matches the singleton star points.
-            scene.ReleaseRopesForPoint(star);
-            scene.DetachHandsForPoint(star);
-            activeMouse.GrabCandy(star, candy);
+            // a later candy is grabbed, since that path matches the singleton candy points.
+            scene.ReleaseRopesForPoint(candyPoint);
+            scene.DetachHandsForPoint(candyPoint);
+            activeMouse.GrabCandy(candyPoint, candy);
         }
 
         /// <summary>
@@ -118,15 +118,15 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>The point the active mouse is currently carrying, or null when it carries nothing.</summary>
-        public ConstraintedPoint ActiveMouseCarriedStar()
+        public ConstrainedPoint ActiveMouseCarriedCandyPoint()
         {
-            return activeMouse?.CarriedStar;
+            return activeMouse?.CarriedCandyPoint;
         }
 
         /// <summary>Gets whether the active mouse owns the specified candy point.</summary>
-        public bool CarriesCandy(ConstraintedPoint point)
+        public bool CarriesCandy(ConstrainedPoint point)
         {
-            return MouseOwnership.CarriesCandy(activeMouse?.CarriedStar, point);
+            return MouseOwnership.CarriesCandy(activeMouse?.CarriedCandyPoint, point);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace CutTheRopeDX.GameMain
         /// <see langword="true" /> if the click was handled and candy was dropped;
         /// otherwise <see langword="false" />.
         /// </returns>
-        public bool HandleClick(float x, float y, out ConstraintedPoint droppedCandy)
+        public bool HandleClick(float x, float y, out ConstrainedPoint droppedCandy)
         {
             droppedCandy = null;
             if (activeMouse == null || !activeMouse.HasCandy)
@@ -172,7 +172,7 @@ namespace CutTheRopeDX.GameMain
 
             if (activeMouse.IsClickable(x, y))
             {
-                droppedCandy = ActiveMouseCarriedStar();
+                droppedCandy = ActiveMouseCarriedCandyPoint();
                 activeMouse.DropCandyAndRetreat();
                 return true;
             }
@@ -182,7 +182,7 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>
         /// Advances control to the next mouse in index order, transferring
-        /// any carried candy and star state.
+        /// any carried candy and its physics point.
         /// </summary>
         public void AdvanceToNextMouse()
         {
@@ -247,7 +247,7 @@ namespace CutTheRopeDX.GameMain
                 parentAnchor = 18
             };
 
-            Animation body = Animation.Animation_createWithResID(Resources.Img.ObjMouse);
+            Animation body = Image.InitializeFromResource(new Animation(), Resources.Img.ObjMouse);
             body.anchor = body.parentAnchor = 18;
             body.DoRestoreCutTransparency();
 
@@ -307,7 +307,7 @@ namespace CutTheRopeDX.GameMain
             _ = container.AddChild(body);
 
             // Eye blink animation — frames 5-13
-            Animation eyes = Animation.Animation_createWithResID(Resources.Img.ObjMouse);
+            Animation eyes = Image.InitializeFromResource(new Animation(), Resources.Img.ObjMouse);
             eyes.anchor = eyes.parentAnchor = 18;
             eyes.DoRestoreCutTransparency();
             _ = eyes.AddAnimationDelayLoopFirstLast(
@@ -324,33 +324,6 @@ namespace CutTheRopeDX.GameMain
                 Body = body,
                 Eyes = eyes
             };
-        }
-
-        /// <summary>
-        /// Identifiers for mouse animation timelines on the shared body animation.
-        /// </summary>
-        private enum MouseAnimationId
-        {
-            /// <summary>Entry animation without candy.</summary>
-            EntryEmpty = 0,
-
-            /// <summary>Entry animation while carrying candy.</summary>
-            EntryWithCandy = 1,
-
-            /// <summary>Idle animation without candy.</summary>
-            IdleEmpty = 2,
-
-            /// <summary>Idle animation while carrying candy.</summary>
-            Idle = 3,
-
-            /// <summary>Exit animation without candy.</summary>
-            ExitEmpty = 4,
-
-            /// <summary>Exit animation while carrying candy.</summary>
-            ExitWithCandy = 5,
-
-            /// <summary>Bounce animation used while a mouse is active.</summary>
-            Bounce = 6
         }
 
         /// <summary>

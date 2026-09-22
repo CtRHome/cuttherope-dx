@@ -35,7 +35,7 @@ namespace CutTheRopeDX.Tests
 
         private static CandyContext Context()
         {
-            return new CandyContext(new CandyBody(new ConstraintedPoint(), CandyBodyRole.Whole));
+            return new CandyContext(new CandyBody(new ConstrainedPoint(), CandyBodyRole.Whole));
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace CutTheRopeDX.Tests
                     types: [typeof(GameObject)],
                     modifiers: null);
 
-                CTRRectangle bounds = (CTRRectangle)getBounds.Invoke(null, [differentlySizedSkin]);
+                Rectangle bounds = (Rectangle)getBounds.Invoke(null, [differentlySizedSkin]);
                 float centerOffsetX = bounds.x + (bounds.w / 2f) - (differentlySizedSkin.width / 2f);
                 float centerOffsetY = bounds.y + (bounds.h / 2f) - (differentlySizedSkin.height / 2f);
 
@@ -207,12 +207,12 @@ namespace CutTheRopeDX.Tests
         public void HtmlNudgeImpulseIsEqualAndOppositeReverseVelocityScaled()
         {
             // a moved +2 in x last frame (prev 98 -> pos 100); b moved -2 in x (prev 122 -> pos 120): closing in.
-            ConstraintedPoint a = new()
+            ConstrainedPoint a = new()
             {
                 pos = new Vector(100f, 100f),
                 prevPos = new Vector(98f, 100f)
             };
-            ConstraintedPoint b = new()
+            ConstrainedPoint b = new()
             {
                 pos = new Vector(120f, 100f),
                 prevPos = new Vector(122f, 100f)
@@ -222,6 +222,48 @@ namespace CutTheRopeDX.Tests
             Vector impulse = CandyCollision.HtmlNudgeImpulse(a, b);
             Assert.Equal(-250f, impulse.X, precision: 3);
             Assert.Equal(0f, impulse.Y, precision: 3);
+        }
+
+        // The exchange is normalized by the collision distance rather than the live distance, so
+        // every exchanged velocity comes out scaled by (distance / collisionDist)^2.
+        private const float ElasticCollisionDist = 96f;
+        private const float ElasticDistance = 86f;
+        private const float ElasticScale = ElasticDistance * ElasticDistance / (ElasticCollisionDist * ElasticCollisionDist);
+
+        private static ConstrainedPoint Body(float x, float y, float vx, float vy)
+        {
+            return new ConstrainedPoint { pos = new Vector(x, y), v = new Vector(vx, vy) };
+        }
+
+        // Parity with the original engine: b's side of the exchange reads a.v.X where b.v.Y belongs.
+        // These pin that behavior so it is not "fixed" into a true elastic swap, which changes how
+        // the night levels play.
+        [Fact]
+        public void ElasticHeadOnAlongXKicksTheSecondBodyVerticallyLikeTheOriginal()
+        {
+            ConstrainedPoint a = Body(0f, 0f, 1000f, 0f);
+            ConstrainedPoint b = Body(ElasticDistance, 0f, -1000f, 0f);
+
+            CandyCollision.HandleCandyIntersection(a, b, ElasticCollisionDist);
+
+            Assert.Equal(-1000f * ElasticScale, a.v.X, precision: 2);
+            Assert.Equal(0f, a.v.Y, precision: 2);
+            Assert.Equal(1000f * ElasticScale, b.v.X, precision: 2);
+            Assert.Equal(1000f * ElasticScale, b.v.Y, precision: 2);
+        }
+
+        [Fact]
+        public void ElasticHeadOnAlongYStopsTheFirstBodyLikeTheOriginal()
+        {
+            ConstrainedPoint a = Body(0f, 0f, 0f, 1000f);
+            ConstrainedPoint b = Body(0f, ElasticDistance, 0f, -1000f);
+
+            CandyCollision.HandleCandyIntersection(a, b, ElasticCollisionDist);
+
+            Assert.Equal(0f, a.v.X, precision: 2);
+            Assert.Equal(0f, a.v.Y, precision: 2);
+            Assert.Equal(0f, b.v.X, precision: 2);
+            Assert.Equal(1000f * ElasticScale, b.v.Y, precision: 2);
         }
     }
 }

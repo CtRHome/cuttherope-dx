@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -143,33 +144,6 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>
-        /// Identifiers for mouse animation states, matching iOS BoxGap timeline indices.
-        /// </summary>
-        private enum MouseAnimationId
-        {
-            /// <summary>Entry animation without candy.</summary>
-            EntryEmpty = 0,
-
-            /// <summary>Entry animation while carrying candy.</summary>
-            EntryWithCandy = 1,
-
-            /// <summary>Idle animation without candy.</summary>
-            IdleEmpty = 2,
-
-            /// <summary>Idle animation while carrying candy.</summary>
-            Idle = 3,
-
-            /// <summary>Exit animation without candy.</summary>
-            ExitEmpty = 4,
-
-            /// <summary>Exit animation while carrying candy.</summary>
-            ExitWithCandy = 5,
-
-            /// <summary>Bounce animation used while active.</summary>
-            Bounce = 6
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Mouse"/> class.
         /// </summary>
         /// <param name="manager">The manager that controls this mouse.</param>
@@ -194,7 +168,7 @@ namespace CutTheRopeDX.GameMain
                 anchor = 18,
                 parentAnchor = 18
             };
-            holeSprite = Image.Image_createWithResIDQuad(Resources.Img.ObjMouse, HoleQuad);
+            holeSprite = Image.FromResource(Resources.Img.ObjMouse, HoleQuad);
             holeSprite.anchor = 18;
             holeSprite.parentAnchor = 18;
             holeSprite.scaleX = 1f;
@@ -224,7 +198,7 @@ namespace CutTheRopeDX.GameMain
             elapsedActive = 0f;
             carry = null;
 
-            float angleRad = DEGREES_TO_RADIANS(angleDeg);
+            float angleRad = float.DegreesToRadians(angleDeg);
             Vector origin = default;
             Vector Rotate(Vector v)
             {
@@ -291,7 +265,7 @@ namespace CutTheRopeDX.GameMain
                 AttachExistingCandy(carry);
             }
 
-            CTRSoundMgr.PlaySound(Resources.Snd.MouseRustle);
+            SoundMgr.PlaySound(Resources.Snd.MouseRustle);
         }
 
         /// <summary>
@@ -301,26 +275,26 @@ namespace CutTheRopeDX.GameMain
         /// <returns>
         /// <see langword="true" /> if the target is within grab range; otherwise <see langword="false" />.
         /// </returns>
-        public bool IsWithinGrabRadius(ConstraintedPoint target)
+        public bool IsWithinGrabRadius(ConstrainedPoint target)
         {
             return VectDistance(Vect(x, y), target.pos) < grabRadius;
         }
 
         /// <summary>
-        /// Commands the mouse to grab candy from a star point, disabling gravity
+        /// Commands the mouse to grab candy by its physics point, disabling gravity
         /// and initiating the grab animation.
         /// </summary>
-        /// <param name="star">The constrained star point to attach.</param>
+        /// <param name="candyPoint">The candy's constrained physics point to attach.</param>
         /// <param name="candy">The candy game object being grabbed.</param>
-        public void GrabCandy(ConstraintedPoint star, GameObject candy)
+        public void GrabCandy(ConstrainedPoint candyPoint, GameObject candy)
         {
-            carry = new MouseCarry(star, candy);
+            carry = new MouseCarry(candyPoint, candy);
 
-            star.disableGravity = true;
-            star.v = default;
+            candyPoint.disableGravity = true;
+            candyPoint.v = default;
             Vector offset = entryOffsets[3];
-            star.pos = Vect(x + offset.X, y + offset.Y);
-            star.prevPos = star.pos;
+            candyPoint.pos = Vect(x + offset.X, y + offset.Y);
+            candyPoint.prevPos = candyPoint.pos;
             mouthPathPlayer.Play(CreateEntryPath());
             grabAnimating = true;
 
@@ -331,7 +305,7 @@ namespace CutTheRopeDX.GameMain
                 sprites.Value.Container.PlayTimeline((int)MouseAnimationId.Bounce);
             }
 
-            CTRSoundMgr.PlaySound(Resources.Snd.MouseIdle);
+            SoundMgr.PlaySound(Resources.Snd.MouseIdle);
         }
 
         /// <summary>
@@ -347,8 +321,8 @@ namespace CutTheRopeDX.GameMain
                 return false;
             }
 
-            released.Star.disableGravity = false;
-            released.Star.prevPos = released.Star.pos;
+            released.Point.disableGravity = false;
+            released.Point.prevPos = released.Point.pos;
             carry = null;
             grabAnimating = false;
             return true;
@@ -362,7 +336,7 @@ namespace CutTheRopeDX.GameMain
         {
             if (ReleaseCarriedCandy())
             {
-                CTRSoundMgr.PlaySound(Resources.Snd.MouseTap);
+                SoundMgr.PlaySound(Resources.Snd.MouseTap);
             }
         }
 
@@ -432,8 +406,8 @@ namespace CutTheRopeDX.GameMain
 
             if (carry != null)
             {
-                carry.Star.pos = Vect(x + mouthOffset.X, y + mouthOffset.Y);
-                carry.Star.prevPos = carry.Star.pos;
+                carry.Point.pos = Vect(x + mouthOffset.X, y + mouthOffset.Y);
+                carry.Point.prevPos = carry.Point.pos;
             }
 
             if (IsActive && !retreating && !grabAnimating)
@@ -458,11 +432,11 @@ namespace CutTheRopeDX.GameMain
         private void AttachExistingCandy(MouseCarry existingCarry)
         {
             carry = existingCarry;
-            existingCarry.Star.disableGravity = true;
-            existingCarry.Star.v = default;
+            existingCarry.Point.disableGravity = true;
+            existingCarry.Point.v = default;
             Vector offset = entryOffsets[3];
-            existingCarry.Star.pos = Vect(x + offset.X, y + offset.Y);
-            existingCarry.Star.prevPos = existingCarry.Star.pos;
+            existingCarry.Point.pos = Vect(x + offset.X, y + offset.Y);
+            existingCarry.Point.prevPos = existingCarry.Point.pos;
             mouthPathPlayer.Play(CreateEntryPath());
             grabAnimating = true;
         }
@@ -473,7 +447,7 @@ namespace CutTheRopeDX.GameMain
         public bool HasCandy => carry != null;
 
         /// <summary>Gets the physics point currently carried by this mouse.</summary>
-        public ConstraintedPoint CarriedStar => carry?.Star;
+        public ConstrainedPoint CarriedCandyPoint => carry?.Point;
 
         /// <summary>
         /// Determines whether the mouse can be clicked at the specified coordinates
@@ -541,7 +515,7 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>
-        /// Detaches and returns the currently carried candy and star, clearing
+        /// Detaches and returns the currently carried candy and its physics point, clearing
         /// internal references. Used when transferring candy between mice.
         /// </summary>
         /// <returns>
@@ -563,8 +537,8 @@ namespace CutTheRopeDX.GameMain
         public void TimelineFinished(Timeline t)
         {
             SharedMouseSprites? sprites = sharedSprites;
-            MouseAnimationId currentId = sprites.HasValue && sprites.Value.Body.GetCurrentTimelineIndex() >= 0
-                ? (MouseAnimationId)sprites.Value.Body.GetCurrentTimelineIndex()
+            MouseAnimationId currentId = sprites.HasValue && sprites.Value.Body.CurrentTimelineIndex >= 0
+                ? (MouseAnimationId)sprites.Value.Body.CurrentTimelineIndex
                 : MouseAnimationId.Idle;
 
             switch (currentId)

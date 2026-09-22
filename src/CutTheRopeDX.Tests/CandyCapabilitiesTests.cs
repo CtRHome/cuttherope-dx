@@ -56,10 +56,10 @@ namespace CutTheRopeDX.Tests
             GameObject visual = null,
             GameObject main = null,
             GameObject top = null,
-            ConstraintedPoint point = null)
+            ConstrainedPoint point = null)
         {
             return new CandyContext(
-                new CandyBody(point ?? new ConstraintedPoint(), CandyBodyRole.Whole, visual, main, top));
+                new CandyBody(point ?? new ConstrainedPoint(), CandyBodyRole.Whole, visual, main, top));
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace CutTheRopeDX.Tests
             GameObject body = new()
             {
                 drawY = 200f,
-                bb = new CTRRectangle(10f, 25f, 30f, 40f)
+                bb = new Rectangle(10f, 25f, 30f, 40f)
             };
             CandyContext ctx = Context(visual: body);
 
@@ -154,7 +154,7 @@ namespace CutTheRopeDX.Tests
         [Fact]
         public void CandyBodyToViewPreservesItsOwnersCapabilities()
         {
-            CandyContext ctx = Context(point: new ConstraintedPoint { pos = new Vector(1f, 2f) });
+            CandyContext ctx = Context(point: new ConstrainedPoint { pos = new Vector(1f, 2f) });
             ctx.Capabilities = CandyCapabilities.LightBulb;
 
             CandyView view = ctx.WholeBody.ToView();

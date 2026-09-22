@@ -9,57 +9,13 @@ namespace CutTheRopeDX.Framework.Helpers
     /// <summary>
     /// Provides math utilities, vector operations, random number generation, collision tests, and fast trigonometry lookups.
     /// </summary>
-    internal class CTRMathHelper
+    internal class MathHelper
     {
         /// <summary>Random float in the range [-1, 1].</summary>
         public static float RND_MINUS1_1 => ((float)Arc4random() / ARC4RANDOM_MAX * 2f) - 1f;
 
         /// <summary>Random float in the range [0, 1].</summary>
         public static float RND_0_1 => (float)Arc4random() / ARC4RANDOM_MAX;
-
-        /// <summary>Returns the smaller of two integers.</summary>
-        /// <param name="a">First value.</param>
-        /// <param name="b">Second value.</param>
-        /// <returns>The smaller of <paramref name="a"/> and <paramref name="b"/>.</returns>
-        public static int MIN(int a, int b)
-        {
-            return Math.Min(a, b);
-        }
-
-        /// <summary>Returns the smaller of two floats.</summary>
-        /// <param name="a">First value.</param>
-        /// <param name="b">Second value.</param>
-        /// <returns>The smaller of <paramref name="a"/> and <paramref name="b"/>.</returns>
-        public static float MIN(float a, float b)
-        {
-            return MathF.Min(a, b);
-        }
-
-        /// <summary>Returns the larger of two integers.</summary>
-        /// <param name="a">First value.</param>
-        /// <param name="b">Second value.</param>
-        /// <returns>The larger of <paramref name="a"/> and <paramref name="b"/>.</returns>
-        public static int MAX(int a, int b)
-        {
-            return Math.Max(a, b);
-        }
-
-        /// <summary>Returns the larger of two floats.</summary>
-        /// <param name="a">First value.</param>
-        /// <param name="b">Second value.</param>
-        /// <returns>The larger of <paramref name="a"/> and <paramref name="b"/>.</returns>
-        public static float MAX(float a, float b)
-        {
-            return MathF.Max(a, b);
-        }
-
-        /// <summary>Returns the absolute value of a float.</summary>
-        /// <param name="a">The input value.</param>
-        /// <returns>The absolute value of <paramref name="a"/>.</returns>
-        public static float ABS(float a)
-        {
-            return MathF.Abs(a);
-        }
 
         /// <summary>Returns a random integer in the range [0, n].</summary>
         /// <param name="n">Upper bound (inclusive).</param>
@@ -85,36 +41,6 @@ namespace CutTheRopeDX.Framework.Helpers
             return (uint)random_.Next(int.MinValue, int.MaxValue);
         }
 
-        /// <summary>Clamps <paramref name="V"/> to the range [<paramref name="MINV"/>, <paramref name="MAXV"/>].</summary>
-        /// <param name="V">The value to clamp.</param>
-        /// <param name="MINV">Minimum bound.</param>
-        /// <param name="MAXV">Maximum bound.</param>
-        /// <returns>The clamped value.</returns>
-        public static float FIT_TO_BOUNDARIES(float V, float MINV, float MAXV)
-        {
-            return MathF.Max(MathF.Min(V, MAXV), MINV);
-        }
-
-        /// <summary>
-        /// Restricts <paramref name="value"/> to the range [<paramref name="min"/>, <paramref name="max"/>].
-        /// Body copied verbatim from MonoGame's <c>MathHelper.Clamp</c> so the de-XNA'd build keeps
-        /// bit-identical results; do not replace it with <see cref="Math.Clamp(float, float, float)"/>.
-        /// </summary>
-        /// <param name="value">The value to clamp.</param>
-        /// <param name="min">The minimum value.</param>
-        /// <param name="max">The maximum value.</param>
-        /// <returns>The clamped value.</returns>
-        public static float Clamp(float value, float min, float max)
-        {
-            // First we check to see if we're greater than the max.
-            value = (value > max) ? max : value;
-
-            // Then we check to see if we're less than the min.
-            value = (value < min) ? min : value;
-
-            return value;
-        }
-
         /// <summary>
         /// Linearly interpolates between <paramref name="value1"/> and <paramref name="value2"/>.
         /// Body copied verbatim from MonoGame's <c>MathHelper.Lerp</c> (the imprecise-but-matching
@@ -127,68 +53,6 @@ namespace CutTheRopeDX.Framework.Helpers
         public static float Lerp(float value1, float value2, float amount)
         {
             return value1 + ((value2 - value1) * amount);
-        }
-
-        /// <summary>
-        /// Converts <paramref name="degrees"/> to radians.
-        /// Body copied verbatim from MonoGame's <c>MathHelper.ToRadians</c>, which keeps XNA's
-        /// double-precision constant and rounds to float once at the end. Multiplying by a
-        /// pre-rounded <c>MathF.PI / 180f</c> instead is off by up to 1 ULP on ~9% of inputs,
-        /// so the literal below is load-bearing — do not "simplify" it.
-        /// </summary>
-        /// <param name="degrees">The angle in degrees.</param>
-        /// <returns>The angle in radians.</returns>
-        public static float ToRadians(float degrees)
-        {
-            return (float)(degrees * 0.017453292519943295769236907684886);
-        }
-
-        /// <summary>Returns the ceiling of <paramref name="value"/> as a float.</summary>
-        /// <param name="value">The input value.</param>
-        /// <returns>The smallest integer greater than or equal to <paramref name="value"/>.</returns>
-        public static float Ceil(float value)
-        {
-            return MathF.Ceiling(value);
-        }
-
-        /// <summary>Returns <paramref name="value"/> rounded to the nearest integer as a float.</summary>
-        /// <param name="value">The input value.</param>
-        /// <returns>The rounded <paramref name="value"/>.</returns>
-        public static float Round(float value)
-        {
-            return MathF.Round(value);
-        }
-
-        /// <summary>Returns the cosine of <paramref name="x"/> (radians) as a float.</summary>
-        /// <param name="x">Angle in radians.</param>
-        /// <returns>The cosine of <paramref name="x"/>.</returns>
-        public static float Cosf(float x)
-        {
-            return MathF.Cos(x);
-        }
-
-        /// <summary>Returns the sine of <paramref name="x"/> (radians) as a float.</summary>
-        /// <param name="x">Angle in radians.</param>
-        /// <returns>The sine of <paramref name="x"/>.</returns>
-        public static float Sinf(float x)
-        {
-            return MathF.Sin(x);
-        }
-
-        /// <summary>Returns the tangent of <paramref name="x"/> (radians) as a float.</summary>
-        /// <param name="x">Angle in radians.</param>
-        /// <returns>The tangent of <paramref name="x"/>.</returns>
-        public static float Tanf(float x)
-        {
-            return MathF.Tan(x);
-        }
-
-        /// <summary>Returns the arccosine of <paramref name="x"/> in radians as a float.</summary>
-        /// <param name="x">Value in the range [-1, 1].</param>
-        /// <returns>The arccosine of <paramref name="x"/> in radians.</returns>
-        public static float Acosf(float x)
-        {
-            return MathF.Acos(x);
         }
 
         /// <summary>
@@ -299,33 +163,9 @@ namespace CutTheRopeDX.Framework.Helpers
         /// <returns><see langword="true"/> if the two OBBs overlap.</returns>
         public static bool ObbInOBB(Vector tl1, Vector tr1, Vector br1, Vector bl1, Vector tl2, Vector tr2, Vector br2, Vector bl2)
         {
-            Vector[] array = new Vector[4];
-            Vector[] array2 = new Vector[4];
-            array[0] = tl1;
-            array[1] = tr1;
-            array[2] = br1;
-            array[3] = bl1;
-            array2[0] = tl2;
-            array2[1] = tr2;
-            array2[2] = br2;
-            array2[3] = bl2;
-            return Overlaps1Way(array, array2) && Overlaps1Way(array2, array);
-        }
-
-        /// <summary>Converts degrees to radians.</summary>
-        /// <param name="D">Angle in degrees.</param>
-        /// <returns>Angle in radians.</returns>
-        public static float DEGREES_TO_RADIANS(float D)
-        {
-            return D * MathF.PI / DEG_180;
-        }
-
-        /// <summary>Converts radians to degrees.</summary>
-        /// <param name="R">Angle in radians.</param>
-        /// <returns>Angle in degrees.</returns>
-        public static float RADIANS_TO_DEGREES(float R)
-        {
-            return R * DEG_180 / MathF.PI;
+            Vector[] first = [tl1, tr1, br1, bl1];
+            Vector[] second = [tl2, tr2, br2, bl2];
+            return Overlaps1Way(first, second) && Overlaps1Way(second, first);
         }
 
         /// <summary>
@@ -378,9 +218,9 @@ namespace CutTheRopeDX.Framework.Helpers
         /// <param name="r1">The clipping rectangle.</param>
         /// <param name="r2">The rectangle to clip.</param>
         /// <returns>The intersection rectangle relative to <paramref name="r1"/>.</returns>
-        public static CTRRectangle RectInRectIntersection(CTRRectangle r1, CTRRectangle r2)
+        public static Rectangle RectInRectIntersection(Rectangle r1, Rectangle r2)
         {
-            CTRRectangle result = r2;
+            Rectangle result = r2;
             result.x = r2.x - r1.x;
             result.y = r2.y - r1.y;
             if (result.x < 0f)
@@ -409,16 +249,16 @@ namespace CutTheRopeDX.Framework.Helpers
         /// <returns>The normalized <paramref name="angle"/>.</returns>
         public static float AngleTo0_360(float angle)
         {
-            float result = angle;
-            while (MathF.Abs(result) > DEG_360)
+            float normalized = angle;
+            while (MathF.Abs(normalized) > DEG_360)
             {
-                result -= result > 0f ? DEG_360 : -DEG_360;
+                normalized -= normalized > 0f ? DEG_360 : -DEG_360;
             }
-            if (result < 0f)
+            if (normalized < 0f)
             {
-                result += DEG_360;
+                normalized += DEG_360;
             }
-            return result;
+            return normalized;
         }
 
         /// <summary>Creates a <see cref="Vector"/> from the given x and y components.</summary>
@@ -589,13 +429,13 @@ namespace CutTheRopeDX.Framework.Helpers
         /// <returns>The rotated vector.</returns>
         public static Vector VectRotateAround(Vector v, float rad, float cx, float cy)
         {
-            Vector v2 = v;
-            v2.X -= cx;
-            v2.Y -= cy;
-            v2 = VectRotate(v2, rad);
-            v2.X += cx;
-            v2.Y += cy;
-            return v2;
+            Vector rotated = v;
+            rotated.X -= cx;
+            rotated.Y -= cy;
+            rotated = VectRotate(rotated, rad);
+            rotated.X += cx;
+            rotated.Y += cy;
+            return rotated;
         }
 
         /// <summary>

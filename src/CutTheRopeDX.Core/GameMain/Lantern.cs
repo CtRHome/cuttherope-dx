@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -11,7 +12,7 @@ namespace CutTheRopeDX.GameMain
     /// <summary>
     /// Lantern object that can capture the candy, hold it in a shared lantern state, and release it on touch.
     /// </summary>
-    internal sealed class Lantern : CTRGameObject
+    internal sealed class Lantern : GameObject
     {
         /// <summary>
         /// Initializes the lantern at a level position and creates its idle, active, fire, and candy visuals.
@@ -26,7 +27,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             SharedCandyPoint = null;
-            GetAllLanterns().Add(this);
+            AllLanterns.Add(this);
 
             x = position.X;
             y = position.Y;
@@ -34,7 +35,7 @@ namespace CutTheRopeDX.GameMain
 
             delayedDispatcher ??= new DelayedDispatcher();
 
-            fire = Image_createWithResIDQuad(Resources.Img.ObjLantern, FireQuad);
+            fire = FromResource(Resources.Img.ObjLantern, FireQuad);
             fire.anchor = fire.parentAnchor = 18;
             fire.color = RGBAColor.transparentRGBA;
             fire.DoRestoreCutTransparency();
@@ -48,7 +49,7 @@ namespace CutTheRopeDX.GameMain
             timeline.SetTimelineLoopType(Timeline.LoopType.TIMELINE_PING_PONG);
             fire.AddTimelinewithID(timeline, (int)LanternActivation.FireBounce);
 
-            idleForm = Image_createWithResIDQuad(Resources.Img.ObjLantern, LanternStartQuad);
+            idleForm = FromResource(Resources.Img.ObjLantern, LanternStartQuad);
             idleForm.anchor = idleForm.parentAnchor = 18;
             idleForm.DoRestoreCutTransparency();
             _ = AddChild(idleForm);
@@ -63,7 +64,7 @@ namespace CutTheRopeDX.GameMain
             timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.3f));
             idleForm.AddTimelinewithID(timeline, (int)LanternActivation.Deactivation);
 
-            activeForm = Image_createWithResIDQuad(Resources.Img.ObjLantern, LanternEndQuad);
+            activeForm = FromResource(Resources.Img.ObjLantern, LanternEndQuad);
             activeForm.anchor = activeForm.parentAnchor = 18;
             activeForm.color = RGBAColor.transparentRGBA;
             activeForm.y = 1f;
@@ -86,12 +87,12 @@ namespace CutTheRopeDX.GameMain
             // Variants 3+ use the _lantern quad (quad 10) from their respective candy textures
             if (candyVariant < 3)
             {
-                innerCandy = Image_createWithResIDQuad(Resources.Img.ObjLantern, InnerCandyStartQuad + candyVariant);
+                innerCandy = FromResource(Resources.Img.ObjLantern, InnerCandyStartQuad + candyVariant);
             }
             else
             {
                 string candyResource = CandySkinHelper.GetCandyResource(candyVariant);
-                innerCandy = Image_createWithResIDQuad(candyResource, LanternQuadInCandyTexture);
+                innerCandy = FromResource(candyResource, LanternQuadInCandyTexture);
             }
 
             innerCandy.anchor = innerCandy.parentAnchor = 18;
@@ -142,22 +143,22 @@ namespace CutTheRopeDX.GameMain
         /// <param name="obj">Candy point passed through the dispatcher.</param>
         public void CaptureCandyFromDispatcher(FrameworkTypes obj)
         {
-            CaptureCandy((ConstraintedPoint)obj);
+            CaptureCandy((ConstrainedPoint)obj);
         }
 
         /// <summary>
         /// Captures the candy into this lantern and activates all lantern visuals.
         /// </summary>
         /// <param name="candyPoint">Candy physics point to capture.</param>
-        public void CaptureCandy(ConstraintedPoint candyPoint)
+        public void CaptureCandy(ConstrainedPoint candyPoint)
         {
-            CTRSoundMgr.PlaySound(Resources.Snd.LanternTeleportIn);
+            SoundMgr.PlaySound(Resources.Snd.LanternTeleportIn);
 
             SharedCandyPoint = candyPoint;
             candyPoint.disableGravity = true;
             candyPoint.pos = candyPoint.prevPos = Vect(x, y);
 
-            foreach (Lantern lantern in GetAllLanterns())
+            foreach (Lantern lantern in AllLanterns)
             {
                 lantern.lanternState = LanternStateActive;
                 lantern.idleForm.PlayTimeline((int)LanternActivation.Activation);
@@ -175,12 +176,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// Gets the shared list of lanterns in the current level.
         /// </summary>
-        /// <returns>The shared lantern list.</returns>
-        public static List<Lantern> GetAllLanterns()
-        {
-            allLanterns ??= [];
-            return allLanterns;
-        }
+        public static List<Lantern> AllLanterns { get; } = [];
 
         /// <summary>
         /// Clears the current level lantern registry and any shared captured candy point.
@@ -188,7 +184,7 @@ namespace CutTheRopeDX.GameMain
         public static void RemoveAllLanterns()
         {
             SharedCandyPoint = null;
-            GetAllLanterns().Clear();
+            AllLanterns.Clear();
         }
 
         /// <summary>
@@ -197,7 +193,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="point">Point being permanently removed.</param>
         /// <returns><see langword="true"/> when this was the captured lantern point.</returns>
-        public static bool CancelCandyCaptureForRemoval(ConstraintedPoint point)
+        public static bool CancelCandyCaptureForRemoval(ConstrainedPoint point)
         {
             if (point == null || SharedCandyPoint != point)
             {
@@ -205,7 +201,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             SharedCandyPoint = null;
-            foreach (Lantern lantern in GetAllLanterns())
+            foreach (Lantern lantern in AllLanterns)
             {
                 lantern.delayedDispatcher.CancelAllDispatches();
                 lantern.lanternState = LanternStateInactive;
@@ -252,7 +248,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="ty">Touch Y position in world space.</param>
         /// <param name="releasedCandyPoint">Candy point that is being released, when the touch is handled.</param>
         /// <returns><see langword="true"/> if the touch was handled by this lantern; otherwise, <see langword="false"/>.</returns>
-        public bool OnTouchDown(float tx, float ty, out ConstraintedPoint releasedCandyPoint)
+        public bool OnTouchDown(float tx, float ty, out ConstrainedPoint releasedCandyPoint)
         {
             releasedCandyPoint = null;
             float distance = VectDistance(Vect(tx, ty), Vect(x, y));
@@ -297,8 +293,8 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void InitiateReleasingCandy()
         {
-            CTRSoundMgr.PlaySound(Resources.Snd.LanternTeleportOut);
-            foreach (Lantern lantern in GetAllLanterns())
+            SoundMgr.PlaySound(Resources.Snd.LanternTeleportOut);
+            foreach (Lantern lantern in AllLanterns)
             {
                 lantern.idleForm.PlayTimeline((int)LanternActivation.Deactivation);
                 lantern.activeForm.PlayTimeline((int)LanternActivation.Deactivation);
@@ -364,10 +360,7 @@ namespace CutTheRopeDX.GameMain
         private DelayedDispatcher delayedDispatcher;
 
         /// <summary>Shared candy point currently captured by any lantern.</summary>
-        private static ConstraintedPoint SharedCandyPoint { get; set; }
-
-        /// <summary>Shared lantern registry for the current level.</summary>
-        private static List<Lantern> allLanterns;
+        private static ConstrainedPoint SharedCandyPoint { get; set; }
 
         /// <summary>Texture quad index for the fire visual.</summary>
         private const int FireQuad = 0;

@@ -44,13 +44,13 @@ namespace CutTheRopeDX.Tests
         /// <returns>The loaded scene.</returns>
         public static GameScene LoadLevel(int pack, int level)
         {
-            CTRRootController root = (CTRRootController)Application.SharedRootController();
+            RootController root = Application.SharedRootController();
             root.SetPicker(false);
-            root.SetPack(pack);
-            root.SetLevel(level);
+            root.Pack = pack;
+            root.Level = level;
             string mapPath = Path.Combine(ContentPaths.MapsDirectory, LevelsList.LEVEL_NAMES[pack, level]);
-            root.SetMap(ContentPaths.LoadXml(mapPath));
-            root.SetMapName(mapPath);
+            root.Map = ContentPaths.LoadXml(mapPath);
+            root.MapName = mapPath;
 
             GameScene scene = new();
             scene.Show();
@@ -66,13 +66,13 @@ namespace CutTheRopeDX.Tests
         /// <returns>An activated controller. Its scene is <c>GetView(0).GetChild(0)</c>.</returns>
         public static GameController LoadLevelWithController(int pack, int level)
         {
-            CTRRootController root = (CTRRootController)Application.SharedRootController();
+            RootController root = Application.SharedRootController();
             root.SetPicker(false);
-            root.SetPack(pack);
-            root.SetLevel(level);
+            root.Pack = pack;
+            root.Level = level;
             string mapPath = Path.Combine(ContentPaths.MapsDirectory, LevelsList.LEVEL_NAMES[pack, level]);
-            root.SetMap(ContentPaths.LoadXml(mapPath));
-            root.SetMapName(mapPath);
+            root.Map = ContentPaths.LoadXml(mapPath);
+            root.MapName = mapPath;
 
             GameController controller = new(root);
             controller.Activate();
@@ -90,9 +90,9 @@ namespace CutTheRopeDX.Tests
         /// <returns>The loaded scene.</returns>
         public static GameScene LoadScenarioMap(XElement map, int pack = 0, int level = 0)
         {
-            CTRRootController root = (CTRRootController)Application.SharedRootController();
-            root.SetPack(pack);
-            root.SetLevel(level);
+            RootController root = Application.SharedRootController();
+            root.Pack = pack;
+            root.Level = level;
             root.PrepareMapAndEnsureResources(map, "scenario.xml");
 
             GameScene scene = new();

@@ -76,23 +76,11 @@ namespace CutTheRopeDX.GameMain
             }
             Quad2D quad = texture.quads[n];
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(texture.Name());
+            Renderer.BindTexture(texture);
             VertexPositionNormalTexture[] vertices = QuadVertexCache.GetTexturedQuad(
                 x, y, w, h,
                 quad.tlX, quad.tlY, quad.brX, quad.brY);
             Renderer.DrawTriangleStrip(vertices);
-        }
-
-        /// <summary>
-        /// Creates a Flash XML image for the specified texture resource.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name to load.</param>
-        /// <returns>The initialized Flash XML image.</returns>
-        public static FlashXmlImage CreateWithResID(string resourceName)
-        {
-            FlashXmlImage image = new();
-            _ = image.InitWithTexture(Application.GetTexture(resourceName));
-            return image;
         }
 
         /// <summary>

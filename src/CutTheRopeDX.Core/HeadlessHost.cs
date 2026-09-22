@@ -2,13 +2,12 @@ using CutTheRopeDX.Commons;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Platform;
-using CutTheRopeDX.GameMain;
 
 namespace CutTheRopeDX
 {
     /// <summary>
     /// Runs the real game loop with no window and no graphics device. This is the shipping game
-    /// minus rendering: <see cref="CtrRenderer.OnDrawFrame"/> is never called.
+    /// minus rendering: <see cref="GameLifecycle.OnDrawFrame"/> is never called.
     /// </summary>
     internal static class HeadlessHost
     {
@@ -24,7 +23,7 @@ namespace CutTheRopeDX
         /// <param name="language">Language to initialize with.</param>
         public static void Boot(int width, int height, Language language)
         {
-            CtrBootstrap.Initialize(new HeadlessAssetPlatform(), null, width, height, language);
+            GameBootstrap.Initialize(new HeadlessAssetPlatform(), null, width, height, language);
         }
 
         /// <summary>
@@ -34,14 +33,14 @@ namespace CutTheRopeDX
         /// <param name="deltaSeconds">Frame delta in seconds.</param>
         public static void Tick(float deltaSeconds)
         {
-            CtrRenderer.Java_com_zeptolab_ctr_CtrRenderer_nativeTick(deltaSeconds * 1000f);
+            GameLifecycle.Tick(deltaSeconds * 1000f);
         }
 
         /// <summary>Returns whether the root controller has reached the gameplay child.</summary>
         /// <returns><see langword="true"/> when gameplay is the active child.</returns>
         public static bool IsInGameplay()
         {
-            return Application.SharedRootController().activeChildID == CTRRootController.CHILD_GAME;
+            return Application.SharedRootController().activeChildID == RootController.CHILD_GAME;
         }
 
         /// <summary>Names the active root child, for smoke-run reporting.</summary>
@@ -50,10 +49,10 @@ namespace CutTheRopeDX
         {
             return Application.SharedRootController().activeChildID switch
             {
-                CTRRootController.CHILD_START => "startup",
-                CTRRootController.CHILD_MENU => "menu",
-                CTRRootController.CHILD_LOADING => "loading",
-                CTRRootController.CHILD_GAME => "game",
+                RootController.CHILD_START => "startup",
+                RootController.CHILD_MENU => "menu",
+                RootController.CHILD_LOADING => "loading",
+                RootController.CHILD_GAME => "game",
                 _ => "none",
             };
         }

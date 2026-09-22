@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using CutTheRopeDX.Framework.Core;
-
 namespace CutTheRopeDX.Framework.Visual
 {
     /// <summary>
@@ -9,26 +7,6 @@ namespace CutTheRopeDX.Framework.Visual
     /// </summary>
     internal class Animation : Image
     {
-        /// <summary>
-        /// Creates an animation from the specified <paramref name="texture"/>.
-        /// </summary>
-        /// <param name="texture">Texture to create the animation from.</param>
-        /// <returns>A new animation initialized with <paramref name="texture"/>.</returns>
-        public static Animation Animation_create(CTRTexture2D texture)
-        {
-            return (Animation)new Animation().InitWithTexture(texture);
-        }
-
-        /// <summary>
-        /// Creates an animation using a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <returns>A new animation initialized from the specified texture resource.</returns>
-        public static Animation Animation_createWithResID(string resourceName)
-        {
-            return Animation_create(Application.GetTexture(resourceName));
-        }
-
         /// <summary>
         /// Adds a sequential frame animation from quad <paramref name="start"/> to <paramref name="end"/>.
         /// </summary>
@@ -66,12 +44,12 @@ namespace CutTheRopeDX.Framework.Visual
             int end)
         {
             Timeline timeline = new Timeline().InitWithMaxKeyFramesOnTrack(count + 2);
-            timeline.AddKeyFrame(KeyFrame.MakeAction([CTRAction.CreateAction(this, "ACTION_SET_DRAWQUAD", start, 0)], 0f));
+            timeline.AddKeyFrame(KeyFrame.MakeAction([TimelineAction.CreateAction(this, "ACTION_SET_DRAWQUAD", start, 0)], 0f));
             int sequenceIndex = start;
             for (int i = 1; i < count; i++)
             {
                 sequenceIndex++;
-                List<CTRAction> actions = [CTRAction.CreateAction(this, "ACTION_SET_DRAWQUAD", sequenceIndex, 0)];
+                List<TimelineAction> actions = [TimelineAction.CreateAction(this, "ACTION_SET_DRAWQUAD", sequenceIndex, 0)];
                 timeline.AddKeyFrame(KeyFrame.MakeAction(actions, delay));
                 if (i == count - 1 && loopType == Timeline.LoopType.TIMELINE_REPLAY)
                 {
@@ -125,12 +103,12 @@ namespace CutTheRopeDX.Framework.Visual
             List<int> argumentList)
         {
             Timeline timeline = new Timeline().InitWithMaxKeyFramesOnTrack(count + 2);
-            timeline.AddKeyFrame(KeyFrame.MakeAction([CTRAction.CreateAction(this, "ACTION_SET_DRAWQUAD", start, 0)], 0f));
+            timeline.AddKeyFrame(KeyFrame.MakeAction([TimelineAction.CreateAction(this, "ACTION_SET_DRAWQUAD", start, 0)], 0f));
             int argumentIndex = 0;
             for (int i = 1; i < count; i++)
             {
                 int sequenceIndex = argumentList[argumentIndex++];
-                List<CTRAction> actions = [CTRAction.CreateAction(this, "ACTION_SET_DRAWQUAD", sequenceIndex, 0)];
+                List<TimelineAction> actions = [TimelineAction.CreateAction(this, "ACTION_SET_DRAWQUAD", sequenceIndex, 0)];
                 timeline.AddKeyFrame(KeyFrame.MakeAction(actions, delay));
                 if (i == count - 1 && loopType == Timeline.LoopType.TIMELINE_REPLAY)
                 {
@@ -153,7 +131,7 @@ namespace CutTheRopeDX.Framework.Visual
         public virtual void SwitchToAnimationatEndOfAnimationDelay(int targetAnimationId, int sourceAnimationId, float delay)
         {
             GetTimeline(sourceAnimationId).AddKeyFrame(
-                KeyFrame.MakeAction([CTRAction.CreateAction(this, "ACTION_PLAY_TIMELINE", 0, targetAnimationId)], delay));
+                KeyFrame.MakeAction([TimelineAction.CreateAction(this, "ACTION_PLAY_TIMELINE", 0, targetAnimationId)], delay));
         }
 
         /// <summary>
@@ -189,7 +167,7 @@ namespace CutTheRopeDX.Framework.Visual
                 .value
                 .action
                 .actionSet
-                .Add(CTRAction.CreateAction(target, action, param, subParam));
+                .Add(TimelineAction.CreateAction(target, action, param, subParam));
         }
 
         /// <summary>

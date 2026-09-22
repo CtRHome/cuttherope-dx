@@ -122,7 +122,7 @@ namespace CutTheRopeDX.Tests
                 LayoutSurfaces.WithSurface(surface.Width, surface.Height, () =>
                     WithAboutView((container, back) =>
                     {
-                        CTRRectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
+                        Rectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
                         float reserved = container.GetMaxScroll().Y + container.height - DrawnExtent(container);
 
                         // The window is centered, so its bottom edge is half the slack below the
@@ -153,7 +153,7 @@ namespace CutTheRopeDX.Tests
                 LayoutSurfaces.WithSurface(surface.Width, surface.Height, () =>
                     WithAboutView((container, _) =>
                     {
-                        CTRRectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
+                        Rectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
                         Assert.True(
                             container.height > visible.h * 0.75f,
                             $"{surface.Name}: a {container.height} window on a {visible.h} viewport");
@@ -174,14 +174,14 @@ namespace CutTheRopeDX.Tests
             LayoutSurfaces.WithSurface(2560, 1440, () =>
             {
                 MenuController controller = new(
-                    (CTRRootController)Application.SharedRootController());
+                    Application.SharedRootController());
                 try
                 {
                     controller.ShowView(MenuController.VIEW_ABOUT);
                     ScrollableContainer container = Credits(controller);
                     container.SetScroll(container.GetMaxScroll());
 
-                    CtrRenderer.OnSurfaceChanged(720, 1280);
+                    GameLifecycle.OnSurfaceChanged(720, 1280);
                     controller.RelayoutTree(ScreenPresentation.Instance.Snapshot);
 
                     container = Credits(controller);
@@ -205,7 +205,7 @@ namespace CutTheRopeDX.Tests
         private static void WithAboutView(Action<ScrollableContainer, Button> body)
         {
             MenuController controller = new(
-                (CTRRootController)Application.SharedRootController());
+                Application.SharedRootController());
             try
             {
                 controller.ShowView(MenuController.VIEW_ABOUT);

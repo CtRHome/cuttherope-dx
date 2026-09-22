@@ -32,97 +32,97 @@ namespace CutTheRopeDX.GameMain
         /// <param name="highlighted">Whether to render with additive highlight blending.</param>
         private static void DrawAntialiasedLineContinued(float x1, float y1, float x2, float y2, float size, RGBAColor color, ref float lx, ref float ly, ref float rx, ref float ry, bool highlighted)
         {
-            Vector v = Vect(x1, y1);
-            Vector v2 = Vect(x2, y2);
-            Vector vector = VectSub(v2, v);
-            if (!VectEqual(vector, vectZero))
+            Vector start = Vect(x1, y1);
+            Vector end = Vect(x2, y2);
+            Vector span = VectSub(end, start);
+            if (!VectEqual(span, vectZero))
             {
-                Vector v3 = highlighted ? vector : VectMult(vector, color.AlphaChannel == 1f ? 1.02f : 1f);
-                Vector v4 = VectPerp(vector);
-                Vector vector2 = VectNormalize(v4);
-                v4 = VectMult(vector2, size);
-                Vector v5 = VectNeg(v4);
-                Vector v6 = VectAdd(v4, vector);
-                Vector v7 = VectAdd(v5, vector);
-                v6 = VectAdd(v6, v);
-                v7 = VectAdd(v7, v);
-                Vector v8 = VectAdd(v4, v3);
-                Vector v9 = VectAdd(v5, v3);
-                Vector vector3 = VectMult(vector2, size + 6f);
-                Vector v10 = VectNeg(vector3);
-                Vector v11 = VectAdd(vector3, vector);
-                Vector v12 = VectAdd(v10, vector);
-                vector3 = VectAdd(vector3, v);
-                v10 = VectAdd(v10, v);
-                v11 = VectAdd(v11, v);
-                v12 = VectAdd(v12, v);
+                Vector drawSpan = highlighted ? span : VectMult(span, color.AlphaChannel == 1f ? 1.02f : 1f);
+                Vector leftStart = VectPerp(span);
+                Vector normal = VectNormalize(leftStart);
+                leftStart = VectMult(normal, size);
+                Vector rightStart = VectNeg(leftStart);
+                Vector carryLeftEnd = VectAdd(leftStart, span);
+                Vector carryRightEnd = VectAdd(rightStart, span);
+                carryLeftEnd = VectAdd(carryLeftEnd, start);
+                carryRightEnd = VectAdd(carryRightEnd, start);
+                Vector leftEnd = VectAdd(leftStart, drawSpan);
+                Vector rightEnd = VectAdd(rightStart, drawSpan);
+                Vector leftOuterStart = VectMult(normal, size + 6f);
+                Vector rightOuterStart = VectNeg(leftOuterStart);
+                Vector leftOuterEnd = VectAdd(leftOuterStart, span);
+                Vector rightOuterEnd = VectAdd(rightOuterStart, span);
+                leftOuterStart = VectAdd(leftOuterStart, start);
+                rightOuterStart = VectAdd(rightOuterStart, start);
+                leftOuterEnd = VectAdd(leftOuterEnd, start);
+                rightOuterEnd = VectAdd(rightOuterEnd, start);
                 if (lx == -1f)
                 {
-                    v4 = VectAdd(v4, v);
-                    v5 = VectAdd(v5, v);
+                    leftStart = VectAdd(leftStart, start);
+                    rightStart = VectAdd(rightStart, start);
                 }
                 else
                 {
-                    v4 = Vect(lx, ly);
-                    v5 = Vect(rx, ry);
+                    leftStart = Vect(lx, ly);
+                    rightStart = Vect(rx, ry);
                 }
-                v8 = VectAdd(v8, v);
-                v9 = VectAdd(v9, v);
-                lx = v6.X;
-                ly = v6.Y;
-                rx = v7.X;
-                ry = v7.Y;
-                Vector vector4 = VectSub(v4, vector2);
-                Vector vector5 = VectSub(v8, vector2);
-                Vector vector6 = VectAdd(v5, vector2);
-                Vector vector7 = VectAdd(v9, vector2);
-                float[] pointer = GetFloatCache(ref s_bungeePointerCache, 16);
+                leftEnd = VectAdd(leftEnd, start);
+                rightEnd = VectAdd(rightEnd, start);
+                lx = carryLeftEnd.X;
+                ly = carryLeftEnd.Y;
+                rx = carryRightEnd.X;
+                ry = carryRightEnd.Y;
+                Vector leftInnerStart = VectSub(leftStart, normal);
+                Vector leftInnerEnd = VectSub(leftEnd, normal);
+                Vector rightInnerStart = VectAdd(rightStart, normal);
+                Vector rightInnerEnd = VectAdd(rightEnd, normal);
+                float[] glowPositions = GetFloatCache(ref s_glowPositionsCache, 16);
                 int pointerIndex = 0;
-                WritePair(pointer, ref pointerIndex, vector3);
-                WritePair(pointer, ref pointerIndex, v11);
-                WritePair(pointer, ref pointerIndex, v4);
-                WritePair(pointer, ref pointerIndex, v8);
-                WritePair(pointer, ref pointerIndex, v5);
-                WritePair(pointer, ref pointerIndex, v9);
-                WritePair(pointer, ref pointerIndex, v10);
-                WritePair(pointer, ref pointerIndex, v12);
+                WritePair(glowPositions, ref pointerIndex, leftOuterStart);
+                WritePair(glowPositions, ref pointerIndex, leftOuterEnd);
+                WritePair(glowPositions, ref pointerIndex, leftStart);
+                WritePair(glowPositions, ref pointerIndex, leftEnd);
+                WritePair(glowPositions, ref pointerIndex, rightStart);
+                WritePair(glowPositions, ref pointerIndex, rightEnd);
+                WritePair(glowPositions, ref pointerIndex, rightOuterStart);
+                WritePair(glowPositions, ref pointerIndex, rightOuterEnd);
                 RGBAColor whiteRGBA = RGBAColor.whiteRGBA;
                 whiteRGBA.AlphaChannel = 0.1f * color.AlphaChannel;
-                ccolors[2] = whiteRGBA;
-                ccolors[3] = whiteRGBA;
-                ccolors[4] = whiteRGBA;
-                ccolors[5] = whiteRGBA;
-                float[] pointer2 = GetFloatCache(ref s_bungeePointerCache2, 20);
+                glowColors[2] = whiteRGBA;
+                glowColors[3] = whiteRGBA;
+                glowColors[4] = whiteRGBA;
+                glowColors[5] = whiteRGBA;
+                float[] innerPositions = GetFloatCache(ref s_innerPositionsCache, 20);
                 int pointer2Index = 0;
-                WritePair(pointer2, ref pointer2Index, v4);
-                WritePair(pointer2, ref pointer2Index, v8);
-                WritePair(pointer2, ref pointer2Index, vector4);
-                WritePair(pointer2, ref pointer2Index, vector5);
-                WritePair(pointer2, ref pointer2Index, v);
-                WritePair(pointer2, ref pointer2Index, v2);
-                WritePair(pointer2, ref pointer2Index, vector6);
-                WritePair(pointer2, ref pointer2Index, vector7);
-                WritePair(pointer2, ref pointer2Index, v5);
-                WritePair(pointer2, ref pointer2Index, v9);
+                WritePair(innerPositions, ref pointer2Index, leftStart);
+                WritePair(innerPositions, ref pointer2Index, leftEnd);
+                WritePair(innerPositions, ref pointer2Index, leftInnerStart);
+                WritePair(innerPositions, ref pointer2Index, leftInnerEnd);
+                WritePair(innerPositions, ref pointer2Index, start);
+                WritePair(innerPositions, ref pointer2Index, end);
+                WritePair(innerPositions, ref pointer2Index, rightInnerStart);
+                WritePair(innerPositions, ref pointer2Index, rightInnerEnd);
+                WritePair(innerPositions, ref pointer2Index, rightStart);
+                WritePair(innerPositions, ref pointer2Index, rightEnd);
                 RGBAColor rgbaColor = color;
                 float highlightAdditive = 0.15f * color.AlphaChannel;
                 color.RedColor += highlightAdditive;
                 color.GreenColor += highlightAdditive;
                 color.BlueColor += highlightAdditive;
-                ccolors2[2] = color;
-                ccolors2[3] = color;
-                ccolors2[4] = rgbaColor;
-                ccolors2[5] = rgbaColor;
-                ccolors2[6] = color;
-                ccolors2[7] = color;
+                innerColors[2] = color;
+                innerColors[3] = color;
+                innerColors[4] = rgbaColor;
+                innerColors[5] = rgbaColor;
+                innerColors[6] = color;
+                innerColors[7] = color;
                 if (highlighted)
                 {
                     Renderer.SetBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONE);
-                    VertexPositionColor[] highlightVertices = BuildColoredVertices(pointer, ccolors, 8);
+                    VertexPositionColor[] highlightVertices = BuildColoredVertices(glowPositions, glowColors, 8);
                     Renderer.DrawTriangleStrip(highlightVertices, 8);
                 }
                 Renderer.SetBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
-                VertexPositionColor[] mainVertices = BuildColoredVertices(pointer2, ccolors2, 10);
+                VertexPositionColor[] mainVertices = BuildColoredVertices(innerPositions, innerColors, 10);
                 Renderer.DrawTriangleStrip(mainVertices, 10);
             }
         }
@@ -210,10 +210,10 @@ namespace CutTheRopeDX.GameMain
                 segmentLength,
                 BUNGEE_REST_LEN,
                 stretchRedThreshold);
-            RGBAColor rgbaColor = drawColors.BaseColor1;
-            RGBAColor rgbaColor2 = drawColors.BaseColor2;
-            RGBAColor rgbaColor3 = drawColors.ShadeColor1;
-            RGBAColor rgbaColor4 = drawColors.ShadeColor2;
+            RGBAColor baseColor1 = drawColors.BaseColor1;
+            RGBAColor baseColor2 = drawColors.BaseColor2;
+            RGBAColor shadeColor1 = drawColors.ShadeColor1;
+            RGBAColor shadeColor2 = drawColors.ShadeColor2;
 
             float relaxThresholdSoft = ActivePhysicsConstants.BungeeRelaxThresholdSoft;
             float relaxThresholdMedium = ActivePhysicsConstants.BungeeRelaxThresholdMedium;
@@ -223,9 +223,9 @@ namespace CutTheRopeDX.GameMain
                 : segmentLength <= BUNGEE_REST_LEN + relaxThresholdMedium
                     ? 1
                     : segmentLength <= BUNGEE_REST_LEN + relaxThresholdHard ? 2 : 3;
-            bool flag = false;
+            bool useAlternateStripe = false;
             int sampleCount = (count - 1) * points;
-            float[] array = new float[sampleCount * 2];
+            float[] pointBuffer = new float[sampleCount * 2];
             b.drawPtsCount = sampleCount * 2;
             float sampleStep = 1f / sampleCount;
 
@@ -269,14 +269,14 @@ namespace CutTheRopeDX.GameMain
             float bezierT = 0f;
             int cachedPointCount = 0;
             int drawPointCount = 0;
-            RGBAColor rgbaColor5 = rgbaColor3;
-            RGBAColor rgbaColor6 = rgbaColor4;
-            float redStep = (rgbaColor.RedColor - rgbaColor3.RedColor) / (sampleCount - 1);
-            float greenStep = (rgbaColor.GreenColor - rgbaColor3.GreenColor) / (sampleCount - 1);
-            float blueStep = (rgbaColor.BlueColor - rgbaColor3.BlueColor) / (sampleCount - 1);
-            float redStepAlt = (rgbaColor2.RedColor - rgbaColor4.RedColor) / (sampleCount - 1);
-            float greenStepAlt = (rgbaColor2.GreenColor - rgbaColor4.GreenColor) / (sampleCount - 1);
-            float blueStepAlt = (rgbaColor2.BlueColor - rgbaColor4.BlueColor) / (sampleCount - 1);
+            RGBAColor stripeColor1 = shadeColor1;
+            RGBAColor stripeColor2 = shadeColor2;
+            float redStep = (baseColor1.RedColor - shadeColor1.RedColor) / (sampleCount - 1);
+            float greenStep = (baseColor1.GreenColor - shadeColor1.GreenColor) / (sampleCount - 1);
+            float blueStep = (baseColor1.BlueColor - shadeColor1.BlueColor) / (sampleCount - 1);
+            float redStepAlt = (baseColor2.RedColor - shadeColor2.RedColor) / (sampleCount - 1);
+            float greenStepAlt = (baseColor2.GreenColor - shadeColor2.GreenColor) / (sampleCount - 1);
+            float blueStepAlt = (baseColor2.BlueColor - shadeColor2.BlueColor) / (sampleCount - 1);
             float lx = -1f;
             float ly = -1f;
             float rx = -1f;
@@ -292,29 +292,29 @@ namespace CutTheRopeDX.GameMain
                     break;
                 }
                 Vector vector = DrawHelper.CalcPathBezier(pts, count, bezierT);
-                array[cachedPointCount++] = vector.X;
-                array[cachedPointCount++] = vector.Y;
+                pointBuffer[cachedPointCount++] = vector.X;
+                pointBuffer[cachedPointCount++] = vector.Y;
                 b.drawPts[drawPointCount++] = vector.X;
                 b.drawPts[drawPointCount++] = vector.Y;
                 if (cachedPointCount >= 8 || bezierT == 1)
                 {
-                    RGBAColor color = b.forceWhite ? RGBAColor.whiteRGBA : !flag ? rgbaColor6 : rgbaColor5;
+                    RGBAColor color = b.forceWhite ? RGBAColor.whiteRGBA : !useAlternateStripe ? stripeColor2 : stripeColor1;
                     Renderer.SetColor(color.ToColor());
                     int segmentCount = cachedPointCount >> 1;
                     for (int i = 0; i < segmentCount - 1; i++)
                     {
-                        DrawAntialiasedLineContinued(array[i * 2], array[(i * 2) + 1], array[(i * 2) + 2], array[(i * 2) + 3], 5f, color, ref lx, ref ly, ref rx, ref ry, b.highlighted);
+                        DrawAntialiasedLineContinued(pointBuffer[i * 2], pointBuffer[(i * 2) + 1], pointBuffer[(i * 2) + 2], pointBuffer[(i * 2) + 3], 5f, color, ref lx, ref ly, ref rx, ref ry, b.highlighted);
                     }
-                    array[0] = array[cachedPointCount - 2];
-                    array[1] = array[cachedPointCount - 1];
+                    pointBuffer[0] = pointBuffer[cachedPointCount - 2];
+                    pointBuffer[1] = pointBuffer[cachedPointCount - 1];
                     cachedPointCount = 2;
-                    flag = !flag;
-                    rgbaColor5.RedColor += redStep * (segmentCount - 1);
-                    rgbaColor5.GreenColor += greenStep * (segmentCount - 1);
-                    rgbaColor5.BlueColor += blueStep * (segmentCount - 1);
-                    rgbaColor6.RedColor += redStepAlt * (segmentCount - 1);
-                    rgbaColor6.GreenColor += greenStepAlt * (segmentCount - 1);
-                    rgbaColor6.BlueColor += blueStepAlt * (segmentCount - 1);
+                    useAlternateStripe = !useAlternateStripe;
+                    stripeColor1.RedColor += redStep * (segmentCount - 1);
+                    stripeColor1.GreenColor += greenStep * (segmentCount - 1);
+                    stripeColor1.BlueColor += blueStep * (segmentCount - 1);
+                    stripeColor2.RedColor += redStepAlt * (segmentCount - 1);
+                    stripeColor2.GreenColor += greenStepAlt * (segmentCount - 1);
+                    stripeColor2.BlueColor += blueStepAlt * (segmentCount - 1);
                 }
                 if (bezierT == 1)
                 {
@@ -464,7 +464,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="points">Number of bezier samples per control-point segment.</param>
         private static void DrawChain(Bungee b, Vector[] pts, int count, int points)
         {
-            CTRTexture2D texture = Application.GetTexture(Resources.Img.ObjExpChain);
+            Texture2D texture = Application.GetTexture(Resources.Img.ObjExpChain);
             if (texture?.quadRects == null || texture.quads == null || texture.quadsCount < 2)
             {
                 DrawBungee(b, pts, count, points);
@@ -505,7 +505,7 @@ namespace CutTheRopeDX.GameMain
             (BlendingFactor source, BlendingFactor destination) = GetChainFadeBlendFactors();
             Renderer.SetBlendFunc(source, destination);
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
-            Renderer.BindTexture(texture.Name());
+            Renderer.BindTexture(texture);
             Renderer.DrawTriangleList(vertexBuffer, indices, indices.Length);
             Renderer.SetBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
         }
@@ -595,14 +595,14 @@ namespace CutTheRopeDX.GameMain
         /// <param name="ty">Initial tail Y position.</param>
         /// <param name="len">Initial rope length used to roll out intermediate rope segments.</param>
         /// <returns>The initialized bungee instance.</returns>
-        public Bungee InitWithHeadAtXYTailAtTXTYandLength(ConstraintedPoint h, float hx, float hy, ConstraintedPoint t, float tx, float ty, float len)
+        public Bungee InitWithHeadAtXYTailAtTXTYandLength(ConstrainedPoint h, float hx, float hy, ConstrainedPoint t, float tx, float ty, float len)
         {
             relaxationTimes = 30;
             lineWidth = 10f;
             cut = -1;
             bungeeMode = 0;
             highlighted = false;
-            bungeeAnchor = h ?? new ConstraintedPoint();
+            bungeeAnchor = h ?? new ConstrainedPoint();
             ownsAnchor = h == null;
             if (t != null)
             {
@@ -611,7 +611,7 @@ namespace CutTheRopeDX.GameMain
             }
             else
             {
-                tail = new ConstraintedPoint();
+                tail = new ConstrainedPoint();
                 tail.SetWeight(1f);
                 ownsTail = true;
             }
@@ -623,7 +623,7 @@ namespace CutTheRopeDX.GameMain
             tail.pos = Vect(tx, ty);
             AddPart(bungeeAnchor);
             AddPart(tail);
-            tail.AddConstraintwithRestLengthofType(bungeeAnchor, BUNGEE_REST_LEN, Constraint.CONSTRAINT.DISTANCE);
+            tail.AddConstraintwithRestLengthofType(bungeeAnchor, BUNGEE_REST_LEN, ConstraintType.DISTANCE);
             Vector v = VectSub(tail.pos, bungeeAnchor.pos);
             int subdivisionCount = (int)((len / BUNGEE_REST_LEN) + 2f);
             v = VectDiv(v, subdivisionCount);
@@ -657,12 +657,12 @@ namespace CutTheRopeDX.GameMain
             int count = parts.Count;
             for (int i = 0; i < count; i++)
             {
-                ConstraintedPoint constraintedPoint = parts[i];
+                ConstrainedPoint constrainedPoint = parts[i];
                 if (i > 0)
                 {
-                    totalLength += (int)VectDistance(pos, constraintedPoint.pos);
+                    totalLength += (int)VectDistance(pos, constrainedPoint.pos);
                 }
-                pos = constraintedPoint.pos;
+                pos = constrainedPoint.pos;
             }
             return totalLength;
         }
@@ -683,19 +683,19 @@ namespace CutTheRopeDX.GameMain
         /// <param name="off">Offset applied when placing new intermediate constraint points.</param>
         public void RollplacingWithOffset(float rollLen, Vector off)
         {
-            ConstraintedPoint i = parts[^2];
+            ConstrainedPoint i = parts[^2];
             int tailRestLength = (int)tail.RestLengthFor(i);
             while (rollLen > 0f)
             {
                 if (rollLen >= BUNGEE_REST_LEN)
                 {
-                    ConstraintedPoint constraintedPoint = parts[^2];
-                    ConstraintedPoint constraintedPoint2 = new();
-                    constraintedPoint2.SetWeight(0.02f);
-                    constraintedPoint2.pos = VectAdd(constraintedPoint.pos, off);
-                    AddPartAt(constraintedPoint2, parts.Count - 1);
-                    tail.ChangeConstraintFromTowithRestLength(constraintedPoint, constraintedPoint2, tailRestLength);
-                    constraintedPoint2.AddConstraintwithRestLengthofType(constraintedPoint, BUNGEE_REST_LEN, Constraint.CONSTRAINT.DISTANCE);
+                    ConstrainedPoint constrainedPoint = parts[^2];
+                    ConstrainedPoint newPart = new();
+                    newPart.SetWeight(0.02f);
+                    newPart.pos = VectAdd(constrainedPoint.pos, off);
+                    AddPartAt(newPart, parts.Count - 1);
+                    tail.ChangeConstraintFromTowithRestLength(constrainedPoint, newPart, tailRestLength);
+                    newPart.AddConstraintwithRestLengthofType(constrainedPoint, BUNGEE_REST_LEN, ConstraintType.DISTANCE);
                     rollLen -= BUNGEE_REST_LEN;
                 }
                 else
@@ -708,8 +708,8 @@ namespace CutTheRopeDX.GameMain
                     }
                     else
                     {
-                        ConstraintedPoint n2 = parts[^2];
-                        tail.ChangeRestLengthToFor(newRestLength, n2);
+                        ConstrainedPoint secondToLastPart = parts[^2];
+                        tail.ChangeRestLengthToFor(newRestLength, secondToLastPart);
                         rollLen = 0f;
                     }
                 }
@@ -724,16 +724,16 @@ namespace CutTheRopeDX.GameMain
         public float RollBack(float amount)
         {
             float remainingAmount = amount;
-            ConstraintedPoint i = parts[^2];
-            int currentRestLength = (int)tail.RestLengthFor(i);
+            ConstrainedPoint tailNeighbor = parts[^2];
+            int currentRestLength = (int)tail.RestLengthFor(tailNeighbor);
             int partCount = parts.Count;
             while (remainingAmount > 0f)
             {
                 if (remainingAmount >= BUNGEE_REST_LEN)
                 {
-                    ConstraintedPoint o = parts[partCount - 2];
-                    ConstraintedPoint n2 = parts[partCount - 3];
-                    tail.ChangeConstraintFromTowithRestLength(o, n2, currentRestLength);
+                    ConstrainedPoint removedPart = parts[partCount - 2];
+                    ConstrainedPoint newTailAnchor = parts[partCount - 3];
+                    tail.ChangeConstraintFromTowithRestLength(removedPart, newTailAnchor, currentRestLength);
                     parts.RemoveAt(parts.Count - 2);
                     partCount--;
                     remainingAmount -= BUNGEE_REST_LEN;
@@ -748,8 +748,8 @@ namespace CutTheRopeDX.GameMain
                     }
                     else
                     {
-                        ConstraintedPoint n3 = parts[partCount - 2];
-                        tail.ChangeRestLengthToFor(nextRestLength, n3);
+                        ConstrainedPoint tailAnchor = parts[partCount - 2];
+                        tail.ChangeRestLengthToFor(nextRestLength, tailAnchor);
                         remainingAmount = 0f;
                     }
                 }
@@ -758,7 +758,7 @@ namespace CutTheRopeDX.GameMain
             for (int j = 0; j < count; j++)
             {
                 Constraint constraint = tail.constraints[j];
-                if (constraint != null && constraint.type == Constraint.CONSTRAINT.NOT_MORE_THAN)
+                if (constraint != null && constraint.type == ConstraintType.NOT_MORE_THAN)
                 {
                     constraint.restLength = (partCount - 1) * (BUNGEE_REST_LEN + ActivePhysicsConstants.BungeeConstraintSlack);
                 }
@@ -773,39 +773,39 @@ namespace CutTheRopeDX.GameMain
         public void RemovePart(int part)
         {
             forceWhite = false;
-            ConstraintedPoint constraintedPoint = parts[part];
-            ConstraintedPoint constraintedPoint2 = part + 1 >= parts.Count ? null : parts[part + 1];
-            if (constraintedPoint2 == null)
+            ConstrainedPoint cutPart = parts[part];
+            ConstrainedPoint nextPart = part + 1 >= parts.Count ? null : parts[part + 1];
+            if (nextPart == null)
             {
-                constraintedPoint.RemoveConstraints();
+                cutPart.RemoveConstraints();
             }
             else
             {
-                for (int i = 0; i < constraintedPoint2.constraints.Count; i++)
+                for (int i = 0; i < nextPart.constraints.Count; i++)
                 {
-                    Constraint constraint = constraintedPoint2.constraints[i];
-                    if (constraint.cp == constraintedPoint)
+                    Constraint constraint = nextPart.constraints[i];
+                    if (constraint.cp == cutPart)
                     {
-                        _ = constraintedPoint2.constraints.Remove(constraint);
-                        ConstraintedPoint constraintedPoint3 = new();
-                        constraintedPoint3.SetWeight(1E-05f);
-                        constraintedPoint3.pos = constraintedPoint2.pos;
-                        constraintedPoint3.prevPos = constraintedPoint2.prevPos;
-                        AddPartAt(constraintedPoint3, part + 1);
-                        constraintedPoint3.AddConstraintwithRestLengthofType(constraintedPoint, BUNGEE_REST_LEN, Constraint.CONSTRAINT.DISTANCE);
+                        _ = nextPart.constraints.Remove(constraint);
+                        ConstrainedPoint stubPart = new();
+                        stubPart.SetWeight(1E-05f);
+                        stubPart.pos = nextPart.pos;
+                        stubPart.prevPos = nextPart.prevPos;
+                        AddPartAt(stubPart, part + 1);
+                        stubPart.AddConstraintwithRestLengthofType(cutPart, BUNGEE_REST_LEN, ConstraintType.DISTANCE);
                         break;
                     }
                 }
             }
             for (int j = 0; j < parts.Count; j++)
             {
-                ConstraintedPoint constraintedPoint4 = parts[j];
+                ConstrainedPoint bungeePart = parts[j];
                 // Don't weaken an endpoint the rope doesn't own: tail is always external, and a
                 // non-owned head (a candy point in a candiesConnected link) must keep its mass.
                 // Owned anchors (normal/kicked grabs) still go limp, as before.
-                if (constraintedPoint4 != tail && (constraintedPoint4 != bungeeAnchor || ownsAnchor))
+                if (bungeePart != tail && (bungeePart != bungeeAnchor || ownsAnchor))
                 {
-                    constraintedPoint4.SetWeight(1E-05f);
+                    bungeePart.SetWeight(1E-05f);
                 }
             }
         }
@@ -829,18 +829,18 @@ namespace CutTheRopeDX.GameMain
             int count = parts.Count;
             for (int i = 0; i < count; i++)
             {
-                ConstraintedPoint constraintedPoint = parts[i];
-                if (constraintedPoint != null)
+                ConstrainedPoint constrainedPoint = parts[i];
+                if (constrainedPoint != null)
                 {
                     if (bungeeAnchor.pin.X != -1f)
                     {
-                        if (constraintedPoint != tail)
+                        if (constrainedPoint != tail)
                         {
-                            constraintedPoint.SetWeight(0.5f);
+                            constrainedPoint.SetWeight(0.5f);
                         }
                         if (i != 0)
                         {
-                            constraintedPoint.AddConstraintwithRestLengthofType(bungeeAnchor, i * (BUNGEE_REST_LEN + ActivePhysicsConstants.BungeeConstraintSlack), Constraint.CONSTRAINT.NOT_MORE_THAN);
+                            constrainedPoint.AddConstraintwithRestLengthofType(bungeeAnchor, i * (BUNGEE_REST_LEN + ActivePhysicsConstants.BungeeConstraintSlack), ConstraintType.NOT_MORE_THAN);
                         }
                     }
                     i++;
@@ -872,21 +872,21 @@ namespace CutTheRopeDX.GameMain
             int count = parts.Count;
             for (int i = 0; i < count; i++)
             {
-                ConstraintedPoint constraintedPoint = parts[i];
+                ConstrainedPoint constrainedPoint = parts[i];
                 // Don't integrate an endpoint the rope doesn't own: tail is always external,
                 // and a non-owned head (a candy point in a candiesConnected link) is integrated
                 // by the candy system. Owned anchors (normal/kicked grabs) still integrate.
-                if (constraintedPoint != tail && (constraintedPoint != bungeeAnchor || ownsAnchor))
+                if (constrainedPoint != tail && (constrainedPoint != bungeeAnchor || ownsAnchor))
                 {
-                    ConstraintedPoint.Qcpupdate(constraintedPoint, delta, koeff);
+                    ConstrainedPoint.Qcpupdate(constrainedPoint, delta, koeff);
                 }
             }
             for (int j = 0; j < relaxationTimes; j++)
             {
-                int count2 = parts.Count;
-                for (int k = 0; k < count2; k++)
+                int partCount = parts.Count;
+                for (int k = 0; k < partCount; k++)
                 {
-                    ConstraintedPoint.SatisfyConstraints(parts[k]);
+                    ConstrainedPoint.SatisfyConstraints(parts[k]);
                 }
             }
         }
@@ -897,56 +897,56 @@ namespace CutTheRopeDX.GameMain
             int count = parts.Count;
             int drawSamplePoints = ActivePhysicsConstants.BungeeDrawSamplePoints;
             int chainSamplePoints = ChainDrawSamplePoints;
-            Renderer.SetColor(s_Color1);
+            Renderer.SetColor(s_ropeDrawColor);
             if (cut == -1)
             {
-                Vector[] array = new Vector[count];
+                Vector[] points = new Vector[count];
                 for (int i = 0; i < count; i++)
                 {
-                    ConstraintedPoint constraintedPoint = parts[i];
-                    array[i] = constraintedPoint.pos;
+                    ConstrainedPoint constrainedPoint = parts[i];
+                    points[i] = constrainedPoint.pos;
                 }
                 s_lightCounter = 0;
                 s_lightStartCoord = 8;
                 s_lightEndSkip = 8;
                 if (breakable)
                 {
-                    DrawChain(this, array, count, chainSamplePoints);
+                    DrawChain(this, points, count, chainSamplePoints);
                 }
                 else
                 {
-                    DrawBungee(this, array, count, drawSamplePoints);
+                    DrawBungee(this, points, count, drawSamplePoints);
                 }
                 return;
             }
-            Vector[] array2 = new Vector[count];
-            Vector[] array3 = new Vector[count];
-            bool flag = false;
+            Vector[] headPoints = new Vector[count];
+            Vector[] tailPoints = new Vector[count];
+            bool inTail = false;
             int tailPartCount = 0;
             for (int j = 0; j < count; j++)
             {
-                ConstraintedPoint constraintedPoint2 = parts[j];
-                bool flag2 = true;
+                ConstrainedPoint part = parts[j];
+                bool connectedToPrevious = true;
                 if (j > 0)
                 {
-                    ConstraintedPoint p = parts[j - 1];
-                    if (!constraintedPoint2.HasConstraintTo(p))
+                    ConstrainedPoint previousPart = parts[j - 1];
+                    if (!part.HasConstraintTo(previousPart))
                     {
-                        flag2 = false;
+                        connectedToPrevious = false;
                     }
                 }
-                if (constraintedPoint2.pin.X == -1f && !flag2)
+                if (part.pin.X == -1f && !connectedToPrevious)
                 {
-                    flag = true;
-                    array2[j] = constraintedPoint2.pos;
+                    inTail = true;
+                    headPoints[j] = part.pos;
                 }
-                if (!flag)
+                if (!inTail)
                 {
-                    array2[j] = constraintedPoint2.pos;
+                    headPoints[j] = part.pos;
                 }
                 else
                 {
-                    array3[tailPartCount] = constraintedPoint2.pos;
+                    tailPoints[tailPartCount] = part.pos;
                     tailPartCount++;
                 }
             }
@@ -959,11 +959,11 @@ namespace CutTheRopeDX.GameMain
                 s_lightEndSkip = tailPartCount > 0 ? 0 : 8;
                 if (breakable)
                 {
-                    DrawChain(this, array2, headPartCount, chainSamplePoints);
+                    DrawChain(this, headPoints, headPartCount, chainSamplePoints);
                 }
                 else
                 {
-                    DrawBungee(this, array2, headPartCount, drawSamplePoints);
+                    DrawBungee(this, headPoints, headPartCount, drawSamplePoints);
                 }
             }
             if (tailPartCount > 0 && !hideTailParts)
@@ -971,11 +971,11 @@ namespace CutTheRopeDX.GameMain
                 s_lightStartCoord = headPartCount > 0 ? s_lightSavedEnd : 8;
                 if (breakable)
                 {
-                    DrawChain(this, array3, tailPartCount, chainSamplePoints);
+                    DrawChain(this, tailPoints, tailPartCount, chainSamplePoints);
                 }
                 else
                 {
-                    DrawBungee(this, array3, tailPartCount, drawSamplePoints);
+                    DrawBungee(this, tailPoints, tailPartCount, drawSamplePoints);
                 }
             }
         }
@@ -995,7 +995,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRTexture2D texture;
+            Texture2D texture;
             try
             {
                 texture = Application.GetTexture(Resources.Img.XmasLights);
@@ -1005,7 +1005,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRRectangle[] rects = texture.quadRects;
+            Rectangle[] rects = texture.quadRects;
             int rectCount = texture.quadsCount > 0 ? texture.quadsCount : rects?.Length ?? 0;
             if (rectCount == 0)
             {
@@ -1052,7 +1052,7 @@ namespace CutTheRopeDX.GameMain
                 }
 
                 int rectIndex = lightFrames[lightIdx] % rectCount;
-                CTRRectangle rect = rects[rectIndex];
+                Rectangle rect = rects[rectIndex];
 
                 DrawHelper.DrawImagePart(texture, rect, x - (rect.w / 2f), y - (rect.h / 2f));
 
@@ -1080,7 +1080,7 @@ namespace CutTheRopeDX.GameMain
                 {
                     if (!ownsTail && tail != null)
                     {
-                        foreach (ConstraintedPoint part in parts)
+                        foreach (ConstrainedPoint part in parts)
                         {
                             if (part != tail)
                             {
@@ -1088,7 +1088,7 @@ namespace CutTheRopeDX.GameMain
                             }
                         }
                     }
-                    foreach (ConstraintedPoint part in parts)
+                    foreach (ConstrainedPoint part in parts)
                     {
                         bool ownsPart = (part == bungeeAnchor && ownsAnchor) || (part == tail && ownsTail) || (part != bungeeAnchor && part != tail);
                         if (ownsPart)
@@ -1117,7 +1117,7 @@ namespace CutTheRopeDX.GameMain
 
             if (parts != null)
             {
-                foreach (ConstraintedPoint part in parts)
+                foreach (ConstrainedPoint part in parts)
                 {
                     part.pos = Vect(part.pos.X + dx, part.pos.Y + dy);
 
@@ -1146,10 +1146,10 @@ namespace CutTheRopeDX.GameMain
         public static float BUNGEE_REST_LEN = ActivePhysicsConstants.BungeeRestLength;
 
         /// <summary>Head anchor constraint point for the bungee.</summary>
-        public ConstraintedPoint bungeeAnchor;
+        public ConstrainedPoint bungeeAnchor;
 
         /// <summary>Tail constraint point for the bungee.</summary>
-        public ConstraintedPoint tail;
+        public ConstrainedPoint tail;
 
         /// <summary>Cut segment index, or <c>-1</c> when the bungee is uncut.</summary>
         public int cut;
@@ -1221,7 +1221,7 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>
         /// Stable per-bungee seed driving which chain links are masked. Generated once on first
-        /// access (via the shared <see cref="CTRMathHelper" /> RNG) so the masking pattern stays
+        /// access (via the shared <see cref="MathHelper" /> RNG) so the masking pattern stays
         /// fixed for the rope's lifetime.
         /// </summary>
         private int ChainColorSeed => chainColorSeed ??= (int)Arc4random();
@@ -1287,13 +1287,13 @@ namespace CutTheRopeDX.GameMain
         private static VertexPositionColor[] s_bungeeVerticesCache;
 
         /// <summary>Cached float array for outer glow vertex positions.</summary>
-        private static float[] s_bungeePointerCache;
+        private static float[] s_glowPositionsCache;
 
         /// <summary>Cached float array for inner rope vertex positions.</summary>
-        private static float[] s_bungeePointerCache2;
+        private static float[] s_innerPositionsCache;
 
         /// <summary>Per-vertex color array for the outer glow triangle strip.</summary>
-        private static readonly RGBAColor[] ccolors =
+        private static readonly RGBAColor[] glowColors =
         [
             RGBAColor.transparentRGBA,
             RGBAColor.transparentRGBA,
@@ -1306,7 +1306,7 @@ namespace CutTheRopeDX.GameMain
         ];
 
         /// <summary>Per-vertex color array for the inner rope triangle strip.</summary>
-        private static readonly RGBAColor[] ccolors2 =
+        private static readonly RGBAColor[] innerColors =
         [
             RGBAColor.transparentRGBA,
             RGBAColor.transparentRGBA,
@@ -1321,18 +1321,6 @@ namespace CutTheRopeDX.GameMain
         ];
 
         /// <summary>Default dark base color used when setting the renderer before drawing.</summary>
-        private static Color s_Color1 = new(0f, 0f, 0.4f, 1f);
-
-        /// <summary>
-        /// Bungee behavior modes.
-        /// </summary>
-        private enum BUNGEE_MODE
-        {
-            /// <summary>Normal bungee behavior.</summary>
-            NORMAL,
-
-            /// <summary>Locked bungee that does not respond to physics updates.</summary>
-            LOCKED
-        }
+        private static Color s_ropeDrawColor = new(0f, 0f, 0.4f, 1f);
     }
 }

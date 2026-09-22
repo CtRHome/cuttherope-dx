@@ -33,7 +33,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="mapOffsetY">The additional map Y offset applied during loading.</param>
         private void LoadTarget(XElement xmlNode, float scale, float offsetX, float offsetY, int mapOffsetX, int mapOffsetY)
         {
-            int pack = ((CTRRootController)Application.SharedRootController()).GetPack();
+            int pack = Application.SharedRootController().Pack;
             int sittingPlatform = PackConfig.GetSittingPlatform(pack);
 
             int targetType = ParseIntOrZero(xmlNode.Attribute("targetType")?.Value ?? string.Empty);
@@ -47,26 +47,25 @@ namespace CutTheRopeDX.GameMain
 
             bool isPrimaryTarget = targets.Count == 0;
             bool paddingtonGreetingPending =
-                isPaddington && isPrimaryTarget && !nightLevel && CTRRootController.IsShowGreeting();
+                isPaddington && isPrimaryTarget && !nightLevel && RootController.IsShowGreeting();
 
             // Paddington seats Om Nom on the bear's suitcase instead of the pack's usual platform.
             string supportResource = isPaddington ? Resources.Img.CharSupportsXmas : Resources.Img.CharSupports;
             int requestedQuad = isPaddington ? PaddingtonSupportQuad : sittingPlatform;
 
             // Clamp quad index to valid range; fall back to first quad for invalid values.
-            CTRTexture2D supportTexture = Application.GetTexture(supportResource);
+            Texture2D supportTexture = Application.GetTexture(supportResource);
             int quadIndex = (requestedQuad >= 0 && requestedQuad < supportTexture.quadRects.Length) ? requestedQuad : 0;
 
-            support = Image.Image_createWithResIDQuad(supportResource, quadIndex);
+            support = Image.FromResource(supportResource, quadIndex);
             support.DoRestoreCutTransparency();
             support.anchor = 18;
 
-            ITargetAnimationBackend targetAnimationBackend = TargetAnimationBackendFactory.CreateForTarget(
+            ITargetAnimationBackend animation = TargetAnimationBackendFactory.CreateForTarget(
                 targetType, nightLevel, SpecialEvents.IsXmas, isPaddington, paddingtonGreetingPending);
-            TargetAnimationController controller = TargetAnimationController.Create(targetAnimationBackend);
-            GameObject targetObj = controller.TargetObject;
-            targetBaseScaleX = controller.GetTargetBaseScaleX();
-            targetBaseScaleY = controller.GetTargetBaseScaleY();
+            GameObject targetObj = animation.TargetObject;
+            targetBaseScaleX = animation.GetTargetBaseScaleX();
+            targetBaseScaleY = animation.GetTargetBaseScaleY();
             targetObj.scaleX = targetBaseScaleX;
             targetObj.scaleY = targetBaseScaleY;
 
@@ -91,12 +90,12 @@ namespace CutTheRopeDX.GameMain
                 ? MakeRectangle((targetObj.width >> 1) - 50f, (targetObj.height >> 1) + 10f, 75f, 3f)
                 : MakeRectangle((targetObj.width >> 1) - 56f, (targetObj.height >> 1) + 30f, 108f, 2f);
 
-            controller.Initialize(this);
+            animation.Initialize(this);
 
             // Register this Om Nom as an independent target. targets[0] stays the primary.
             targets.Add(new TargetContext(BLINK_SKIP, RND_RANGE(5, 20))
             {
-                controller = controller,
+                animation = animation,
                 targetObject = targetObj,
                 support = support,
                 baseScaleX = targetBaseScaleX,
@@ -105,14 +104,14 @@ namespace CutTheRopeDX.GameMain
 
             // Show greeting if needed (skip for night levels).
             // Skins with startWithGreeting already play greeting on init, so skip the delayed call.
-            if (CTRRootController.IsShowGreeting())
+            if (RootController.IsShowGreeting())
             {
-                if (!nightLevel && !controller.StartsWithGreeting)
+                if (!nightLevel && !animation.StartsWithGreeting)
                 {
                     dd.CallObjectSelectorParamafterDelay(new DelayedDispatcher.DispatchFunc(Selector_showGreeting), null, 1.3f);
                 }
 
-                CTRRootController.SetShowGreeting(false);
+                RootController.SetShowGreeting(false);
             }
 
             support = targets[0].support;

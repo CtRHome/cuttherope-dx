@@ -11,7 +11,7 @@ namespace CutTheRopeDX.GameMain
     /// <summary>
     /// Rope anchor hook object that can appear as a fixed hook, movable hook, wheel hook, gun hook, spider hook, or suction cup hook.
     /// </summary>
-    internal class Grab : CTRGameObject, ITransporterItem, ITransporterBindAware, ITransporterSideSwitchAware, ITransporterScaleAware
+    internal class Grab : GameObject, ITransporterItem, ITransporterBindAware, ITransporterSideSwitchAware, ITransporterScaleAware
     {
         /// <summary>
         /// Draws the circular grab radius using the cached antialiased line vertex buffer.
@@ -65,8 +65,8 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The rotation angle in degrees.</returns>
         public static float GetRotateAngleForStartEndCenter(Vector v1, Vector v2, Vector c)
         {
-            Vector v3 = VectSub(v1, c);
-            return RADIANS_TO_DEGREES(VectAngleNormalized(VectSub(v2, c)) - VectAngleNormalized(v3));
+            Vector startOffset = VectSub(v1, c);
+            return float.RadiansToDegrees(VectAngleNormalized(VectSub(v2, c)) - VectAngleNormalized(startOffset));
         }
 
         /// <inheritdoc />
@@ -90,14 +90,14 @@ namespace CutTheRopeDX.GameMain
 
             if (bee?.updateable == true)
             {
-                Vector vector2 = mover.path[mover.targetPoint];
+                Vector targetPos = mover.path[mover.targetPoint];
                 Vector pos = mover.pos;
-                Vector vector = VectSub(vector2, pos);
+                Vector toTarget = VectSub(targetPos, pos);
                 float t = 0f;
-                if (ABS(vector.X) > 15f)
+                if (MathF.Abs(toTarget.X) > 15f)
                 {
                     float rotationTarget = 10f;
-                    t = vector.X > 0f ? rotationTarget : 0f - rotationTarget;
+                    t = toTarget.X > 0f ? rotationTarget : 0f - rotationTarget;
                 }
                 _ = Mover.MoveVariableToTarget(ref bee.rotation, t, 60f, delta);
             }
@@ -230,13 +230,13 @@ namespace CutTheRopeDX.GameMain
         /// <see langword="null"/> when the whole rope is cuttable. A wheel and a gun each protect
         /// their own tap zone so operating them cannot sever the rope they control.
         /// </summary>
-        public CTRRectangle? CutExclusionZone =>
+        public Rectangle? CutExclusionZone =>
             Wheel != null
-                ? new CTRRectangle(
+                ? new Rectangle(
                     x - WheelControl.TapHalfExtent, y - WheelControl.TapHalfExtent,
                     WheelControl.TapHalfExtent * 2f, WheelControl.TapHalfExtent * 2f)
                 : Source is GunSource
-                    ? new CTRRectangle(
+                    ? new Rectangle(
                         x - GUN_CUT_RADIUS, y - GUN_CUT_RADIUS,
                         GUN_CUT_RADIUS * 2f, GUN_CUT_RADIUS * 2f)
                     : null;
@@ -289,25 +289,25 @@ namespace CutTheRopeDX.GameMain
         {
             if (Source is GunSource gunSource)
             {
-                gunSource.Back = Image_createWithResIDQuad(Resources.Img.ObjGun, GunBackQuad);
+                gunSource.Back = FromResource(Resources.Img.ObjGun, GunBackQuad);
                 gunSource.Back.DoRestoreCutTransparency();
                 gunSource.Back.anchor = gunSource.Back.parentAnchor = 18;
                 _ = AddChild(gunSource.Back);
                 gunSource.Back.visible = false;
 
-                gunSource.Arrow = Image_createWithResIDQuad(Resources.Img.ObjGun, GunArrowQuad);
+                gunSource.Arrow = FromResource(Resources.Img.ObjGun, GunArrowQuad);
                 gunSource.Arrow.DoRestoreCutTransparency();
                 gunSource.Arrow.anchor = gunSource.Arrow.parentAnchor = 18;
                 _ = AddChild(gunSource.Arrow);
                 gunSource.Arrow.visible = false;
 
-                gunSource.Front = Image_createWithResIDQuad(Resources.Img.ObjGun, GunFrontQuad);
+                gunSource.Front = FromResource(Resources.Img.ObjGun, GunFrontQuad);
                 gunSource.Front.DoRestoreCutTransparency();
                 gunSource.Front.anchor = gunSource.Front.parentAnchor = 18;
                 _ = AddChild(gunSource.Front);
                 gunSource.Front.visible = false;
 
-                gunSource.Cup = Animation_createWithResID(Resources.Img.ObjGun);
+                gunSource.Cup = InitializeFromResource(new Animation(), Resources.Img.ObjGun);
                 gunSource.Cup.DoRestoreCutTransparency();
                 gunSource.Cup.AddAnimationWithIDDelayLoopFirstLast(GUN_CUP_SHOW, 0.1f, Timeline.LoopType.TIMELINE_NO_LOOP, 4, 10);
                 gunSource.Cup.anchor = 18;
@@ -319,22 +319,22 @@ namespace CutTheRopeDX.GameMain
                 timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
                 gunSource.Cup.AddTimelinewithID(timeline, GUN_CUP_HIDE);
 
-                Timeline timeline2 = new Timeline().InitWithMaxKeyFramesOnTrack(2);
-                timeline2.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-                timeline2.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
-                timeline2.AddKeyFrame(KeyFrame.MakePos(0, 0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-                timeline2.AddKeyFrame(KeyFrame.MakePos(0, 50, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 1));
-                gunSource.Cup.AddTimelinewithID(timeline2, GUN_CUP_DROP_AND_HIDE);
-                Track track = timeline2.GetTrack(Track.TrackType.TRACK_POSITION);
+                Timeline cupTimeline = new Timeline().InitWithMaxKeyFramesOnTrack(2);
+                cupTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+                cupTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
+                cupTimeline.AddKeyFrame(KeyFrame.MakePos(0, 0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+                cupTimeline.AddKeyFrame(KeyFrame.MakePos(0, 50, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 1));
+                gunSource.Cup.AddTimelinewithID(cupTimeline, GUN_CUP_DROP_AND_HIDE);
+                Track track = cupTimeline.GetTrack(Track.TrackType.TRACK_POSITION);
                 track.relative = true;
                 return;
             }
             if (Mount != null)
             {
-                back = Image_createWithResIDQuad(Resources.Img.ObjSticker, 3);
+                back = FromResource(Resources.Img.ObjSticker, 3);
                 back.DoRestoreCutTransparency();
                 back.anchor = back.parentAnchor = 18;
-                front = Image_createWithResIDQuad(Resources.Img.ObjSticker, 4);
+                front = FromResource(Resources.Img.ObjSticker, 4);
                 front.DoRestoreCutTransparency();
                 front.anchor = front.parentAnchor = 18;
                 _ = AddChild(back);
@@ -347,10 +347,10 @@ namespace CutTheRopeDX.GameMain
             {
                 string hookTexture = GetHookTextureResource();
                 int hookBaseQuad = hookTexture == Resources.Img.ObjHookChain ? Hook01BackQuad : RandomHookBaseQuad();
-                back = Image_createWithResIDQuad(hookTexture, hookBaseQuad);
+                back = FromResource(hookTexture, hookBaseQuad);
                 back.DoRestoreCutTransparency();
                 back.anchor = back.parentAnchor = 18;
-                front = Image_createWithResIDQuad(hookTexture, hookBaseQuad + 1);
+                front = FromResource(hookTexture, hookBaseQuad + 1);
                 front.anchor = front.parentAnchor = 18;
                 _ = AddChild(back);
                 _ = AddChild(front);
@@ -363,10 +363,10 @@ namespace CutTheRopeDX.GameMain
                 string autoTexture = IsChainAnchor ? Resources.Img.ObjHookAutoChain : Resources.Img.ObjHook;
                 int autoBackQuad = IsChainAnchor ? HookAutoChainBackQuad : HookAutoBackQuad;
                 int autoFrontQuad = IsChainAnchor ? HookAutoChainFrontQuad : HookAutoFrontQuad;
-                back = Image_createWithResIDQuad(autoTexture, autoBackQuad);
+                back = FromResource(autoTexture, autoBackQuad);
                 back.DoRestoreCutTransparency();
                 back.anchor = back.parentAnchor = 18;
-                front = Image_createWithResIDQuad(autoTexture, autoFrontQuad);
+                front = FromResource(autoTexture, autoFrontQuad);
                 front.anchor = front.parentAnchor = 18;
                 _ = AddChild(back);
                 _ = AddChild(front);
@@ -376,16 +376,16 @@ namespace CutTheRopeDX.GameMain
 
             if (Wheel is WheelControl wheelControl)
             {
-                wheelControl.Base = Image_createWithResIDQuad(Resources.Img.ObjHook, RegulatedWheelQuadBase);
+                wheelControl.Base = FromResource(Resources.Img.ObjHook, RegulatedWheelQuadBase);
                 wheelControl.Base.anchor = wheelControl.Base.parentAnchor = 18;
                 _ = AddChild(wheelControl.Base);
                 wheelControl.Base.visible = false;
-                wheelControl.Arm = Image_createWithResIDQuad(Resources.Img.ObjHook, RegulatedWheelQuadArm);
+                wheelControl.Arm = FromResource(Resources.Img.ObjHook, RegulatedWheelQuadArm);
                 wheelControl.Arm.passTransformationsToChilds = false;
-                wheelControl.Highlight = Image_createWithResIDQuad(Resources.Img.ObjHook, RegulatedWheelQuadHighlight);
+                wheelControl.Highlight = FromResource(Resources.Img.ObjHook, RegulatedWheelQuadHighlight);
                 wheelControl.Highlight.anchor = wheelControl.Highlight.parentAnchor = 18;
                 _ = wheelControl.Arm.AddChild(wheelControl.Highlight);
-                wheelControl.Indicator = Image_createWithResIDQuad(Resources.Img.ObjHook, RegulatedWheelQuadIndicator);
+                wheelControl.Indicator = FromResource(Resources.Img.ObjHook, RegulatedWheelQuadIndicator);
                 wheelControl.Indicator.anchor = wheelControl.Indicator.parentAnchor = wheelControl.Arm.anchor = wheelControl.Arm.parentAnchor = 18;
                 _ = wheelControl.Arm.AddChild(wheelControl.Indicator);
                 _ = AddChild(wheelControl.Arm);
@@ -408,16 +408,16 @@ namespace CutTheRopeDX.GameMain
             bool v = rail.IsVertical;
             float o = rail.Offset;
 
-            HorizontallyTiledImage moveBackground = HorizontallyTiledImage.HorizontallyTiledImage_createWithResID(Resources.Img.ObjHook);
+            HorizontallyTiledImage moveBackground = InitializeFromResource(new HorizontallyTiledImage(), Resources.Img.ObjHook);
             moveBackground.SetTileHorizontallyLeftCenterRight(MovableRailLeftQuad, MovableRailCenterQuad, MovableRailRightQuad);
             moveBackground.width = (int)(l + 142f);
-            moveBackground.rotationCenterX = 0f - Round(moveBackground.width / 2) + 74f;
+            moveBackground.rotationCenterX = 0f - MathF.Round(moveBackground.width / 2) + 74f;
             moveBackground.x = -74f;
-            Image grabMoverHighlight = Image_createWithResIDQuad(Resources.Img.ObjHook, MovableHookHighlightQuad);
+            Image grabMoverHighlight = FromResource(Resources.Img.ObjHook, MovableHookHighlightQuad);
             grabMoverHighlight.visible = false;
             grabMoverHighlight.anchor = grabMoverHighlight.parentAnchor = 18;
             _ = AddChild(grabMoverHighlight);
-            Image grabMover = Image_createWithResIDQuad(Resources.Img.ObjHook, MovableHookQuad);
+            Image grabMover = FromResource(Resources.Img.ObjHook, MovableHookQuad);
             grabMover.visible = false;
             grabMover.anchor = grabMover.parentAnchor = 18;
             _ = AddChild(grabMover);
@@ -448,11 +448,11 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         public void SetBee()
         {
-            bee = Image_createWithResIDQuad(Resources.Img.ObjBee, BeeQuad);
+            bee = FromResource(Resources.Img.ObjBee, BeeQuad);
             bee.blendingMode = 1;
             bee.DoRestoreCutTransparency();
             bee.parentAnchor = 18;
-            Animation animation = Animation_createWithResID(Resources.Img.ObjBee);
+            Animation animation = InitializeFromResource(new Animation(), Resources.Img.ObjBee);
             animation.parentAnchor = animation.anchor = 9;
             animation.DoRestoreCutTransparency();
             _ = animation.AddAnimationDelayLoopFirstLast(0.03f, Timeline.LoopType.TIMELINE_PING_PONG, 2, 4);
@@ -462,11 +462,11 @@ namespace CutTheRopeDX.GameMain
             Vector quadOffset = GetQuadOffset(Resources.Img.ObjBee, 0);
             if (VectEqual(quadOffset, vectZero))
             {
-                CTRTexture2D beeTexture = Application.GetTexture(Resources.Img.ObjBee);
+                Texture2D beeTexture = Application.GetTexture(Resources.Img.ObjBee);
                 if (beeTexture.preCutSize.X != vectUndefined.X && beeTexture.preCutSize.Y != vectUndefined.Y)
                 {
                     Vector bodyOffset = beeTexture.quadOffsets[BeeQuad];
-                    CTRRectangle bodyRect = beeTexture.quadRects[BeeQuad];
+                    Rectangle bodyRect = beeTexture.quadRects[BeeQuad];
                     quadOffset = Vect(bodyOffset.X + (bodyRect.w / 2f) + 6f, bodyOffset.Y + bodyRect.h + 4f);
                 }
             }
@@ -481,7 +481,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>Attaches a spider to this grab.</summary>
         public void SetSpider()
         {
-            Animation spiderAnimation = Animation_createWithResID(Resources.Img.ObjSpider);
+            Animation spiderAnimation = InitializeFromResource(new Animation(), Resources.Img.ObjSpider);
             spiderAnimation.DoRestoreCutTransparency();
             spiderAnimation.anchor = 18;
             spiderAnimation.x = x;
@@ -493,14 +493,6 @@ namespace CutTheRopeDX.GameMain
             spiderAnimation.SwitchToAnimationatEndOfAnimationDelay(1, 0, 0.05f);
             _ = AddChild(spiderAnimation);
             Spider = new SpiderRider { Animation = spiderAnimation };
-        }
-
-        /// <summary>
-        /// Disposes the attached rope and clears the rope reference.
-        /// </summary>
-        public void DestroyRope()
-        {
-            Attachment.Release();
         }
 
         /// <summary>Switches the suction cup images between their stuck and detached quads.</summary>
@@ -550,7 +542,7 @@ namespace CutTheRopeDX.GameMain
         {
             if (disposing)
             {
-                DestroyRope();
+                Attachment.Release();
                 bee?.Dispose();
                 bee = null;
                 Spider?.Animation?.Dispose();
@@ -778,24 +770,6 @@ namespace CutTheRopeDX.GameMain
         private static int RandomHookBaseQuad()
         {
             return RND_RANGE(0, 1) == 0 ? Hook01BackQuad : Hook02BackQuad;
-        }
-
-        /// <summary>
-        /// Spider animation identifiers.
-        /// </summary>
-        private enum SPIDER_ANI
-        {
-            /// <summary>Spider start animation.</summary>
-            SPIDER_START_ANI,
-
-            /// <summary>Spider walk animation.</summary>
-            SPIDER_WALK_ANI,
-
-            /// <summary>Spider busted animation.</summary>
-            SPIDER_BUSTED_ANI,
-
-            /// <summary>Spider catch animation.</summary>
-            SPIDER_CATCH_ANI
         }
     }
 }

@@ -1,6 +1,9 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -45,33 +48,10 @@ namespace CutTheRopeDX.GameMain
         private const string AchievementSnailTamer = "acSnailTamer";
 
         /// <summary>
-        /// Creates a snail from a texture.
-        /// </summary>
-        /// <param name="texture">Texture used by the snail.</param>
-        /// <returns>The initialized snail.</returns>
-        private static Snail Snail_create(CTRTexture2D texture)
-        {
-            return (Snail)new Snail().InitWithTexture(texture);
-        }
-
-        /// <summary>
-        /// Creates a snail from a texture resource and applies a draw quad.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <param name="q">Quad index to draw.</param>
-        /// <returns>The initialized snail.</returns>
-        public static Snail Snail_createWithResIDQuad(string resourceName, int q)
-        {
-            Snail snail = Snail_create(Application.GetTexture(resourceName));
-            snail.SetDrawQuad(q);
-            return snail;
-        }
-
-        /// <summary>
         /// Attaches the snail to a candy physics point and plays the wake-up state transition.
         /// </summary>
         /// <param name="p">Candy physics point to follow.</param>
-        public void AttachToPoint(ConstraintedPoint p)
+        public void AttachToPoint(ConstrainedPoint p)
         {
             point = p;
             state = SNAIL_STATE_ACTIVE;
@@ -89,10 +69,10 @@ namespace CutTheRopeDX.GameMain
             Preferences.SetIntForKey(grabbedSnails, PrefsGrabSnails, false);
             if (grabbedSnails >= 100)
             {
-                CTRRootController.PostAchievementName(AchievementSnailTamer);
+                Scorer.PostAchievementName(AchievementSnailTamer);
             }
 
-            CTRSoundMgr.PlaySound(Resources.Snd.ExpSnailIn);
+            SoundMgr.PlaySound(Resources.Snd.ExpSnailIn);
         }
 
         /// <summary>
@@ -124,7 +104,7 @@ namespace CutTheRopeDX.GameMain
             rotationTrack.relative = true;
             PlayTimeline(timelineId);
 
-            CTRSoundMgr.PlaySound(Resources.Snd.ExpSnailOut);
+            SoundMgr.PlaySound(Resources.Snd.ExpSnailOut);
         }
 
         /// <summary>
@@ -146,15 +126,15 @@ namespace CutTheRopeDX.GameMain
             }
 
             bb = MakeRectangle(
-                Round(texture.quadOffsets[quad].X),
-                Round(texture.quadOffsets[quad].Y),
+                MathF.Round(texture.quadOffsets[quad].X),
+                MathF.Round(texture.quadOffsets[quad].Y),
                 texture.quadRects[quad].w,
                 texture.quadRects[quad].h);
             rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
         }
 
         /// <inheritdoc />
-        public override Image InitWithTexture(CTRTexture2D t)
+        public override Image InitWithTexture(Texture2D t)
         {
             if (base.InitWithTexture(t) == null)
             {
@@ -190,24 +170,24 @@ namespace CutTheRopeDX.GameMain
                 height = height
             };
 
-            sleepyEyes = Image_createWithResIDQuad(Resources.Img.ObjSnail, SnailSleepyEyesQuad);
+            sleepyEyes = FromResource(Resources.Img.ObjSnail, SnailSleepyEyesQuad);
             sleepyEyes.DoRestoreCutTransparency();
             sleepyEyes.parentAnchor = sleepyEyes.anchor = 9;
             _ = backContainer.AddChild(sleepyEyes);
 
-            eye1 = Image_createWithResIDQuad(Resources.Img.ObjSnail, SnailEye1Quad);
+            eye1 = FromResource(Resources.Img.ObjSnail, SnailEye1Quad);
             eye1.DoRestoreCutTransparency();
             eye1.parentAnchor = eye1.anchor = 9;
             eye1.SetEnabled(false);
             _ = backContainer.AddChild(eye1);
 
-            eye2 = Image_createWithResIDQuad(Resources.Img.ObjSnail, SnailEye2Quad);
+            eye2 = FromResource(Resources.Img.ObjSnail, SnailEye2Quad);
             eye2.DoRestoreCutTransparency();
             eye2.parentAnchor = eye2.anchor = 9;
             eye2.SetEnabled(false);
             _ = backContainer.AddChild(eye2);
 
-            wakeUp = Animation_createWithResID(Resources.Img.ObjSnail);
+            wakeUp = InitializeFromResource(new Animation(), Resources.Img.ObjSnail);
             wakeUp.SetDrawQuad(SnailWakeStartQuad);
             wakeUp.parentAnchor = wakeUp.anchor = 9;
             wakeUp.SetEnabled(false);
@@ -217,7 +197,7 @@ namespace CutTheRopeDX.GameMain
             wakeUpTimeline.delegateTimelineDelegate = this;
             _ = backContainer.AddChild(wakeUp);
 
-            sleep = Animation_createWithResID(Resources.Img.ObjSnail);
+            sleep = InitializeFromResource(new Animation(), Resources.Img.ObjSnail);
             sleep.SetDrawQuad(SnailSleepStartQuad);
             sleep.parentAnchor = sleep.anchor = 9;
             sleep.SetEnabled(false);
@@ -318,7 +298,7 @@ namespace CutTheRopeDX.GameMain
         public float startRotation;
 
         /// <summary>Returns the candy physics point currently followed by the snail.</summary>
-        public ConstraintedPoint AttachedPoint()
+        public ConstrainedPoint AttachedPoint()
         {
             return point;
         }
@@ -327,7 +307,7 @@ namespace CutTheRopeDX.GameMain
         private BaseElement backContainer;
 
         /// <summary>Candy physics point currently followed by the snail.</summary>
-        private ConstraintedPoint point;
+        private ConstrainedPoint point;
 
         /// <summary>Sleepy eyes overlay visual.</summary>
         private Image sleepyEyes;

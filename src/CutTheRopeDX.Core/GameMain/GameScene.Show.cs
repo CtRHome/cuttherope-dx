@@ -20,8 +20,8 @@ namespace CutTheRopeDX.GameMain
             InitializeCandyObjects();
             InitializeHUDStars();
 
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
-            XElement map = cTRRootController.GetMap();
+            RootController root = Application.SharedRootController();
+            XElement map = root.Map;
 
             float mapScale = 3f;
             float mapOffsetY = 0f;
@@ -49,24 +49,23 @@ namespace CutTheRopeDX.GameMain
             conveyors.ProcessItems(pumps);
             conveyors.ProcessItems(bungees);
 
-            foreach (object obj in rotatedCircles)
+            foreach (RotatedCircle circle in rotatedCircles)
             {
-                RotatedCircle rotatedCircle2 = (RotatedCircle)obj;
-                rotatedCircle2.operating = -1;
-                rotatedCircle2.circlesArray = rotatedCircles;
+                circle.operating = -1;
+                circle.circlesArray = rotatedCircles;
             }
             StartCamera();
             tummyTeasers = 0;
             starsCollected = 0;
             // Update RPC with current level info (on start/restart)
-            PlatformServices.RichPresence?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel(), starsCollected, false, levelName);
+            PlatformServices.RichPresence?.SetLevelPresence(root.Pack, root.Level, starsCollected, false, levelName);
             foreach (CandyBody body in ActiveCandyBodies())
             {
                 body.Bubble = null;
             }
             for (int ti = 0; ti < targets.Count; ti++)
             {
-                targets[ti].controller?.ResetBlink();
+                targets[ti].animation?.ResetBlink();
             }
             // spiderTookCandy = false;
             time = 0f;
@@ -74,7 +73,7 @@ namespace CutTheRopeDX.GameMain
             ropesCutAtOnce = 0;
             ropeAtOnceTimer = 0f;
             dd.CallObjectSelectorParamafterDelay(new DelayedDispatcher.DispatchFunc(Selector_doCandyBlink), null, 1);
-            string packAndLevelNumbers = (cTRRootController.GetPack() + 1).ToString(CultureInfo.InvariantCulture) + " - " + (cTRRootController.GetLevel() + 1).ToString(CultureInfo.InvariantCulture);
+            string packAndLevelNumbers = (root.Pack + 1).ToString(CultureInfo.InvariantCulture) + " - " + (root.Level + 1).ToString(CultureInfo.InvariantCulture);
             LevelLabelText levelLabel = LevelLabel.Resolve(
                 CustomLevelSession.IsActive,
                 ResolveLevelDisplayName(),
@@ -88,23 +87,23 @@ namespace CutTheRopeDX.GameMain
                 bool isChinese = LanguageHelper.IsCurrentAny(Language.LANGZH, Language.LANGZHTW);
                 if (levelLabel.Secondary != null)
                 {
-                    Text text2 = Text.CreateWithFontandString(Resources.Fnt.BigFont, levelLabel.Secondary);
-                    text2.anchor = 33;
-                    text2.parentAnchor = 9;
-                    text2.y = isChinese ? 3f : 30f; // the "Level" label in game
-                    text2.rotationCenterX -= text2.width / 2f;
-                    text2.scaleX = text2.scaleY = 0.7f;
-                    _ = text.AddChild(text2);
+                    Text secondaryLabel = Text.CreateWithFontandString(Resources.Fnt.BigFont, levelLabel.Secondary);
+                    secondaryLabel.anchor = 33;
+                    secondaryLabel.parentAnchor = 9;
+                    secondaryLabel.y = isChinese ? 3f : 30f; // the "Level" label in game
+                    secondaryLabel.rotationCenterX -= secondaryLabel.width / 2f;
+                    secondaryLabel.scaleX = secondaryLabel.scaleY = 0.7f;
+                    _ = text.AddChild(secondaryLabel);
                 }
-                Timeline timeline6 = new Timeline().InitWithMaxKeyFramesOnTrack(5);
-                timeline6.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-                timeline6.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
-                timeline6.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
-                timeline6.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
-                timeline6.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
-                text.AddTimelinewithID(timeline6, 0);
+                Timeline labelTimeline = new Timeline().InitWithMaxKeyFramesOnTrack(5);
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 1));
+                labelTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
+                text.AddTimelinewithID(labelTimeline, 0);
                 text.PlayTimeline(0);
-                timeline6.delegateTimelineDelegate = staticAniPool;
+                labelTimeline.delegateTimelineDelegate = staticAniPool;
                 _ = staticAniPool.AddChild(text);
 
                 // The label is rebuilt from scratch here on every level start and restart, so it
@@ -121,7 +120,7 @@ namespace CutTheRopeDX.GameMain
                 ResetBungeeHighlight();
             }
             PlatformServices.Cursor?.ReleaseButtons();
-            CTRRootController.LogEvent("IG_SHOWN");
+            RootController.LogEvent("IG_SHOWN");
         }
 
         /// <summary>
@@ -177,23 +176,23 @@ namespace CutTheRopeDX.GameMain
                 camera.type = CAMERATYPE.CAMERASPEEDPIXELS;
                 camera.speed = 20f;
                 cameraMoveMode = 0;
-                ConstraintedPoint constraintedPoint = CameraFocusPoint();
+                ConstrainedPoint constrainedPoint = CameraFocusPoint();
 
                 // The pan starts at whichever end of the tracking range is away from the focus
                 // point. Both ends and the midpoint they are chosen by are the level's own: a
                 // level wider than the design box is centered on it, so its near end is a negative
                 // world X and neither end is at the origin.
-                CTRRectangle range = CameraTrackingRange();
+                Rectangle range = CameraTrackingRange();
                 float cameraStartX;
                 float cameraStartY;
                 if (mapWidth > SCREEN_WIDTH)
                 {
-                    cameraStartX = constraintedPoint.pos.X > range.x + (mapWidth / 2f)
+                    cameraStartX = constrainedPoint.pos.X > range.x + (mapWidth / 2f)
                         ? range.x
                         : range.x + range.w;
                     cameraStartY = range.y;
                 }
-                else if (constraintedPoint.pos.Y > range.y + (mapHeight / 2f))
+                else if (constrainedPoint.pos.Y > range.y + (mapHeight / 2f))
                 {
                     cameraStartX = range.x;
                     cameraStartY = range.y;
@@ -204,14 +203,14 @@ namespace CutTheRopeDX.GameMain
                     cameraStartY = range.y + range.h;
                 }
                 Vector boundedCamera = BoundedCameraPosition(
-                    constraintedPoint.pos.X - (SCREEN_WIDTH / 2f),
-                    constraintedPoint.pos.Y - (SCREEN_HEIGHT / 2f));
+                    constrainedPoint.pos.X - (SCREEN_WIDTH / 2f),
+                    constrainedPoint.pos.Y - (SCREEN_HEIGHT / 2f));
 
                 // Seat the tracked position at the authored start point and let the fit derive the
                 // rest from it, the way every later frame does.
                 camera.MoveToXYImmediate(cameraStartX, cameraStartY, true);
                 ApplyCameraFit(snapshot);
-                initialCameraToStarDistance = VectDistance(camera.pos, boundedCamera);
+                initialCameraToCandyDistance = VectDistance(camera.pos, boundedCamera);
                 return;
             }
 
@@ -220,7 +219,7 @@ namespace CutTheRopeDX.GameMain
             // for the length of one, do it while the level they can already see waits. Seat the
             // camera where the pan would have left it and hand them the level.
             ignoreTouches = false;
-            ConstraintedPoint restingFocus = CameraFocusPoint();
+            ConstrainedPoint restingFocus = CameraFocusPoint();
             Vector resting = BoundedCameraPosition(
                 restingFocus.pos.X - (SCREEN_WIDTH / 2f),
                 restingFocus.pos.Y - (SCREEN_HEIGHT / 2f));
@@ -270,7 +269,7 @@ namespace CutTheRopeDX.GameMain
                 TargetIdleStep idleStep = owner.Idle.AdvanceCadence();
                 if (idleStep.BlinkDue && owner.Idle.ConsumeBlink(3))
                 {
-                    owner.controller?.TriggerBlink();
+                    owner.animation?.TriggerBlink();
                 }
                 if (idleStep.IdleDue)
                 {
@@ -278,7 +277,7 @@ namespace CutTheRopeDX.GameMain
                     // greeting (Time Travel). When it does, both timers are reset by the chat.
                     if (!TryStartChatReaction())
                     {
-                        owner.controller?.PlayRandomIdleVariant(RND_RANGE);
+                        owner.animation?.PlayRandomIdleVariant(RND_RANGE);
                         _ = owner.Idle.ConsumeIdle(RND_RANGE(5, 20));
                     }
                 }
@@ -289,7 +288,7 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public void TimelineFinished(Timeline t)
         {
-            if (t.element == candy)
+            if (t.element == Candy)
             {
                 RestoreCandyProperties();
             }

@@ -14,12 +14,7 @@ namespace CutTheRopeDX.GameMain
             angle += 360f / totalParticles;
             base.InitParticle(ref particle);
             int quadIndex = RND_RANGE(4, 6);
-            Quad2D quad = imageGrid.texture.quads[quadIndex];
-            Quad3D quad3D = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
-            drawer.SetTextureQuadatVertexQuadatIndex(quad, quad3D, particleCount);
-            CTRRectangle rect = imageGrid.texture.quadRects[quadIndex];
-            particle.width = rect.w * size;
-            particle.height = rect.h * size;
+            SetParticleQuad(ref particle, quadIndex, size);
             particle.deltaColor = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
         }
 
@@ -29,7 +24,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The initialized ghost morphing cloud.</returns>
         public GhostMorphingCloud Init()
         {
-            if (InitWithTotalParticlesandImageGrid(5, Image.Image_createWithResID(Resources.Img.ObjGhost)) != null)
+            if (InitWithTotalParticlesandImageGrid(5, Image.FromResource(Resources.Img.ObjGhost)) != null)
             {
                 angle = RND_RANGE(0, 360);
                 size = 1.6f;
@@ -49,7 +44,7 @@ namespace CutTheRopeDX.GameMain
             base.Update(delta);
             for (int i = 0; i < particleCount; i++)
             {
-                Particle particle = particles[i];
+                ref Particle particle = ref particles[i];
                 if (particle.life > 0f)
                 {
                     float fadeWindow = 0.2f * life;

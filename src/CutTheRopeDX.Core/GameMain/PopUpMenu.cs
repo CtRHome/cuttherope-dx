@@ -23,9 +23,9 @@ namespace CutTheRopeDX.GameMain
         public void ShowCantUnlockPopup()
         {
             const int textOffset = 20;
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
-            int totalStars = CTRPreferences.GetTotalStars();
-            string requiredStars = (CTRPreferences.PackUnlockStars(cTRRootController.GetPack() + 1) - totalStars)
+            RootController root = Application.SharedRootController();
+            int totalStars = Preferences.GetTotalStars();
+            string requiredStars = (PackConfig.GetUnlockStars(root.Pack + 1) - totalStars)
                 .ToString(CultureInfo.InvariantCulture);
 
             PopupTemplate template = PopupTemplate.Create(PopupSize.Large)

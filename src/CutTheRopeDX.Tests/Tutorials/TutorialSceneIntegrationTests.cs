@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml.Linq;
@@ -194,7 +195,7 @@ namespace CutTheRopeDX.Tests.Tutorials
         public void APlainPathMovesTextTheSameWayItMovesASign()
         {
             // Identical XML has to travel identically whichever visual carries it, which means text
-            // needs the same CTRMover and its speed scale, not a mover of its own.
+            // needs the same Mover and its speed scale, not a mover of its own.
             (float text, float sign) = TravelOfTextAndSign(
                 new XAttribute("path", "90,0"),
                 new XAttribute("moveSpeed", "100"));
@@ -245,8 +246,8 @@ namespace CutTheRopeDX.Tests.Tutorials
 
         private static void AssertSampledCandyState(
             string showOn,
-            System.Action<GameScene, CandyContext> establish,
-            System.Func<Scenario, Scenario> configure = null)
+            Action<GameScene, CandyContext> establish,
+            Func<Scenario, Scenario> configure = null)
         {
             Scenario scenario = Scenario.New()
                 .Candy(100, 100)

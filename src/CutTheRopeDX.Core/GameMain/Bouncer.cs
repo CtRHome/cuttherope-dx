@@ -2,6 +2,7 @@ using System;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Visual;
 
 namespace CutTheRopeDX.GameMain
@@ -10,7 +11,7 @@ namespace CutTheRopeDX.GameMain
     /// A bouncy surface that makes the candy bounce on contact.
     /// Can be small (1-unit) or large (2-unit) and optionally ride a transporter belt.
     /// </summary>
-    internal class Bouncer : CTRGameObject, ITransporterItem, ITransporterBindAware, ITransporterSideSwitchAware
+    internal class Bouncer : GameObject, ITransporterItem, ITransporterBindAware, ITransporterSideSwitchAware
     {
         /// <summary>
         /// Initialises the bouncer at the given position with a width class and rotation angle.
@@ -73,7 +74,7 @@ namespace CutTheRopeDX.GameMain
             b1.X = t1.X;
             b2.X = t2.X;
             b1.Y = b2.Y = y + ActivePhysicsConstants.BouncerHeight;
-            angle = DEGREES_TO_RADIANS(rotation);
+            angle = float.DegreesToRadians(rotation);
             t1 = VectRotateAround(t1, angle, x, y);
             t2 = VectRotateAround(t2, angle, x, y);
             b1 = VectRotateAround(b1, angle, x, y);
@@ -173,10 +174,10 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public bool IsDrawnByTransporter { get; set; }
 
-        /// <summary>Width class value for the small bouncer variant.</summary>
         /// <summary>Whether this is the large (type 2) bouncer; selects the collision width constant.</summary>
         private bool isLarge;
 
+        /// <summary>Width class value for the small bouncer variant.</summary>
         private const int SmallBouncerWidth = 1;
 
         /// <summary>Width class value for the large bouncer variant.</summary>

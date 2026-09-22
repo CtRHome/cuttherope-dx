@@ -3,6 +3,7 @@ using System;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Platform;
 using CutTheRopeDX.Framework.Visual;
 
@@ -11,7 +12,7 @@ namespace CutTheRopeDX.GameMain
     /// <summary>
     /// Collectible star object with optional timed and night-mode visual states.
     /// </summary>
-    internal sealed class Star : CTRGameObject, ITransporterItem, ITransporterBindAware
+    internal sealed class Star : GameObject, ITransporterItem, ITransporterBindAware
     {
         /// <summary>Glow quad index for the normal idle star texture.</summary>
         private const int ImgObjStarIdleGlow = 0;
@@ -45,26 +46,6 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Quad index for the empty timed-star countdown ring.</summary>
         private const int TimedEmptyQuad = 20; // frame_0055: empty timed ring
-
-        /// <summary>
-        /// Creates a star from a texture.
-        /// </summary>
-        /// <param name="t">Texture used by the star.</param>
-        /// <returns>The initialized star.</returns>
-        public static Star Star_create(CTRTexture2D t)
-        {
-            return (Star)new Star().InitWithTexture(t);
-        }
-
-        /// <summary>
-        /// Creates a star from a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <returns>The initialized star.</returns>
-        public static Star Star_createWithResID(string resourceName)
-        {
-            return Star_create(Application.GetTexture(resourceName));
-        }
 
         /// <summary>
         /// Initializes a star with default timed and night-mode visual state.
@@ -138,7 +119,7 @@ namespace CutTheRopeDX.GameMain
         {
             if (timeout > 0)
             {
-                timedAnim = Animation_createWithResID(Resources.Img.ObjStarIdle);
+                timedAnim = InitializeFromResource(new Animation(), Resources.Img.ObjStarIdle);
                 timedAnim.anchor = timedAnim.parentAnchor = 18;
                 timedAnim.SetDrawQuad(TimedEmptyQuad);
                 time = timeout;
@@ -148,44 +129,44 @@ namespace CutTheRopeDX.GameMain
                 timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
                 timeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.5f));
                 timedAnim.AddTimelinewithID(timeline, 1);
-                Timeline timeline2 = new Timeline().InitWithMaxKeyFramesOnTrack(2);
-                timeline2.AddKeyFrame(KeyFrame.MakeScale(1, 1, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-                timeline2.AddKeyFrame(KeyFrame.MakeScale(0, 0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.25f));
-                timeline2.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
-                timeline2.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.25f));
-                AddTimelinewithID(timeline2, 1);
+                Timeline shrinkTimeline = new Timeline().InitWithMaxKeyFramesOnTrack(2);
+                shrinkTimeline.AddKeyFrame(KeyFrame.MakeScale(1, 1, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+                shrinkTimeline.AddKeyFrame(KeyFrame.MakeScale(0, 0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.25f));
+                shrinkTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.solidOpaqueRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
+                shrinkTimeline.AddKeyFrame(KeyFrame.MakeColor(RGBAColor.transparentRGBA, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.25f));
+                AddTimelinewithID(shrinkTimeline, 1);
             }
-            bb = new CTRRectangle(22f, 20f, 30f, 30f);
+            bb = new Rectangle(22f, 20f, 30f, 30f);
 
-            Timeline timeline3 = new Timeline().InitWithMaxKeyFramesOnTrack(5);
-            timeline3.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0f));
-            timeline3.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y - 3, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_OUT, 0.5f));
-            timeline3.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0.5f));
-            timeline3.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y + 3, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_OUT, 0.5f));
-            timeline3.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0.5f));
-            timeline3.SetTimelineLoopType(Timeline.LoopType.TIMELINE_REPLAY);
-            AddTimelinewithID(timeline3, 0);
+            Timeline idleBobTimeline = new Timeline().InitWithMaxKeyFramesOnTrack(5);
+            idleBobTimeline.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0f));
+            idleBobTimeline.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y - 3, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_OUT, 0.5f));
+            idleBobTimeline.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0.5f));
+            idleBobTimeline.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y + 3, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_OUT, 0.5f));
+            idleBobTimeline.AddKeyFrame(KeyFrame.MakePos((int)x, (int)y, KeyFrame.TransitionType.FRAME_TRANSITION_EASE_IN, 0.5f));
+            idleBobTimeline.SetTimelineLoopType(Timeline.LoopType.TIMELINE_REPLAY);
+            AddTimelinewithID(idleBobTimeline, 0);
             PlayTimeline(0);
-            Timeline.UpdateTimeline(timeline3, RND_RANGE(0, 20) / 10f);
+            Timeline.UpdateTimeline(idleBobTimeline, RND_RANGE(0, 20) / 10f);
 
             // Add glow sprite
             if (!nightMode)
             {
-                glowSprite = GameObject_createWithResIDQuad(Resources.Img.ObjStarIdle, ImgObjStarIdleGlow);
+                glowSprite = InitializeFromResource(new GameObject(), Resources.Img.ObjStarIdle, ImgObjStarIdleGlow);
                 glowSprite.anchor = glowSprite.parentAnchor = 18;
                 glowSprite.blendingMode = -1; // Normal blending
                 _ = AddChild(glowSprite);
             }
             else
             {
-                glowSprite = GameObject_createWithResIDQuad(Resources.Img.ObjStarNight, ImgObjStarNightGlow);
+                glowSprite = InitializeFromResource(new GameObject(), Resources.Img.ObjStarNight, ImgObjStarNightGlow);
                 glowSprite.anchor = glowSprite.parentAnchor = 18;
                 glowSprite.color = RGBAColor.MakeRGBA(1f, 1f, 1f, 0.4f);
                 glowSprite.blendingMode = 1; // Normal blending
                 _ = AddChild(glowSprite);
             }
 
-            Animation animation = Animation_createWithResID(Resources.Img.ObjStarIdle);
+            Animation animation = InitializeFromResource(new Animation(), Resources.Img.ObjStarIdle);
             animation.DoRestoreCutTransparency();
             _ = animation.AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_REPLAY, 1, 18);
             animation.PlayTimeline(0);
@@ -196,7 +177,7 @@ namespace CutTheRopeDX.GameMain
 
             if (nightMode)
             {
-                dimmedIdleSprite = Animation_createWithResID(Resources.Img.ObjStarNight);
+                dimmedIdleSprite = InitializeFromResource(new Animation(), Resources.Img.ObjStarNight);
                 dimmedIdleSprite.anchor = dimmedIdleSprite.parentAnchor = 18;
                 dimmedIdleSprite.blendingMode = 1; // Normal blending
                 _ = dimmedIdleSprite.AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_REPLAY, ImgObjStarNightIdleOffStart, ImgObjStarNightIdleOffEnd);
@@ -204,14 +185,14 @@ namespace CutTheRopeDX.GameMain
                 dimmedIdleSprite.color = RGBAColor.transparentRGBA;
                 _ = AddChild(dimmedIdleSprite);
 
-                lightUpAnim = Animation_createWithResID(Resources.Img.ObjStarNight);
+                lightUpAnim = InitializeFromResource(new Animation(), Resources.Img.ObjStarNight);
                 lightUpAnim.anchor = lightUpAnim.parentAnchor = 18;
                 lightUpAnim.blendingMode = 2; // Additive blending (SRC_ALPHA, ONE)
                 _ = lightUpAnim.AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_NO_LOOP, ImgObjStarNightLightUpStart, ImgObjStarNightLightUpEnd);
                 lightUpAnim.visible = false;
                 _ = AddChild(lightUpAnim);
 
-                lightDownAnim = Animation_createWithResID(Resources.Img.ObjStarNight);
+                lightDownAnim = InitializeFromResource(new Animation(), Resources.Img.ObjStarNight);
                 lightDownAnim.anchor = lightDownAnim.parentAnchor = 18;
                 lightDownAnim.blendingMode = 1; // Normal blending
                 _ = lightDownAnim.AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_NO_LOOP, ImgObjStarNightLightDownStart, ImgObjStarNightLightDownEnd);
@@ -263,7 +244,7 @@ namespace CutTheRopeDX.GameMain
                     lightUpAnim.PlayTimeline(0);
 
                     // Play star light sound
-                    CTRSoundMgr.PlayRandomSound(Resources.Snd.StarLight1, Resources.Snd.StarLight2);
+                    SoundMgr.PlayRandomSound(Resources.Snd.StarLight1, Resources.Snd.StarLight2);
                 }
             }
             else if (lightDownAnim != null && !isInitial)

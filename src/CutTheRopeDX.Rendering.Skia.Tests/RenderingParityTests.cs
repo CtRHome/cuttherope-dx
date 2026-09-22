@@ -8,6 +8,7 @@ using CutTheRopeDX.Framework.Visual;
 using SkiaSharp;
 
 using Xunit;
+
 namespace CutTheRopeDX.Rendering.Skia.Tests
 {
     public sealed class RenderingParityTests
@@ -105,7 +106,7 @@ namespace CutTheRopeDX.Rendering.Skia.Tests
             using SKBitmap bitmap = new(2, 2);
             bitmap.Erase(new SKColor(200, 100, 50));
             using SkiaTexture texture = new(SKImage.FromBitmap(bitmap));
-            CTRTexture2D wrapper = new() { textureHandle_ = texture };
+            Texture2D wrapper = new() { textureHandle_ = texture };
             surface.Canvas.Clear(SKColors.Black);
             renderer.BindTexture(wrapper);
             renderer.SetColor(new Color(128, 255, 128, 255));
@@ -161,7 +162,7 @@ namespace CutTheRopeDX.Rendering.Skia.Tests
             using SKBitmap bitmap = new(2, 2);
             bitmap.Erase(new SKColor(0, 0, 255));
             using SkiaTexture texture = new(SKImage.FromBitmap(bitmap));
-            CTRTexture2D wrapper = new() { textureHandle_ = texture };
+            Texture2D wrapper = new() { textureHandle_ = texture };
             surface.Canvas.Clear(SKColors.Black);
 
             renderer.BindTexture(wrapper);

@@ -5,11 +5,11 @@ using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Platform;
 using CutTheRopeDX.Framework.Visual;
-using CutTheRopeDX.GameMain;
 
 using SkiaSharp;
 
 using Xunit;
+
 namespace CutTheRopeDX.Rendering.Skia.Tests
 {
     public sealed class FontLayoutTests

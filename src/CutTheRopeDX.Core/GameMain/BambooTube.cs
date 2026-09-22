@@ -1,5 +1,8 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -9,7 +12,7 @@ namespace CutTheRopeDX.GameMain
     /// Rotatable bamboo tube teleporter. The candy enters one hole and exits the other.
     /// The tube can be rotated by dragging its ring zone or tapped in the centre to spin CCW.
     /// </summary>
-    internal sealed class BambooTube : CTRGameObject
+    internal sealed class BambooTube : GameObject
     {
         /// <summary>
         /// Initialises the tube at <paramref name="position"/> with an initial
@@ -31,7 +34,7 @@ namespace CutTheRopeDX.GameMain
             y = position.Y;
             bambooVisualRotation = angle;
             rotation = bambooVisualRotation;
-            interactionScale = MAX(0.1f, scale);
+            interactionScale = Math.Max(0.1f, scale);
             bb = MakeRectangle(0f, 0f, BambooBaseBbSize * interactionScale, BambooBaseBbSize * interactionScale);
             rotatedBB = true;
             scaleX = 0.9f;
@@ -53,7 +56,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             float deltaAngle = bambooTargetRotation - bambooVisualRotation;
-            float distanceToTarget = ABS(deltaAngle);
+            float distanceToTarget = MathF.Abs(deltaAngle);
             if (distanceToTarget <= BambooRotationSnapThreshold)
             {
                 bambooVisualRotation = bambooTargetRotation;
@@ -114,7 +117,7 @@ namespace CutTheRopeDX.GameMain
             bambooVisualRotation += angleDelta;
 
             float fromStart = AngleTo180(bambooVisualRotation - bambooStartRotation);
-            if (ABS(fromStart) > 60f)
+            if (MathF.Abs(fromStart) > 60f)
             {
                 if (fromStart > 30f)
                 {
@@ -153,7 +156,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="candyPoint">The candy physics point to test, or <see langword="null"/>.</param>
         /// <returns><see langword="true"/> if the candy entered a hole; otherwise <see langword="false"/>.</returns>
-        public bool TryCatchCandy(ConstraintedPoint candyPoint)
+        public bool TryCatchCandy(ConstrainedPoint candyPoint)
         {
             if (candyPoint == null)
             {
@@ -181,7 +184,7 @@ namespace CutTheRopeDX.GameMain
         /// impulse so the physics integrator launches it outward at <see cref="BambooThrowSpeed"/>.
         /// </summary>
         /// <param name="candyPoint">The candy physics point to teleport, or <see langword="null"/>.</param>
-        public void ThrowCandy(ConstraintedPoint candyPoint)
+        public void ThrowCandy(ConstrainedPoint candyPoint)
         {
             if (candyPoint == null)
             {
@@ -215,9 +218,9 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            Image grid = Image_createWithResID(Resources.Img.ObjBambooTube);
+            Image grid = FromResource(Resources.Img.ObjBambooTube);
             grid.DoRestoreCutTransparency();
-            float angle = RADIANS_TO_DEGREES(VectAngleNormalized(VectSub(bambooHoleOut, Vect(x, y))));
+            float angle = float.RadiansToDegrees(VectAngleNormalized(VectSub(bambooHoleOut, Vect(x, y))));
             if (new LeafParticles().Init(5, angle, grid, 0f) is LeafParticles bambooParticles)
             {
                 bambooParticles.particlesDelegate = new Particles.ParticlesFinished(pool.ParticlesFinished);
@@ -265,7 +268,7 @@ namespace CutTheRopeDX.GameMain
             Vector startOffset = VectSub(start, center);
             Vector endOffset = VectSub(end, center);
             float angleDelta = VectAngleNormalized(endOffset) - VectAngleNormalized(startOffset);
-            return RADIANS_TO_DEGREES(angleDelta);
+            return float.RadiansToDegrees(angleDelta);
         }
 
         /// <summary>
@@ -292,7 +295,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="candyPoint">The candy physics point to test.</param>
         /// <param name="holePosition">World-space position of the hole being tested.</param>
         /// <returns><see langword="true"/> if the candy is moving toward the hole; otherwise <see langword="false"/>.</returns>
-        private bool IsCandyMovingInside(ConstraintedPoint candyPoint, Vector holePosition)
+        private bool IsCandyMovingInside(ConstrainedPoint candyPoint, Vector holePosition)
         {
             Vector movement = candyPoint.prevPos.X == UNDEFINED_COORDINATE
                 ? candyPoint.posDelta
@@ -310,7 +313,7 @@ namespace CutTheRopeDX.GameMain
         {
             bambooHole1 = Vect(x + (bb.w * 0.5f), y);
             bambooHole2 = Vect(x, y + (bb.w * 0.5f));
-            float rotationRadians = DEGREES_TO_RADIANS(bambooVisualRotation - DEG_90);
+            float rotationRadians = float.DegreesToRadians(bambooVisualRotation - DEG_90);
             bambooHole1 = VectRotateAround(bambooHole1, rotationRadians, x, y);
             bambooHole2 = VectRotateAround(bambooHole2, rotationRadians, x, y);
             bambooBackSprite.rotation = bambooVisualRotation;
@@ -325,13 +328,13 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void SetupBambooShellSprites()
         {
-            bambooBackSprite = Image_createWithResIDQuad(Resources.Img.ObjBambooTube, BambooBackQuad);
+            bambooBackSprite = FromResource(Resources.Img.ObjBambooTube, BambooBackQuad);
             bambooBackSprite.DoRestoreCutTransparency();
             bambooBackSprite.anchor = 9;
             bambooBackSprite.parentAnchor = 9;
             _ = AddChild(bambooBackSprite);
 
-            bambooFrontSprite = Image_createWithResIDQuad(Resources.Img.ObjBambooTube, BambooFrontQuad);
+            bambooFrontSprite = FromResource(Resources.Img.ObjBambooTube, BambooFrontQuad);
             bambooFrontSprite.DoRestoreCutTransparency();
             bambooFrontSprite.anchor = 9;
             bambooFrontSprite.parentAnchor = 9;

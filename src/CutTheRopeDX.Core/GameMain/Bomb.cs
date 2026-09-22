@@ -11,12 +11,12 @@ namespace CutTheRopeDX.GameMain
     /// and rockets, but its gameplay role is an explosive: anything that touches it, cuts across it,
     /// or detonates beside it sets it off, and the blast shoves every nearby body away.
     /// </summary>
-    internal sealed class Bomb : CTRGameObject, ITransporterItem, ITransporterBindAware
+    internal sealed class Bomb : GameObject, ITransporterItem, ITransporterBindAware
     {
         /// <summary>Quad holding the intact bomb; the remaining quads are its debris fragments.</summary>
         private const int BodyQuad = 0;
 
-        public readonly ConstraintedPoint constraint;
+        public readonly ConstrainedPoint constraint;
 
         public readonly string bombNumber;
 
@@ -34,12 +34,12 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         public bool Exploded { get; set; }
 
-        public Bomb(ConstraintedPoint constraint, string bombNumber)
+        public Bomb(ConstrainedPoint constraint, string bombNumber)
         {
             this.constraint = constraint;
             this.bombNumber = bombNumber ?? string.Empty;
 
-            bodySprite = GameObject_createWithResIDQuad(Resources.Img.ObjBomb, BodyQuad);
+            bodySprite = InitializeFromResource(new GameObject(), Resources.Img.ObjBomb, BodyQuad);
             bodySprite.anchor = bodySprite.parentAnchor = 18;
             bodySprite.blendingMode = 1;
             _ = AddChild(bodySprite);
@@ -53,7 +53,7 @@ namespace CutTheRopeDX.GameMain
             width = bodySprite.width;
             height = bodySprite.height;
             anchor = parentAnchor = 18;
-            bb = new CTRRectangle(0f, 0f, width, height);
+            bb = new Rectangle(0f, 0f, width, height);
             rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
             rotatedBB = false;
             topLeftCalculated = false;

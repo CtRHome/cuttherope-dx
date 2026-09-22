@@ -3,6 +3,7 @@ using System.Xml.Linq;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
@@ -15,33 +16,10 @@ namespace CutTheRopeDX.GameMain
     /// Represents a rocket game object that can be rotated by touch input, fly along a path,
     /// and produce spark and cloud particle effects from its exhaust.
     /// </summary>
-    internal sealed class Rocket : CTRGameObject, ITimelineDelegate
+    internal sealed class Rocket : GameObject, ITimelineDelegate
     {
-        /// <summary>
-        /// Creates a new <see cref="Rocket"/> instance initialized with the specified texture.
-        /// </summary>
-        /// <param name="t">The texture to apply to the rocket.</param>
-        /// <returns>A new <see cref="Rocket"/> initialized with the given texture.</returns>
-        private static Rocket Rocket_create(CTRTexture2D t)
-        {
-            return (Rocket)new Rocket().InitWithTexture(t);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="Rocket"/> from a named texture resource and assigns it a draw quad.
-        /// </summary>
-        /// <param name="resourceName">The resource name used to look up the texture.</param>
-        /// <param name="q">The draw quad index to assign to the rocket.</param>
-        /// <returns>A new <see cref="Rocket"/> configured with the specified resource and quad.</returns>
-        public static Rocket Rocket_createWithResIDQuad(string resourceName, int q)
-        {
-            Rocket rocket = Rocket_create(Application.GetTexture(resourceName));
-            rocket.SetDrawQuad(q);
-            return rocket;
-        }
-
         /// <inheritdoc />
-        public override Image InitWithTexture(CTRTexture2D tx)
+        public override Image InitWithTexture(Texture2D tx)
         {
             if (base.InitWithTexture(tx) != null)
             {
@@ -69,7 +47,7 @@ namespace CutTheRopeDX.GameMain
                 timeline.delegateTimelineDelegate = this;
                 AddTimelinewithID(timeline, 2);
 
-                point = new ConstraintedPoint
+                point = new ConstrainedPoint
                 {
                     disableGravity = true
                 };
@@ -83,7 +61,7 @@ namespace CutTheRopeDX.GameMain
                     anchor = 18
                 };
 
-                sparks = Animation_createWithResID(Resources.Img.ObjRocket);
+                sparks = InitializeFromResource(new Animation(), Resources.Img.ObjRocket);
                 sparks.parentAnchor = sparks.anchor = 18;
                 sparks.SetEnabled(false);
                 sparks.DoRestoreCutTransparency();
@@ -116,7 +94,7 @@ namespace CutTheRopeDX.GameMain
             container.x = x;
             container.y = y;
             float movementSpeed = VectLength(VectSub(point.prevPos, point.pos));
-            movementSpeed = MAX(movementSpeed, ActivePhysicsConstants.RocketExhaustSpeedFloor);
+            movementSpeed = Math.Max(movementSpeed, ActivePhysicsConstants.RocketExhaustSpeedFloor);
             float exhaustAngle = angle - MathF.PI;
             float exhaustOffset = GetExhaustOffset();
             Vector vector = Vect(x, y);
@@ -197,17 +175,17 @@ namespace CutTheRopeDX.GameMain
             string path = xml.Attribute("path")?.Value ?? string.Empty;
             if (!string.IsNullOrEmpty(path))
             {
-                int pathPoints = CTRMover.PathPointCapacity(path);
+                int pathPoints = Mover.PathPointCapacity(path);
                 float moveSpeed = ParseFloatOrZero(xml.Attribute("moveSpeed")?.Value);
                 float rotateSpeed = ParseFloatOrZero(xml.Attribute("rotateSpeed")?.Value);
-                CTRMover ctrMover = new(pathPoints, moveSpeed, rotateSpeed)
+                Mover parsedMover = new(pathPoints, moveSpeed, rotateSpeed)
                 {
                     angle_ = rotation
                 };
-                ctrMover.angle_initial = ctrMover.angle_;
-                ctrMover.SetPathFromStringandStart(path, Vect(x, y));
-                SetMover(ctrMover);
-                ctrMover.Start();
+                parsedMover.angle_initial = parsedMover.angle_;
+                parsedMover.SetPathFromStringandStart(path, Vect(x, y));
+                SetMover(parsedMover);
+                parsedMover.Start();
             }
         }
 
@@ -290,7 +268,7 @@ namespace CutTheRopeDX.GameMain
             t1.X = x - (bb.w / 2f);
             t2.X = x + (bb.w / 2f);
             t1.Y = t2.Y = y;
-            angle = DEGREES_TO_RADIANS(rotation);
+            angle = float.DegreesToRadians(rotation);
             t1 = VectRotateAround(t1, angle, x, y);
             t2 = VectRotateAround(t2, angle, x, y);
         }
@@ -304,10 +282,10 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The signed rotation angle in degrees from <paramref name="v1"/> to <paramref name="v2"/>.</returns>
         private static float GetRotateAngleForStartEndCenter(Vector v1, Vector v2, Vector c)
         {
-            Vector vector = VectSub(v1, c);
-            Vector vector2 = VectSub(v2, c);
-            float angleDelta = VectAngleNormalized(vector2) - VectAngleNormalized(vector);
-            return RADIANS_TO_DEGREES(angleDelta);
+            Vector startOffset = VectSub(v1, c);
+            Vector endOffset = VectSub(v2, c);
+            float angleDelta = VectAngleNormalized(endOffset) - VectAngleNormalized(startOffset);
+            return float.RadiansToDegrees(angleDelta);
         }
 
         /// <summary>
@@ -356,7 +334,7 @@ namespace CutTheRopeDX.GameMain
         public void HandleRotateFinal()
         {
             rotation = AngleTo0_360(rotation);
-            float snappedStep = Round(rotation / DEG_45);
+            float snappedStep = MathF.Round(rotation / DEG_45);
             float snappedRotation = DEG_45 * snappedStep;
             float startRotationAngle = ActivePhysicsConstants.UseTimeTravelRocketModel ? rotation : (int)rotation;
             RemoveTimeline(1);
@@ -395,9 +373,9 @@ namespace CutTheRopeDX.GameMain
             cloudParticles?.StopSystem();
             particles = null;
             cloudParticles = null;
-            CTRSoundMgr.StopSound(startSound);
+            SoundMgr.StopSound(startSound);
             startSound = null;
-            CTRSoundMgr.StopLoopedSound(flyLoopSound);
+            SoundMgr.StopLoopedSound(flyLoopSound);
             flyLoopSound = null;
         }
 
@@ -456,7 +434,7 @@ namespace CutTheRopeDX.GameMain
         private Vector firstTouch;
 
         /// <summary>The physics constraint point controlling the rocket's position.</summary>
-        public ConstraintedPoint point;
+        public ConstrainedPoint point;
 
         /// <summary>The rocket's current facing angle in radians.</summary>
         public float angle;
@@ -514,7 +492,7 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>
         /// This rocket's own looping fly sound instance. Held so it can be stopped individually
-        /// via <see cref="CTRSoundMgr.StopLoopedSound"/> without silencing other rockets' loops or
+        /// via <see cref="SoundMgr.StopLoopedSound"/> without silencing other rockets' loops or
         /// unrelated one-shot effects. <see langword="null"/> when looped sounds are disabled or
         /// the sound failed to start.
         /// </summary>

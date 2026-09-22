@@ -15,37 +15,12 @@ namespace CutTheRopeDX.Framework.Helpers
     /// </summary>
     internal class GameObject : Animation
     {
-        /// <summary>
-        /// Creates a game object from the specified <paramref name="texture"/>.
-        /// </summary>
-        /// <param name="texture">Texture to create the object from.</param>
-        /// <returns>A new game object initialized with <paramref name="texture"/>.</returns>
-        private static GameObject GameObject_create(CTRTexture2D texture)
-        {
-            GameObject gameObject = new();
-            _ = gameObject.InitWithTexture(texture);
-            return gameObject;
-        }
-
-        /// <summary>
-        /// Creates a game object from the specified texture resource and quad index.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <param name="quadIndex">Quad index to draw.</param>
-        /// <returns>A new game object configured to draw the selected quad.</returns>
-        public static GameObject GameObject_createWithResIDQuad(string resourceName, int quadIndex)
-        {
-            GameObject gameObject = GameObject_create(Application.GetTexture(resourceName));
-            gameObject.SetDrawQuad(quadIndex);
-            return gameObject;
-        }
-
         /// <inheritdoc />
-        public override Image InitWithTexture(CTRTexture2D texture)
+        public override Image InitWithTexture(Texture2D texture)
         {
             if (base.InitWithTexture(texture) != null)
             {
-                bb = new CTRRectangle(0f, 0f, width, height);
+                bb = new Rectangle(0f, 0f, width, height);
                 rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
                 anchor = 18;
                 rotatedBB = false;
@@ -136,30 +111,16 @@ namespace CutTheRopeDX.Framework.Helpers
         }
 
         /// <summary>
-        /// Parses mover path and speed attributes from the XML element.
+        /// Parses the rotation and mover path attributes from level XML.
         /// </summary>
         /// <param name="xml">XML element containing mover attributes.</param>
         public virtual void ParseMover(XElement xml)
         {
             rotation = ParseFloatOrZero(xml.Attribute("angle")?.Value);
-            string pathString = xml.Attribute("path")?.Value ?? string.Empty;
-            if (pathString != null && pathString.Length != 0)
+            Mover parsed = Mover.FromXml(xml, Vect(x, y), rotation);
+            if (parsed != null)
             {
-                int moverCapacity = 100;
-                if (pathString[0] == 'R')
-                {
-                    moverCapacity = (ParseIntOrZero(pathString[2..]) / 2) + 1;
-                }
-                float moveSpeed = ParseFloatOrZero(xml.Attribute("moveSpeed")?.Value);
-                float rotateSpeed = ParseFloatOrZero(xml.Attribute("rotateSpeed")?.Value);
-                Mover parsedMover = new(moverCapacity, moveSpeed, rotateSpeed)
-                {
-                    angle_ = rotation
-                };
-                parsedMover.angle_initial = parsedMover.angle_;
-                parsedMover.SetPathFromStringandStart(pathString, Vect(x, y));
-                SetMover(parsedMover);
-                parsedMover.Start();
+                SetMover(parsed);
             }
         }
 
@@ -177,7 +138,7 @@ namespace CutTheRopeDX.Framework.Helpers
         /// </summary>
         public virtual void SetBBFromFirstQuad()
         {
-            bb = new CTRRectangle(MathF.Round(texture.quadOffsets[0].X), MathF.Round(texture.quadOffsets[0].Y), texture.quadRects[0].w, texture.quadRects[0].h);
+            bb = new Rectangle(MathF.Round(texture.quadOffsets[0].X), MathF.Round(texture.quadOffsets[0].Y), texture.quadRects[0].w, texture.quadRects[0].h);
             rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
         }
 
@@ -196,10 +157,10 @@ namespace CutTheRopeDX.Framework.Helpers
             Vector topRight = Vect(bb.x + bb.w, bb.y);
             Vector bottomRight = Vect(bb.x + bb.w, bb.y + bb.h);
             Vector bottomLeft = Vect(bb.x, bb.y + bb.h);
-            topLeft = VectRotateAround(topLeft, DEGREES_TO_RADIANS(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
-            topRight = VectRotateAround(topRight, DEGREES_TO_RADIANS(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
-            bottomRight = VectRotateAround(bottomRight, DEGREES_TO_RADIANS(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
-            bottomLeft = VectRotateAround(bottomLeft, DEGREES_TO_RADIANS(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
+            topLeft = VectRotateAround(topLeft, float.DegreesToRadians(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
+            topRight = VectRotateAround(topRight, float.DegreesToRadians(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
+            bottomRight = VectRotateAround(bottomRight, float.DegreesToRadians(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
+            bottomLeft = VectRotateAround(bottomLeft, float.DegreesToRadians(angle), (width / 2) + rotationCenterX, (height / 2) + rotationCenterY);
             rbb.tlX = topLeft.X;
             rbb.tlY = topLeft.Y;
             rbb.trX = topRight.X;
@@ -341,7 +302,7 @@ namespace CutTheRopeDX.Framework.Helpers
         /// <summary>
         /// Axis-aligned bounding box relative to the element origin.
         /// </summary>
-        public CTRRectangle bb;
+        public Rectangle bb;
 
         /// <summary>
         /// Rotated bounding box quad, updated when <see cref="rotatedBB"/> is <see langword="true"/>.

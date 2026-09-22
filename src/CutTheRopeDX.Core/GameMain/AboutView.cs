@@ -82,7 +82,7 @@ namespace CutTheRopeDX.GameMain
             Vector scroll = currentContainer.GetScroll();
             Vector maxScroll = currentContainer.GetMaxScroll();
             scroll.Y += 0.5f;
-            scroll.Y = Framework.Helpers.CTRMathHelper.FIT_TO_BOUNDARIES(scroll.Y, 0f, maxScroll.Y);
+            scroll.Y = Math.Clamp(scroll.Y, 0f, MathF.Max(0f, maxScroll.Y));
             currentContainer.SetScroll(scroll);
             return true;
         }
@@ -134,7 +134,7 @@ namespace CutTheRopeDX.GameMain
 
             // Fan work credit section
 
-            Image topLogo = Image.Image_createWithResID(Resources.Img.CutTheRopeDXLogo);
+            Image topLogo = Image.FromResource(Resources.Img.CutTheRopeDXLogo);
             _ = vBox.AddChild(topLogo);
 
             Text fanworkMain = CreateCenteredTextBlock(BuildFanworkMainText(), containerWidth, scale);
@@ -170,7 +170,7 @@ namespace CutTheRopeDX.GameMain
 
             // Original Zeptolab credit section
 
-            Image ZeptolabLogo = Image.Image_createWithResIDQuad(Resources.Img.MenuLogo, 1);
+            Image ZeptolabLogo = Image.FromResource(Resources.Img.MenuLogo, 1);
             _ = vBox.AddChild(ZeptolabLogo);
 
             string aboutText = ResolveVersionPlaceholder(
@@ -178,7 +178,7 @@ namespace CutTheRopeDX.GameMain
             Text aboutBody = CreateCenteredTextBlock(aboutText, containerWidth, scale);
             _ = vBox.AddChild(aboutBody);
 
-            Image bottomLogo = Image.Image_createWithResIDQuad(Resources.Img.MenuLogo, 2);
+            Image bottomLogo = Image.FromResource(Resources.Img.MenuLogo, 2);
             _ = vBox.AddChild(bottomLogo);
 
             string specialThanksText = Application.GetString("ABOUT_SPECIAL_THANKS");
@@ -248,7 +248,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRRectangle visible = snapshot.VisibleBounds;
+            Rectangle visible = snapshot.VisibleBounds;
 
             currentContainer.width = (int)ContainerWidth;
             currentContainer.height = (int)WindowHeight(visible);
@@ -260,10 +260,7 @@ namespace CutTheRopeDX.GameMain
             _ = (credits?.height = creditsExtent + (int)MathF.Round(ChromeReservation(snapshot)));
 
             Vector scroll = currentContainer.GetScroll();
-            scroll.Y = Framework.Helpers.CTRMathHelper.FIT_TO_BOUNDARIES(
-                scroll.Y,
-                0f,
-                currentContainer.GetMaxScroll().Y);
+            scroll.Y = Math.Clamp(scroll.Y, 0f, MathF.Max(0f, currentContainer.GetMaxScroll().Y));
             currentContainer.SetScroll(scroll);
         }
 
@@ -294,7 +291,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="visible">The logical region the viewport exposes.</param>
         /// <returns>The window height in logical units.</returns>
-        private static float WindowHeight(CTRRectangle visible)
+        private static float WindowHeight(Rectangle visible)
         {
             return visible.h - (WindowInset * 2f);
         }

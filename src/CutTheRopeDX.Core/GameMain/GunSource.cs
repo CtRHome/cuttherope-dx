@@ -2,7 +2,7 @@ using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Visual;
 
-using static CutTheRopeDX.Framework.Helpers.CTRMathHelper;
+using static CutTheRopeDX.Framework.Helpers.MathHelper;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -66,7 +66,7 @@ namespace CutTheRopeDX.GameMain
         {
             HasFired = true;
             Vector gunToCandy = VectSub(hookPosition, candyPosition);
-            InitialRotation = RADIANS_TO_DEGREES(VectAngleNormalized(gunToCandy))
+            InitialRotation = float.RadiansToDegrees(VectAngleNormalized(gunToCandy))
                 + DEG_90;
             CandyInitialRotation = candyRotation;
             CupRotation = InitialRotation;
@@ -83,7 +83,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             Vector gunToCandy = VectSub(hookPosition, candyPosition);
-            Arrow.rotation = RADIANS_TO_DEGREES(VectAngleNormalized(gunToCandy));
+            Arrow.rotation = float.RadiansToDegrees(VectAngleNormalized(gunToCandy));
         }
 
         /// <summary>Moves the fired cup with the candy it is stuck to.</summary>
@@ -99,7 +99,7 @@ namespace CutTheRopeDX.GameMain
             CupRotation = InitialRotation + candyRotation - CandyInitialRotation;
 
             if (Cup == null
-                || Cup.GetCurrentTimelineIndex() == Grab.GUN_CUP_DROP_AND_HIDE)
+                || Cup.CurrentTimelineIndex == Grab.GUN_CUP_DROP_AND_HIDE)
             {
                 return;
             }

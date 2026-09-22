@@ -4,6 +4,7 @@ using System.Linq;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 
@@ -63,7 +64,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns><see langword="true"/> when the bomb went off.</returns>
         private bool DetonateOnTouchingBody(CandyContext bombCtx, float delta)
         {
-            ConstraintedPoint bombPoint = bombCtx.WholeBody.Point;
+            ConstrainedPoint bombPoint = bombCtx.WholeBody.Point;
             foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Hazard))
             {
                 if (body.Owner.bomb != null)
@@ -90,7 +91,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns><see langword="true"/> when the bombs went off.</returns>
         private bool DetonateOnTouchingBomb(CandyContext bombCtx, float delta)
         {
-            ConstraintedPoint bombPoint = bombCtx.WholeBody.Point;
+            ConstrainedPoint bombPoint = bombCtx.WholeBody.Point;
             foreach (CandyContext otherCtx in LiveBombs().ToList())
             {
                 if (otherCtx == bombCtx)
@@ -114,7 +115,7 @@ namespace CutTheRopeDX.GameMain
         /// Brings a body to a dead stop where it is, clearing the Verlet history so the blast that
         /// follows is the only thing moving it.
         /// </summary>
-        private static void StopBodyAtImpact(ConstraintedPoint point)
+        private static void StopBodyAtImpact(ConstrainedPoint point)
         {
             point.v = vectZero;
             point.a = vectZero;
@@ -168,7 +169,7 @@ namespace CutTheRopeDX.GameMain
 
             Vector center = bombCtx.WholeBody.Point.pos;
             SpawnExplosionEffectAtXY(center.X, center.Y);
-            CTRSoundMgr.PlaySound(Resources.Snd.Explosion);
+            SoundMgr.PlaySound(Resources.Snd.Explosion);
 
             ApplyBlastAt(center, bombCtx, delta);
             ReleaseRopesForBody(bombCtx.WholeBody);
@@ -250,7 +251,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="y">World-space Y for the debris.</param>
         private void SpawnBombDebrisAtXY(float x, float y)
         {
-            Image grid = Image.Image_createWithResID(Resources.Img.ObjBomb);
+            Image grid = Image.FromResource(Resources.Img.ObjBomb);
             grid.DoRestoreCutTransparency();
             BombBreak debris = (BombBreak)new BombBreak().InitWithTotalParticlesandImageGrid(
                 BombDefinition.DebrisParticleCount, grid);

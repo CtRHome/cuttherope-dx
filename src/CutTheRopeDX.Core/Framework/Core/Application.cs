@@ -3,7 +3,6 @@ using System;
 using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Platform;
 using CutTheRopeDX.Framework.Visual;
-using CutTheRopeDX.GameMain;
 using CutTheRopeDX.Helpers;
 
 namespace CutTheRopeDX.Framework.Core
@@ -17,7 +16,7 @@ namespace CutTheRopeDX.Framework.Core
         /// Returns the shared preferences instance.
         /// </summary>
         /// <returns>Shared preferences instance.</returns>
-        public static CTRPreferences SharedPreferences()
+        public static Preferences SharedPreferences()
         {
             return prefs;
         }
@@ -26,7 +25,7 @@ namespace CutTheRopeDX.Framework.Core
         /// Returns the shared resource manager instance.
         /// </summary>
         /// <returns>Shared resource manager.</returns>
-        public static CTRResourceMgr SharedResourceMgr()
+        public static ResourceMgr SharedResourceMgr()
         {
             return resourceMgr;
         }
@@ -37,7 +36,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <returns>Shared root controller.</returns>
         public static RootController SharedRootController()
         {
-            root ??= new CTRRootController(null);
+            root ??= RootController.CreateGameRoot();
             return root;
         }
 
@@ -98,24 +97,6 @@ namespace CutTheRopeDX.Framework.Core
         }
 
         /// <summary>
-        /// Creates the rendering canvas used by the application.
-        /// </summary>
-        /// <returns>Initialized canvas instance.</returns>
-        public virtual GLCanvas CreateCanvas()
-        {
-            return new GLCanvas().InitWithFrame();
-        }
-
-        /// <summary>
-        /// Creates the resource manager used by the application.
-        /// </summary>
-        /// <returns>New resource manager instance.</returns>
-        public virtual CTRResourceMgr CreateResourceMgr()
-        {
-            return new CTRResourceMgr();
-        }
-
-        /// <summary>
         /// Creates the shared sound manager instance.
         /// </summary>
         /// <returns>New sound manager instance.</returns>
@@ -128,18 +109,9 @@ namespace CutTheRopeDX.Framework.Core
         /// Creates the preferences store used by the application.
         /// </summary>
         /// <returns>New preferences instance.</returns>
-        public virtual CTRPreferences CreatePreferences()
+        public virtual Preferences CreatePreferences()
         {
-            return new CTRPreferences();
-        }
-
-        /// <summary>
-        /// Creates the root controller that will own the active controller stack.
-        /// </summary>
-        /// <returns>New root controller instance.</returns>
-        public virtual RootController CreateRootController()
-        {
-            return new CTRRootController(null);
+            return new Preferences();
         }
 
         /// <summary>
@@ -152,20 +124,43 @@ namespace CutTheRopeDX.Framework.Core
             prefs = CreatePreferences();
             if (ApplicationSettings.GetBool(7))
             {
-                string text = Preferences.GetStringForKey("PREFS_LOCALE");
-                if (string.IsNullOrEmpty(text))
+                string locale = Preferences.GetStringForKey("PREFS_LOCALE");
+                if (string.IsNullOrEmpty(locale))
                 {
-                    text = LanguageHelper.ToCode(LanguageHelper.FromSystemCulture());
+                    locale = LanguageHelper.ToCode(LanguageHelper.FromSystemCulture());
                 }
-                appSettings.SetString(8, text);
+                appSettings.SetString(8, locale);
             }
             IS_IPAD = false;
             IS_RETINA = false;
-            root = CreateRootController();
+            root = RootController.CreateGameRoot();
             soundMgr = CreateSoundMgr();
             movieMgr = CreateMovieMgr();
             _canvas.touchDelegate = root;
             root.Activate();
+        }
+
+        /// <summary>
+        /// Saves preferences and suspends the root controller when the application loses focus.
+        /// </summary>
+        public static void ApplicationWillResignActive()
+        {
+            Preferences.RequestSave();
+            if (root != null && !root.IsSuspended())
+            {
+                root.Suspend();
+            }
+        }
+
+        /// <summary>
+        /// Resumes the root controller when the application becomes active again.
+        /// </summary>
+        public static void ApplicationDidBecomeActive()
+        {
+            if (root != null && root.IsSuspended())
+            {
+                root.Resume();
+            }
         }
 
         /// <summary>
@@ -195,7 +190,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <returns>Loaded texture resource.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="textureResourceName"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the texture could not be loaded.</exception>
-        internal static CTRTexture2D GetTexture(string textureResourceName)
+        internal static Texture2D GetTexture(string textureResourceName)
         {
             if (string.IsNullOrEmpty(textureResourceName))
             {
@@ -204,12 +199,12 @@ namespace CutTheRopeDX.Framework.Core
 
             object resource = SharedResourceMgr().LoadResource(textureResourceName, ResourceMgr.ResourceType.IMAGE);
 
-            if (resource is CTRTexture2D texture)
+            if (resource is Texture2D texture)
             {
                 return texture;
             }
 
-            string localizedName = CTRResourceMgr.HandleLocalizedResource(textureResourceName);
+            string localizedName = ResourceMgr.HandleLocalizedResource(textureResourceName);
             string resolvedName = string.Equals(textureResourceName, localizedName, StringComparison.Ordinal)
                 ? textureResourceName
                 : string.IsNullOrEmpty(localizedName)
@@ -240,12 +235,12 @@ namespace CutTheRopeDX.Framework.Core
         /// <summary>
         /// Shared preferences instance.
         /// </summary>
-        private static CTRPreferences prefs;
+        private static Preferences prefs;
 
         /// <summary>
         /// Shared resource manager instance.
         /// </summary>
-        private static readonly CTRResourceMgr resourceMgr = new();
+        private static readonly ResourceMgr resourceMgr = new();
 
         /// <summary>
         /// Shared root controller instance.
@@ -260,7 +255,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <summary>
         /// Shared rendering canvas instance.
         /// </summary>
-        private static readonly GLCanvas _canvas = new GLCanvas().InitWithFrame();
+        private static readonly GLCanvas _canvas = new();
 
         /// <summary>
         /// Shared sound manager instance.

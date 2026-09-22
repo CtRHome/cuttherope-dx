@@ -111,7 +111,7 @@ namespace CutTheRopeDX.GameMain
             FlashXmlTargetAnimationBackend.BuildRootTimelines(definition, animRoot, -1, -1);
             FlashXmlTargetAnimationBackend.PlayTimeline(animParts, 0);
             FlashXmlTargetAnimationBackend.PlayRootTimeline(animRoot, 0);
-            CTRSoundMgr.PlaySound(Resources.Snd.ZeptoLogoBubbles);
+            SoundMgr.PlaySound(Resources.Snd.ZeptoLogoBubbles);
             EnsureDisclaimerText();
 
             if (animRoot.GetTimeline(0) is { } rootTimeline)
@@ -129,14 +129,14 @@ namespace CutTheRopeDX.GameMain
         /// <param name="url">Movie URL reported by the movie manager, or <see langword="null"/> when loading starts directly.</param>
         public void MoviePlaybackFinished(string url)
         {
-            CTRResourceMgr ctrresourceMgr = Application.SharedResourceMgr();
-            ctrresourceMgr.resourcesDelegate = this;
-            ctrresourceMgr.InitLoading();
-            ctrresourceMgr.LoadPack(PackCommon);
-            ctrresourceMgr.LoadPack(PackCommonImages);
-            ctrresourceMgr.LoadPack(CTRRootController.PackMenu);
-            ctrresourceMgr.LoadPack(PackLocalizationMenu);
-            ctrresourceMgr.StartLoading();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
+            resourceMgr.resourcesDelegate = this;
+            resourceMgr.InitLoading();
+            resourceMgr.LoadPack(PackCommon);
+            resourceMgr.LoadPack(PackCommonImages);
+            resourceMgr.LoadPack(RootController.PackMenu);
+            resourceMgr.LoadPack(PackLocalizationMenu);
+            resourceMgr.StartLoading();
         }
 
         /// <inheritdoc />
@@ -166,7 +166,7 @@ namespace CutTheRopeDX.GameMain
             // frame that hands this controller over — after the bar had already reported 100%,
             // so it read as a freeze on a blank screen. Doing it here puts it under the bar,
             // which is still short of full and goes on animating while this returns.
-            ((CTRRootController)Application.SharedRootController()).PrebuildMenuControllers();
+            Application.SharedRootController().PrebuildMenuControllers();
             resourcesLoaded = true;
         }
 
@@ -175,7 +175,7 @@ namespace CutTheRopeDX.GameMain
         {
             if (currentPhase == Phase.Animating)
             {
-                CTRSoundMgr.StopSounds();
+                SoundMgr.StopSounds();
                 animFinished = true;
                 return true;
             }
@@ -219,7 +219,7 @@ namespace CutTheRopeDX.GameMain
             // The splash is a single stage centered on screen, so it measures against what the
             // viewport exposes rather than the fixed design size. The two are the same thing at
             // the design shape, and the stage sat off toward one corner at every other.
-            CTRRectangle visible = VisibleBounds;
+            Rectangle visible = VisibleBounds;
             SplashLayout layout = SplashLayout.For(visible, animStageWidth, animStageHeight);
             float scale = layout.Stage.w / animStageWidth;
 
@@ -377,7 +377,7 @@ namespace CutTheRopeDX.GameMain
                 switch (controller.currentPhase)
                 {
                     case Phase.Loading:
-                        CTRTexture2D barTex = Application.GetTexture(Resources.Img.ZeptoLabLogoLoading);
+                        Texture2D barTex = Application.GetTexture(Resources.Img.ZeptoLabLogoLoading);
                         float barW = barTex.quadRects[0].w;
                         float barH = barTex.quadRects[0].h;
                         float barX = (VisibleBounds.w - barW) / 2f;

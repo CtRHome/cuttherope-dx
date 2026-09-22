@@ -1,6 +1,8 @@
+using System;
+
 using CutTheRopeDX.Framework.Visual;
 
-using static CutTheRopeDX.Framework.Helpers.CTRMathHelper;
+using static CutTheRopeDX.Framework.Helpers.MathHelper;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -97,11 +99,11 @@ namespace CutTheRopeDX.GameMain
         {
             if (IsVertical)
             {
-                grab.y = FIT_TO_BOUNDARIES(worldY, MinValue, MaxValue);
+                grab.y = Math.Clamp(worldY, MinValue, MaxValue);
             }
             else
             {
-                grab.x = FIT_TO_BOUNDARIES(worldX, MinValue, MaxValue);
+                grab.x = Math.Clamp(worldX, MinValue, MaxValue);
             }
         }
 

@@ -116,11 +116,6 @@ namespace CutTheRopeDX.Framework.Visual
         private Vector lastPoint;
 
         /// <summary>
-        /// Most recent immutable snapshot of sampled trace points and sprites.
-        /// </summary>
-        private FingerTraceSnapshot snapshot = new([], []);
-
-        /// <summary>
         /// Gets a value indicating whether the trace still has visible geometry or live particles.
         /// </summary>
         public bool IsAlive => isActive || segments.Count > 0 || HasLiveParticles;
@@ -182,7 +177,7 @@ namespace CutTheRopeDX.Framework.Visual
             hasLastPoint = false;
             segments.Clear();
             ResetCore();
-            snapshot = new([], []);
+            Snapshot = new([], []);
         }
 
         /// <summary>
@@ -218,13 +213,13 @@ namespace CutTheRopeDX.Framework.Visual
         /// </summary>
         public virtual void Draw()
         {
-            if (snapshot.Sprites.Count == 0)
+            if (Snapshot.Sprites.Count == 0)
             {
                 return;
             }
 
             FingerTraceBlendMode? currentBlendMode = null;
-            foreach (FingerTraceSpritePose sprite in snapshot.Sprites)
+            foreach (FingerTraceSpritePose sprite in Snapshot.Sprites)
             {
                 if (sprite.Alpha <= 0f)
                 {
@@ -253,11 +248,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <summary>
         /// Returns the most recently built immutable snapshot for testing or preview use.
         /// </summary>
-        /// <returns>The latest immutable trace snapshot.</returns>
-        public FingerTraceSnapshot GetSnapshot()
-        {
-            return snapshot;
-        }
+        public FingerTraceSnapshot Snapshot { get; private set; } = new([], []);
 
         /// <summary>
         /// Adds a new trace segment with the default CTR2 lifetime used by the base class.
@@ -346,7 +337,7 @@ namespace CutTheRopeDX.Framework.Visual
         {
             if (!imageCache.TryGetValue(resourceName, out Image image))
             {
-                image = Image.Image_createWithResID(resourceName);
+                image = Image.FromResource(resourceName);
                 image.DoRestoreCutTransparency();
                 image.anchor = CENTER;
                 imageCache[resourceName] = image;
@@ -363,7 +354,7 @@ namespace CutTheRopeDX.Framework.Visual
             List<Vector> sampledPoints = [];
             List<FingerTraceSpritePose> sprites = [];
             BuildSnapshot(sampledPoints, sprites);
-            snapshot = new([.. sampledPoints], [.. sprites]);
+            Snapshot = new([.. sampledPoints], [.. sprites]);
         }
 
         /// <summary>

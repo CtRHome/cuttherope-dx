@@ -10,13 +10,13 @@ namespace CutTheRopeDX.GameMain
     /// Time Travel axe blade. It is a candy-like physics body for ropes, transport, and rockets,
     /// but its gameplay role is a hazard and chain cutter.
     /// </summary>
-    internal sealed class Axe : CTRGameObject, ITransporterItem, ITransporterBindAware
+    internal sealed class Axe : GameObject, ITransporterItem, ITransporterBindAware
     {
         private const int BaseQuad = 0;
         private const int BladeQuad = 1;
         private const int PivotQuad = 2;
 
-        public readonly ConstraintedPoint constraint;
+        public readonly ConstrainedPoint constraint;
 
         public readonly string axeNumber;
 
@@ -32,22 +32,22 @@ namespace CutTheRopeDX.GameMain
         /// <summary>Generic ghost-bubble overlay shown while this axe is carried by a ghost bubble.</summary>
         public readonly CandyInGhostBubbleAnimation ghostBubbleAnimation;
 
-        public Axe(ConstraintedPoint constraint, string axeNumber)
+        public Axe(ConstrainedPoint constraint, string axeNumber)
         {
             this.constraint = constraint;
             this.axeNumber = axeNumber ?? string.Empty;
 
-            baseSprite = GameObject_createWithResIDQuad(Resources.Img.ObjAxe, BaseQuad);
+            baseSprite = InitializeFromResource(new GameObject(), Resources.Img.ObjAxe, BaseQuad);
             baseSprite.anchor = baseSprite.parentAnchor = 18;
             baseSprite.blendingMode = 1;
             _ = AddChild(baseSprite);
 
-            bladeSprite = GameObject_createWithResIDQuad(Resources.Img.ObjAxe, BladeQuad);
+            bladeSprite = InitializeFromResource(new GameObject(), Resources.Img.ObjAxe, BladeQuad);
             bladeSprite.anchor = bladeSprite.parentAnchor = 18;
             bladeSprite.blendingMode = 1;
             _ = AddChild(bladeSprite);
 
-            pivotSprite = GameObject_createWithResIDQuad(Resources.Img.ObjAxe, PivotQuad);
+            pivotSprite = InitializeFromResource(new GameObject(), Resources.Img.ObjAxe, PivotQuad);
             pivotSprite.anchor = pivotSprite.parentAnchor = 18;
             pivotSprite.blendingMode = 1;
             _ = AddChild(pivotSprite);
@@ -63,7 +63,7 @@ namespace CutTheRopeDX.GameMain
             width = baseSprite.width;
             height = baseSprite.height;
             anchor = parentAnchor = 18;
-            bb = new CTRRectangle(0f, 0f, width, height);
+            bb = new Rectangle(0f, 0f, width, height);
             rbb = new Quad2D(bb.x, bb.y, bb.w, bb.h);
             rotatedBB = false;
             topLeftCalculated = false;

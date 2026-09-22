@@ -2,6 +2,7 @@ using System.Xml.Linq;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Visual;
 using CutTheRopeDX.Helpers;
 
@@ -36,7 +37,7 @@ namespace CutTheRopeDX.GameMain.Tutorials
         /// <param name="node">Element carrying <c>path</c>, <c>moveSpeed</c> and <c>rotateSpeed</c>.</param>
         internal void ParseMover(XElement node)
         {
-            mover = CTRMover.FromXml(node, Vect(x, y), rotation);
+            mover = Mover.FromXml(node, Vect(x, y), rotation);
         }
 
         /// <inheritdoc />
@@ -54,11 +55,11 @@ namespace CutTheRopeDX.GameMain.Tutorials
             rotation = mover.angle_;
         }
 
-        private CTRMover mover;
+        private Mover mover;
     }
 
     /// <summary>Image visual for an XML-authored tutorial prompt.</summary>
-    internal sealed class TutorialSign : CTRGameObject
+    internal sealed class TutorialSign : GameObject
     {
         /// <summary>
         /// Whether a quad's art is drawn in its own colors. Every quad below this one is black ink
@@ -79,7 +80,7 @@ namespace CutTheRopeDX.GameMain.Tutorials
         /// <param name="x">World-space X position.</param>
         /// <param name="y">World-space Y position.</param>
         /// <returns>The initialized tutorial sign.</returns>
-        internal static TutorialSign Create(CTRTexture2D texture, int quad, float x, float y)
+        internal static TutorialSign Create(Texture2D texture, int quad, float x, float y)
         {
             TutorialSign sign = new();
             _ = sign.InitWithTexture(texture);
@@ -103,7 +104,7 @@ namespace CutTheRopeDX.GameMain.Tutorials
         /// <inheritdoc />
         public BaseElement CreateSign(XElement node, int quad, float x, float y, RGBAColor? color)
         {
-            CTRTexture2D atlas = Application.GetTexture(Resources.Img.TutorialSigns);
+            Texture2D atlas = Application.GetTexture(Resources.Img.TutorialSigns);
 
             // A recolored frame stands alone, so it is drawn as its own first and only quad.
             return color is null

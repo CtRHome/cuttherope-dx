@@ -1,7 +1,5 @@
 using System;
 
-using CutTheRopeDX.Framework.Core;
-
 namespace CutTheRopeDX.Framework.Visual
 {
     /// <summary>
@@ -10,7 +8,7 @@ namespace CutTheRopeDX.Framework.Visual
     internal sealed class HorizontallyTiledImage : Image
     {
         /// <inheritdoc />
-        public override Image InitWithTexture(CTRTexture2D t)
+        public override Image InitWithTexture(Texture2D t)
         {
             if (base.InitWithTexture(t) != null)
             {
@@ -38,13 +36,13 @@ namespace CutTheRopeDX.Framework.Visual
             }
             else
             {
-                CTRRectangle r = texture.quadRects[tiles[0]];
-                CTRRectangle r2 = texture.quadRects[tiles[2]];
-                r.w = MathF.Min(r.w, width / 2f);
-                r2.w = MathF.Min(r2.w, width - r.w);
-                r2.x += texture.quadRects[tiles[2]].w - r2.w;
-                DrawHelper.DrawImagePart(texture, r, drawX, drawY + offsets[0]);
-                DrawHelper.DrawImagePart(texture, r2, drawX + r.w, drawY + offsets[2]);
+                Rectangle leftPart = texture.quadRects[tiles[0]];
+                Rectangle rightPart = texture.quadRects[tiles[2]];
+                leftPart.w = MathF.Min(leftPart.w, width / 2f);
+                rightPart.w = MathF.Min(rightPart.w, width - leftPart.w);
+                rightPart.x += texture.quadRects[tiles[2]].w - rightPart.w;
+                DrawHelper.DrawImagePart(texture, leftPart, drawX, drawY + offsets[0]);
+                DrawHelper.DrawImagePart(texture, rightPart, drawX + leftPart.w, drawY + offsets[2]);
             }
             PostDraw();
         }
@@ -67,26 +65,6 @@ namespace CutTheRopeDX.Framework.Visual
             offsets[0] = (height - h) / 2f;
             offsets[1] = (height - h2) / 2f;
             offsets[2] = (height - h3) / 2f;
-        }
-
-        /// <summary>
-        /// Creates a horizontally tiled image from the specified texture.
-        /// </summary>
-        /// <param name="t">Texture to use.</param>
-        /// <returns>A new horizontally tiled image instance.</returns>
-        public static HorizontallyTiledImage HorizontallyTiledImage_create(CTRTexture2D t)
-        {
-            return (HorizontallyTiledImage)new HorizontallyTiledImage().InitWithTexture(t);
-        }
-
-        /// <summary>
-        /// Creates a tiled image from the specified texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <returns>A new horizontally tiled image initialized from the requested resource.</returns>
-        public static HorizontallyTiledImage HorizontallyTiledImage_createWithResID(string resourceName)
-        {
-            return HorizontallyTiledImage_create(Application.GetTexture(resourceName));
         }
 
         /// <summary>

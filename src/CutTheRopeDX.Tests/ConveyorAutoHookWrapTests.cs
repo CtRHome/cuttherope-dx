@@ -3,7 +3,7 @@ using CutTheRopeDX.GameMain;
 
 using Xunit;
 
-using static CutTheRopeDX.Framework.Helpers.CTRMathHelper;
+using static CutTheRopeDX.Framework.Helpers.MathHelper;
 
 namespace CutTheRopeDX.Tests
 {
@@ -12,7 +12,7 @@ namespace CutTheRopeDX.Tests
         [Fact]
         public void DidMoveToOtherSideMovesAutoAttachedRopeWithHook()
         {
-            ConstraintedPoint candy = new()
+            ConstrainedPoint candy = new()
             {
                 pos = Vect(100f, 160f),
             };

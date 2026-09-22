@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using CutTheRopeDX.Framework.Platform;
@@ -10,7 +11,7 @@ namespace CutTheRopeDX.Framework.Core
     /// and manages screen-transition capture/drawing.
     /// </summary>
     /// <param name="parent">Parent controller reference passed to the base controller.</param>
-    internal class RootController(ViewController parent) : ViewController(parent)
+    internal partial class RootController(ViewController parent) : ViewController(parent)
     {
         /// <summary>
         /// Advances the active controller and applies any pending deactivation requests.
@@ -55,7 +56,7 @@ namespace CutTheRopeDX.Framework.Core
             {
                 return;
             }
-            Application.SharedCanvas().BeforeRender();
+            GLCanvas.BeforeRender();
             Renderer.PushMatrix();
             ApplyLandscape();
             if (transitionTime == -1f)
@@ -76,7 +77,6 @@ namespace CutTheRopeDX.Framework.Core
                 }
             }
             Renderer.PopMatrix();
-            GLCanvas.AfterRender();
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace CutTheRopeDX.Framework.Core
             Renderer.Enable(Renderer.GL_TEXTURE_2D);
             Renderer.Enable(Renderer.GL_BLEND);
             Renderer.SetBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONEMINUSSRCALPHA);
-            Application.SharedCanvas().SetDefaultRealProjection();
+            GLCanvas.SetDefaultProjection();
             int transitionType = viewTransition;
             if (transitionType - 4 <= 1)
             {
@@ -172,12 +172,6 @@ namespace CutTheRopeDX.Framework.Core
             Renderer.Disable(Renderer.GL_BLEND);
         }
 
-        /// <inheritdoc />
-        public override void Activate()
-        {
-            base.Activate();
-        }
-
         /// <summary>
         /// Called when a <paramref name="controller"/> becomes active and should become the current routed controller.
         /// </summary>
@@ -232,7 +226,7 @@ namespace CutTheRopeDX.Framework.Core
         {
             if (viewTransition != -1 && previousView != null)
             {
-                Application.SharedCanvas().SetDefaultProjection();
+                GLCanvas.SetDefaultProjection();
                 Renderer.SetClearColor(Color.Black);
                 Renderer.Clear(0);
                 BeginTransition();
@@ -254,7 +248,7 @@ namespace CutTheRopeDX.Framework.Core
             previousView = view;
             if (viewTransition != -1 && previousView != null)
             {
-                Application.SharedCanvas().SetDefaultProjection();
+                GLCanvas.SetDefaultProjection();
                 Renderer.SetClearColor(Color.Black);
                 Renderer.Clear(0);
                 ApplyLandscape();
@@ -289,7 +283,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <summary>
         /// Gets how far the current transition has run, from 0 at its start to 1 at its end.
         /// </summary>
-        internal float TransitionProgress => MIN(1, (transitionDelay - (transitionTime - lastTime)) / transitionDelay);
+        internal float TransitionProgress => Math.Min(1, (transitionDelay - (transitionTime - lastTime)) / transitionDelay);
 
         /// <summary>
         /// Releases the captured transition frames.
@@ -342,11 +336,14 @@ namespace CutTheRopeDX.Framework.Core
         }
 
         /// <summary>
-        /// Resumes input routing and other root-controller activity.
+        /// Resumes input routing and other root-controller activity, unless the Crystal overlay is active.
         /// </summary>
         public virtual void Resume()
         {
-            suspended = false;
+            if (!inCrystal)
+            {
+                suspended = false;
+            }
         }
 
         /// <inheritdoc />
@@ -511,12 +508,12 @@ namespace CutTheRopeDX.Framework.Core
         /// <summary>
         /// Captured image of the previous view during transitions.
         /// </summary>
-        private CTRTexture2D prevScreenImage;
+        private Texture2D prevScreenImage;
 
         /// <summary>
         /// Captured image of the next view during transitions.
         /// </summary>
-        private CTRTexture2D nextScreenImage;
+        private Texture2D nextScreenImage;
 
         // private readonly Grabber screenGrabber = new();
 

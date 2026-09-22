@@ -46,7 +46,7 @@ namespace CutTheRopeDX.GameMain
         {
             rotatingSegment = null;
             State = MechanicalHandState.Idle;
-            cPoint = new ConstraintedPoint
+            cPoint = new ConstrainedPoint
             {
                 disableGravity = true
             };
@@ -63,7 +63,7 @@ namespace CutTheRopeDX.GameMain
             // which puts the candy anchor far away and prevents hand grabs.
             if (VectLength(offset) > 80f)
             {
-                CTRTexture2D texture = Application.GetTexture(Resources.Img.ObjRoboHand);
+                Texture2D texture = Application.GetTexture(Resources.Img.ObjRoboHand);
                 if (texture != null && texture.preCutSize.X > 0f && texture.preCutSize.Y > 0f)
                 {
                     const float legacyAnchorX = 51f / 96f;
@@ -136,7 +136,7 @@ namespace CutTheRopeDX.GameMain
             for (int i = 0; i < index; i++)
             {
                 angle += SegmentAtIndex(i).rotation;
-                position = VectAdd(position, VectRotate(SegmentAtIndex(i).endPosition, DEGREES_TO_RADIANS(angle)));
+                position = VectAdd(position, VectRotate(SegmentAtIndex(i).endPosition, float.DegreesToRadians(angle)));
             }
             return position;
         }
@@ -154,10 +154,10 @@ namespace CutTheRopeDX.GameMain
             {
                 MechanicalHandSegment segment = (MechanicalHandSegment)element;
                 angle += element.rotation;
-                position = VectAdd(position, VectRotate(segment.endPosition, DEGREES_TO_RADIANS(angle)));
+                position = VectAdd(position, VectRotate(segment.endPosition, float.DegreesToRadians(angle)));
                 element = element.GetChild(0);
             }
-            return VectAdd(position, VectRotate(clawOffset, DEGREES_TO_RADIANS(angle)));
+            return VectAdd(position, VectRotate(clawOffset, float.DegreesToRadians(angle)));
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ namespace CutTheRopeDX.GameMain
         private Vector clawOffset;
 
         /// <summary>Lightweight constrained point used to attach candy to the claw.</summary>
-        public ConstraintedPoint cPoint;
+        public ConstrainedPoint cPoint;
 
         /// <summary>Ordered mechanical hand segment chain.</summary>
         public List<MechanicalHandSegment> segments;

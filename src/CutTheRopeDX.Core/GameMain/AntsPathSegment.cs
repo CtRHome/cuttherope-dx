@@ -1,3 +1,5 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 
@@ -72,7 +74,7 @@ namespace CutTheRopeDX.GameMain
 
             speed = VectMult(direction, speedMagnitude);
 
-            float rawAngle = RADIANS_TO_DEGREES(VectAngleNormalized(direction));
+            float rawAngle = float.RadiansToDegrees(VectAngleNormalized(direction));
             angleDeg = AngleTo0_360(rawAngle);
 
             internalHalfHeight = AntConveyorLogic.GetSegmentHalfHeight(deviceScale);
@@ -95,7 +97,7 @@ namespace CutTheRopeDX.GameMain
             }
 
             float t = VectDot(VectSub(p, a), ab) / den;
-            t = FIT_TO_BOUNDARIES(t, 0f, 1f);
+            t = Math.Clamp(t, 0f, 1f);
 
             return new Vector(a.X + (ab.X * t), a.Y + (ab.Y * t));
         }

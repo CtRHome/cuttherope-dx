@@ -6,20 +6,18 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using CutTheRopeDX.Commons;
-using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Diagnostics;
 using CutTheRopeDX.Framework.Platform;
+using CutTheRopeDX.GameMain;
 using CutTheRopeDX.Helpers;
 
 using Microsoft.Extensions.Logging;
 
-namespace CutTheRopeDX.GameMain
+namespace CutTheRopeDX.Framework.Core
 {
-    /// <summary>
-    /// Top-level game controller that manages the startup → menu → loading → gameplay lifecycle,
-    /// resource loading/unloading across transitions, and background prefetch of box-level resources.
-    /// </summary>
-    internal sealed class CTRRootController : RootController
+    // Game lifecycle: startup → menu → loading → gameplay, resource loading/unloading across
+    // transitions, and background prefetch of box-level resources.
+    internal partial class RootController
     {
         /// <summary>
         /// Stub for analytics event logging.
@@ -33,40 +31,14 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>
-        /// Stores the currently prepared gameplay map XML on the root controller.
-        /// </summary>
-        /// <param name="map">The parsed map XML that should be treated as current.</param>
-        public void SetMap(XElement map)
-        {
-            loadedMap = map;
-        }
-
-        /// <summary>
         /// Gets the parsed gameplay map XML currently cached on the root controller.
         /// </summary>
-        /// <returns>The current map XML, or <see langword="null"/> when no map is loaded.</returns>
-        public XElement GetMap()
-        {
-            return loadedMap;
-        }
+        public XElement Map { get; set; }
 
         /// <summary>
         /// Gets the current map filename tracked for reload and transition flows.
         /// </summary>
-        /// <returns>The current map filename, or <see langword="null"/> when none has been assigned.</returns>
-        public string GetMapName()
-        {
-            return mapName;
-        }
-
-        /// <summary>
-        /// Stores the current map filename tracked for reload and transition flows.
-        /// </summary>
-        /// <param name="map">The map filename to persist on the root controller.</param>
-        public void SetMapName(string map)
-        {
-            mapName = map;
-        }
+        public string MapName { get; set; }
 
         /// <summary>
         /// Synchronously ensures the resources required by a map are loaded, then stores the map as current.
@@ -86,21 +58,21 @@ namespace CutTheRopeDX.GameMain
             string[] levelResources = LevelResourceScanner.GetRequiredResources(map);
             TrackSessionResources(levelResources);
 
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             resourceMgr.InitLoading();
             resourceMgr.LoadPack(levelResources);
             resourceMgr.LoadImmediately();
 
-            SetMap(map);
+            Map = map;
             if (!string.IsNullOrWhiteSpace(newMapName))
             {
-                SetMapName(newMapName);
+                MapName = newMapName;
             }
 
             double elapsedMs = Stopwatch.GetElapsedTime(startedTicks).TotalMilliseconds;
             ILogger logger = Log.For(LogCategories.ContentXml);
             string memory = MemoryReport.Describe();
-            CTRRootControllerLog.LevelReady(logger, pack, level, newMapName, elapsedMs, memory);
+            RootControllerLog.LevelReady(logger, Pack, Level, newMapName, elapsedMs, memory);
 
             StartBoxResourceScanIfNeeded();
             QueueOrPollBoxPrefetch();
@@ -116,29 +88,35 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>Gets the current pack (box group) index.</summary>
-        /// <returns>The zero-based pack index.</returns>
-        public int GetPack()
+        public int Pack { get; set; }
+
+        /// <summary>
+        /// Creates the game's root controller with startup resources loaded and the startup child
+        /// controller (or, for a custom-level session, the loading controller) added.
+        /// </summary>
+        /// <returns>The new root controller.</returns>
+        public static RootController CreateGameRoot()
         {
-            return pack;
+            RootController root = new(null);
+            root.LoadStartup();
+            return root;
         }
 
         /// <summary>
-        /// Initialises the root controller, loads startup resources, and adds the startup child controller.
+        /// Loads startup resources and adds the first child controller.
         /// </summary>
-        /// <param name="parent">Parent view controller that hosts this root controller.</param>
-        public CTRRootController(ViewController parent)
-            : base(parent)
+        private void LoadStartup()
         {
-            loadedMap = null;
-            CTRResourceMgr ctrresourceMgr = Application.SharedResourceMgr();
-            ctrresourceMgr.InitLoading();
-            ctrresourceMgr.LoadPack(PackStartup);
-            ctrresourceMgr.LoadImmediately();
+            Map = null;
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
+            resourceMgr.InitLoading();
+            resourceMgr.LoadPack(PackStartup);
+            resourceMgr.LoadImmediately();
 
             if (CustomLevelSession.IsActive)
             {
-                pack = 0;
-                level = 0;
+                Pack = 0;
+                Level = 0;
                 LoadingController customLoading = new(this);
                 AddChildwithID(customLoading, 2);
                 viewTransition = -1;
@@ -153,7 +131,7 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public override void Activate()
         {
-            _ = CTRPreferences.IsFirstLaunch();
+            _ = Preferences.IsFirstLaunch();
             base.Activate();
 
             if (CustomLevelSession.IsActive)
@@ -168,31 +146,26 @@ namespace CutTheRopeDX.GameMain
             // A priming draw outside the draw loop; headless runs have no device to draw with.
             if (Renderer.IsAvailable)
             {
-                Application.SharedCanvas().BeforeRender();
+                GLCanvas.BeforeRender();
                 ActiveChild().ActiveView().Draw();
-                GLCanvas.AfterRender();
             }
         }
 
         /// <summary>
         /// Gets the resources loaded for the current gameplay session.
         /// </summary>
-        /// <returns>The set of resource identifiers tracked for this session.</returns>
-        public ISet<string> GetSessionResources()
-        {
-            return sessionResources;
-        }
+        public ISet<string> SessionResources => sessionResources;
 
         /// <summary>
         /// Frees the previous level's resources, loads the edited level's resources through the
         /// loading screen, and re-enters gameplay.
         /// </summary>
         /// <param name="resourceMgr">Shared resource manager.</param>
-        private void ReloadCustomLevelThroughLoadingScreen(CTRResourceMgr resourceMgr)
+        private void ReloadCustomLevelThroughLoadingScreen(ResourceMgr resourceMgr)
         {
             DeleteChild(3);
 
-            string[] levelResources = LevelResourceScanner.GetRequiredResources(loadedMap);
+            string[] levelResources = LevelResourceScanner.GetRequiredResources(Map);
             resourceMgr.FreePack([.. sessionResources]);
             sessionResources.Clear();
             TrackSessionResources(levelResources);
@@ -202,8 +175,8 @@ namespace CutTheRopeDX.GameMain
             resourceMgr.LoadPack(levelResources);
             resourceMgr.StartLoading();
             ILogger logger = Log.For(LogCategories.ContentXml);
-            string mapName = GetMapName();
-            CTRRootControllerLog.LevelLoadStarted(logger, pack, level, mapName, levelResources.Length);
+            string mapName = MapName;
+            RootControllerLog.LevelLoadStarted(logger, Pack, Level, mapName, levelResources.Length);
             ((LoadingController)GetChild(2)).nextController = 0;
             ActivateChild(2);
         }
@@ -213,20 +186,20 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void BeginCustomLevelLoad()
         {
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             resourceMgr.resourcesDelegate = (LoadingController)GetChild(2);
             ResetGameplayResourceSession();
             EnsureCurrentMapLoaded();
-            string[] levelResources = LevelResourceScanner.GetRequiredResources(loadedMap);
+            string[] levelResources = LevelResourceScanner.GetRequiredResources(Map);
             TrackSessionResources(levelResources);
             resourceMgr.InitLoading();
             resourceMgr.LoadPack(PackGame);
-            resourceMgr.LoadPack(PackConfig.GetBoxBackgrounds(pack));
+            resourceMgr.LoadPack(PackConfig.GetBoxBackgrounds(Pack));
             resourceMgr.LoadPack(levelResources);
             resourceMgr.StartLoading();
             ILogger logger = Log.For(LogCategories.ContentXml);
-            string mapName = GetMapName();
-            CTRRootControllerLog.LevelLoadStarted(logger, pack, level, mapName, levelResources.Length);
+            string mapName = MapName;
+            RootControllerLog.LevelLoadStarted(logger, Pack, Level, mapName, levelResources.Length);
             ((LoadingController)GetChild(2)).nextController = 0;
             ActivateChild(2);
         }
@@ -234,7 +207,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>Removes the menu child controller and frees menu resources.</summary>
         public void DeleteMenu()
         {
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             DeleteChild(1);
             Application.SharedMovieMgr().delegateMovieMgrDelegate = null;
             resourceMgr.FreePack(PackMenu);
@@ -257,40 +230,25 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <inheritdoc />
-        public override void Suspend()
-        {
-            suspended = true;
-        }
-
-        /// <inheritdoc />
-        public override void Resume()
-        {
-            if (!inCrystal)
-            {
-                suspended = false;
-            }
-        }
-
-        /// <inheritdoc />
         public override void OnChildDeactivated(int n)
         {
             base.OnChildDeactivated(n);
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             switch (n)
             {
                 case 0:
                     {
                         SetViewTransition(4);
                         PrebuildMenuControllers();
-                        LoadingController c2 = prebuiltLoading;
+                        LoadingController loading = prebuiltLoading;
                         prebuiltLoading = null;
-                        AddChildwithID(c2, 2);
-                        MenuController menuController2 = prebuiltMenu;
+                        AddChildwithID(loading, 2);
+                        MenuController menu = prebuiltMenu;
                         prebuiltMenu = null;
-                        AddChildwithID(menuController2, 1);
+                        AddChildwithID(menu, 1);
                         DeleteChild(0);
                         resourceMgr.FreePack(PackStartup);
-                        menuController2.viewToShow = 0;
+                        menu.viewToShow = 0;
                         if (Preferences.GetBooleanForKey("PREFS_GAME_CENTER_ENABLED"))
                         {
                             EnableGameCenter();
@@ -304,7 +262,7 @@ namespace CutTheRopeDX.GameMain
                             AndroidAPI.DisableBanners();
                         }
                         ILogger logger = Log.For(LogCategories.Application);
-                        CTRRootControllerLog.ShowingMenu(logger);
+                        RootControllerLog.ShowingMenu(logger);
                         ActivateChild(1);
                         //Show menu presence after loading screen
                         PlatformServices.RichPresence?.MenuPresence();
@@ -316,12 +274,12 @@ namespace CutTheRopeDX.GameMain
                         resourceMgr.resourcesDelegate = (LoadingController)GetChild(2);
                         ResetGameplayResourceSession();
                         EnsureCurrentMapLoaded();
-                        string[] levelResources = LevelResourceScanner.GetRequiredResources(loadedMap);
+                        string[] levelResources = LevelResourceScanner.GetRequiredResources(Map);
                         TrackSessionResources(levelResources);
                         StartBoxResourceScanIfNeeded();
                         resourceMgr.InitLoading();
                         resourceMgr.LoadPack(PackGame);
-                        resourceMgr.LoadPack(PackConfig.GetBoxBackgrounds(pack));
+                        resourceMgr.LoadPack(PackConfig.GetBoxBackgrounds(Pack));
                         resourceMgr.LoadPack(levelResources);
                         resourceMgr.StartLoading();
                         ((LoadingController)GetChild(2)).nextController = 0;
@@ -335,12 +293,12 @@ namespace CutTheRopeDX.GameMain
                         if (nextController == 0)
                         {
                             SetShowGreeting(true);
-                            GameController c3 = new(this);
-                            AddChildwithID(c3, 3);
+                            GameController game = new(this);
+                            AddChildwithID(game, 3);
                             ActivateChild(3);
                             ILogger gameBuildLogger = Log.For(LogCategories.Application);
                             double gameBuildMs = Stopwatch.GetElapsedTime(buildStartedTicks).TotalMilliseconds;
-                            CTRRootControllerLog.ControllerBuilt(gameBuildLogger, "game", gameBuildMs);
+                            RootControllerLog.ControllerBuilt(gameBuildLogger, "game", gameBuildMs);
                             QueueOrPollBoxPrefetch();
                             return;
                         }
@@ -348,14 +306,14 @@ namespace CutTheRopeDX.GameMain
                         {
                             return;
                         }
-                        MenuController menuController3 = new(this);
-                        AddChildwithID(menuController3, 1);
+                        MenuController menu = new(this);
+                        AddChildwithID(menu, 1);
                         // A menu opening on level select shows the current box's cover at once. That
                         // cover is still loaded, from before the level or from the menu's own batch,
                         // so freeing it here would only have the menu decode it again in the frame
                         // that builds it.
-                        int keptCoverPack = nextController is 2 or 4 ? pack : -1;
-                        int packCount = CTRPreferences.GetPacksCount();
+                        int keptCoverPack = nextController is 2 or 4 ? Pack : -1;
+                        int packCount = Preferences.GetPacksCount();
                         List<string[]> covers = [];
                         for (int i = 0; i < packCount; i++)
                         {
@@ -371,24 +329,24 @@ namespace CutTheRopeDX.GameMain
                         }
                         if (nextController == 1)
                         {
-                            menuController3.viewToShow = 0;
+                            menu.viewToShow = 0;
                         }
                         if (nextController is 2 or 4)
                         {
-                            menuController3.viewToShow = 6;
+                            menu.viewToShow = 6;
                         }
                         if (nextController == 3)
                         {
-                            menuController3.viewToShow = pack < CTRPreferences.GetPacksCount() - 1 ? 5 : (PackConfig.OutroVideo != null ? 7 : 5);
+                            menu.viewToShow = Pack < Preferences.GetPacksCount() - 1 ? 5 : (PackConfig.OutroVideo != null ? 7 : 5);
                         }
                         ActivateChild(1);
                         if (nextController == 3)
                         {
-                            menuController3.ShowNextPack();
+                            menu.ShowNextPack();
                         }
                         ILogger menuBuildLogger = Log.For(LogCategories.Application);
                         double menuBuildMs = Stopwatch.GetElapsedTime(buildStartedTicks).TotalMilliseconds;
-                        CTRRootControllerLog.ControllerBuilt(menuBuildLogger, "menu", menuBuildMs);
+                        RootControllerLog.ControllerBuilt(menuBuildLogger, "menu", menuBuildMs);
                         return;
                     }
                 case 3:
@@ -410,7 +368,7 @@ namespace CutTheRopeDX.GameMain
                             DeleteChild(3);
                             List<string[]> gameplayPacks = [PackGame, [.. sessionResources]];
                             sessionResources.Clear();
-                            int packCount = CTRPreferences.GetPacksCount();
+                            int packCount = Preferences.GetPacksCount();
                             for (int i = 0; i < packCount; i++)
                             {
                                 gameplayPacks.Add(PackConfig.GetBoxBackgrounds(i));
@@ -425,7 +383,7 @@ namespace CutTheRopeDX.GameMain
                                 // The menu opens on level select, which shows this box's cover at
                                 // once. Loading it with the menu keeps it out of the frame that
                                 // builds the menu; one still loaded from before costs nothing.
-                                resourceMgr.LoadPack(PackConfig.GetBoxCovers(pack));
+                                resourceMgr.LoadPack(PackConfig.GetBoxCovers(Pack));
                             }
                             resourceMgr.StartLoading();
                             LoadingController loadingController = (LoadingController)GetChild(2);
@@ -447,8 +405,8 @@ namespace CutTheRopeDX.GameMain
             if (disposing)
             {
                 StopGameplayPrefetch();
-                loadedMap = null;
-                mapName = null;
+                Map = null;
+                MapName = null;
             }
             base.Dispose(disposing);
         }
@@ -474,7 +432,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="b">Whether the Crystal overlay is active.</param>
         public static void SetInCrystal(bool b)
         {
-            ((CTRRootController)Application.SharedRootController()).inCrystal = b;
+            Application.SharedRootController().inCrystal = b;
         }
 
         /// <summary>Stub for opening the full version store page.</summary>
@@ -485,40 +443,11 @@ namespace CutTheRopeDX.GameMain
         {
         }
 
-        /// <summary>Sets the current box index.</summary>
-        /// <param name="b">Zero-based box index.</param>
-        public void SetBox(int b)
-        {
-            box = b;
-        }
-
         /// <summary>Gets the current box index.</summary>
-        /// <returns>The zero-based box index.</returns>
-        public int GetBox()
-        {
-            return box;
-        }
-
-        /// <summary>Sets the current pack (box group) index.</summary>
-        /// <param name="p">Zero-based pack index.</param>
-        public void SetPack(int p)
-        {
-            pack = p;
-        }
-
-        /// <summary>Sets the current level index within the active box.</summary>
-        /// <param name="l">Zero-based level index.</param>
-        public void SetLevel(int l)
-        {
-            level = l;
-        }
+        public int Box { get; set; }
 
         /// <summary>Gets the current level index within the active box.</summary>
-        /// <returns>The zero-based level index.</returns>
-        public int GetLevel()
-        {
-            return level;
-        }
+        public int Level { get; set; }
 
         /// <summary>Sets whether the level picker is active.</summary>
         /// <param name="p">Whether the level picker should be shown.</param>
@@ -552,31 +481,14 @@ namespace CutTheRopeDX.GameMain
         /// <returns><see langword="true"/> if the greeting should be shown.</returns>
         public static bool IsShowGreeting()
         {
-            return ((CTRRootController)Application.SharedRootController()).showGreeting;
+            return Application.SharedRootController().showGreeting;
         }
 
         /// <summary>Sets whether the Om Nom greeting animation should play on the next level start.</summary>
         /// <param name="s">Whether to show the greeting.</param>
         public static void SetShowGreeting(bool s)
         {
-            ((CTRRootController)Application.SharedRootController()).showGreeting = s;
-        }
-
-        /// <summary>Stub for posting a named achievement with a value.</summary>
-        /// <param name="_">Achievement name.</param>
-        /// <param name="_1">Achievement value.</param>
-        /// <remarks>
-        /// No-op code.
-        /// </remarks>
-        public static void PostAchievementName(string _, string _1)
-        {
-        }
-
-        /// <summary>Posts a named achievement to the scorer.</summary>
-        /// <param name="name">The achievement identifier.</param>
-        public static void PostAchievementName(string name)
-        {
-            Scorer.PostAchievementName(name);
+            Application.SharedRootController().showGreeting = s;
         }
 
         /// <summary>Destroys and re-creates the loading controller child (slot 2).</summary>
@@ -592,7 +504,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void EnsureCurrentMapLoaded()
         {
-            if (loadedMap != null)
+            if (Map != null)
             {
                 return;
             }
@@ -601,8 +513,8 @@ namespace CutTheRopeDX.GameMain
             {
                 if (CustomLevelFile.TryLoad(CustomLevelSession.LevelPath, out XElement customMap, out string error))
                 {
-                    loadedMap = customMap;
-                    mapName = CustomLevelSession.LevelPath;
+                    Map = customMap;
+                    MapName = CustomLevelSession.LevelPath;
                 }
                 else
                 {
@@ -614,11 +526,11 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            string currentMapName = mapName;
-            if (string.IsNullOrWhiteSpace(currentMapName) && pack >= 0 && level >= 0 && pack < PackConfig.GetPackCount() && level < PackConfig.GetLevelCount(pack))
+            string currentMapName = MapName;
+            if (string.IsNullOrWhiteSpace(currentMapName) && Pack >= 0 && Level >= 0 && Pack < PackConfig.PackCount && Level < PackConfig.GetLevelCount(Pack))
             {
-                currentMapName = LevelsList.LEVEL_NAMES[pack, level];
-                mapName = currentMapName;
+                currentMapName = LevelsList.LEVEL_NAMES[Pack, Level];
+                MapName = currentMapName;
             }
 
             if (string.IsNullOrWhiteSpace(currentMapName))
@@ -626,7 +538,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            loadedMap = ContentPaths.LoadXml(Path.Combine(ContentPaths.MapsDirectory, currentMapName));
+            Map = ContentPaths.LoadXml(Path.Combine(ContentPaths.MapsDirectory, currentMapName));
         }
 
         /// <summary>
@@ -665,18 +577,18 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void StartBoxResourceScanIfNeeded()
         {
-            if (pack < 0)
+            if (Pack < 0)
             {
                 return;
             }
 
-            if (boxResourceScanTask != null && boxResourceScanPack == pack && !boxResourceScanTask.IsFaulted && !boxResourceScanTask.IsCanceled)
+            if (boxResourceScanTask != null && boxResourceScanPack == Pack && !boxResourceScanTask.IsFaulted && !boxResourceScanTask.IsCanceled)
             {
                 return;
             }
 
-            boxResourceScanPack = pack;
-            boxResourceScanTask = Task.Run(() => LevelResourceScanner.GetBoxResources(pack));
+            boxResourceScanPack = Pack;
+            boxResourceScanTask = Task.Run(() => LevelResourceScanner.GetBoxResources(Pack));
         }
 
         /// <summary>
@@ -703,7 +615,7 @@ namespace CutTheRopeDX.GameMain
 
             if (boxScanPollTimer < 0)
             {
-                boxScanPollTimer = TimerManager.Schedule(static obj => ((CTRRootController)obj).PollBoxResourceScan(), this, 0.25f);
+                boxScanPollTimer = TimerManager.Schedule(static obj => ((RootController)obj).PollBoxResourceScan(), this, 0.25f);
             }
         }
 
@@ -748,12 +660,12 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             resourceMgr.QueuePrefetchPack(remainingResources);
 
             if (prefetchDrainTimer < 0)
             {
-                prefetchDrainTimer = TimerManager.Schedule(static obj => ((CTRRootController)obj).DrainPrefetchQueue(), this, 1f / 60f);
+                prefetchDrainTimer = TimerManager.Schedule(static obj => ((RootController)obj).DrainPrefetchQueue(), this, 1f / 60f);
             }
         }
 
@@ -762,7 +674,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void DrainPrefetchQueue()
         {
-            CTRResourceMgr resourceMgr = Application.SharedResourceMgr();
+            ResourceMgr resourceMgr = Application.SharedResourceMgr();
             if (resourceMgr.PrefetchNextResource(out string loadedName))
             {
                 if (!string.IsNullOrWhiteSpace(loadedName))
@@ -836,21 +748,6 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Child slot index for the game controller.</summary>
         public const int CHILD_GAME = 3;
-
-        /// <summary>Current box index.</summary>
-        public int box;
-
-        /// <summary>Current pack (box group) index.</summary>
-        public int pack;
-
-        /// <summary>Filename of the currently loaded map.</summary>
-        private string mapName;
-
-        /// <summary>Parsed XML of the currently loaded map, or <see langword="null"/>.</summary>
-        private XElement loadedMap;
-
-        /// <summary>Current level index within the active box.</summary>
-        private int level;
 
         /// <summary>Whether the level picker is active.</summary>
         private bool picker;
@@ -955,7 +852,7 @@ namespace CutTheRopeDX.GameMain
     }
 
     /// <summary>Log messages for the root controller's lifecycle.</summary>
-    internal static partial class CTRRootControllerLog
+    internal static partial class RootControllerLog
     {
         [LoggerMessage(
             Level = LogLevel.Information,

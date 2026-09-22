@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Platform;
 using CutTheRopeDX.Framework.Visual;
@@ -53,7 +54,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         /// <param name="p">The point to evaluate.</param>
         /// <returns><see langword="true"/> when the point is beyond the allowed bounds; otherwise, <see langword="false"/>.</returns>
-        public bool PointOutOfScreen(ConstraintedPoint p)
+        public bool PointOutOfScreen(ConstrainedPoint p)
         {
             // Mobile matches the WP7 kill bounds (+100/-50, scaled x3); the horizontal
             // margin stays as a safety net in both modes (the reference kills on Y only).
@@ -71,7 +72,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="_1">The XML loader success flag.</param>
         public void XmlLoaderFinishedWithfromwithSuccess(XElement rootNode, string _, bool _1)
         {
-            CTRRootController rootController = (CTRRootController)Application.SharedRootController();
+            RootController rootController = Application.SharedRootController();
             string resolvedMapName = ResolveMapName(_);
             rootController.PrepareMapAndEnsureResources(rootNode, resolvedMapName);
             if (animateRestartDim)
@@ -90,7 +91,7 @@ namespace CutTheRopeDX.GameMain
         private static string ResolveMapName(string source)
         {
             return string.IsNullOrWhiteSpace(source) || source.Contains("://", StringComparison.Ordinal)
-                ? ((CTRRootController)Application.SharedRootController()).GetMapName()
+                ? Application.SharedRootController().MapName
                 : Path.GetFileName(source);
         }
 
@@ -102,7 +103,7 @@ namespace CutTheRopeDX.GameMain
             // A scripted greeting - Om Nom tipping the Paddington hat - plays alone: the chat
             // greeting would leave the classic skin with no animation at all, since it has no
             // directional turns, and the hat tip would never run to hand the hat over.
-            bool scriptedGreeting = targetAnimationController?.HasScriptedGreeting == true;
+            bool scriptedGreeting = TargetAnimation?.HasScriptedGreeting == true;
 
             // On a two-Om-Nom level, randomly greet with the mutual chat instead of the wave.
             // TryShowChatGreeting returns false for diagonal/coincident pairs, falling back here.
@@ -112,15 +113,15 @@ namespace CutTheRopeDX.GameMain
             }
 
             // General greeting: the primary Om Nom waves.
-            targetAnimationController?.PlayGreeting();
+            TargetAnimation?.Play(TargetAnimationState.Greeting);
             // A scripted greeting is unvoiced: the hat tip carries neither the wave sound nor the
             // Christmas bell that otherwise rings over the seasonal greeting.
             if (!scriptedGreeting)
             {
-                CTRSoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, targetAnimationController?.SkinDefinition);
+                SoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, TargetAnimation?.SkinDefinition);
                 if (SpecialEvents.IsXmas && Preferences.GetIntForKey("PREFS_SELECTED_OMNOM") == 0)
                 {
-                    CTRSoundMgr.PlaySound(Resources.Snd.XmasBell);
+                    SoundMgr.PlaySound(Resources.Snd.XmasBell);
                 }
             }
         }
@@ -187,8 +188,8 @@ namespace CutTheRopeDX.GameMain
             }
 
             // Initiator turns now; the other follows a fixed beat later.
-            targets[firstIndex].controller?.PlayGreetingTurn(firstState);
-            CTRSoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, targets[firstIndex].controller?.SkinDefinition);
+            targets[firstIndex].animation?.Play(firstState);
+            SoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, targets[firstIndex].animation?.SkinDefinition);
 
             dd.CallObjectSelectorParamafterDelay(
                 new DelayedDispatcher.DispatchFunc(Selector_showSecondChatGreeting), null, ChatGreetingGapSeconds);
@@ -223,8 +224,8 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            second.controller?.PlayGreetingTurn(state);
-            CTRSoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, second.controller?.SkinDefinition);
+            second.animation?.Play(state);
+            SoundMgr.PlayOmNomSound(Resources.Snd.MonsterGreeting, second.animation?.SkinDefinition);
         }
 
         /// <inheritdoc />
@@ -359,7 +360,7 @@ namespace CutTheRopeDX.GameMain
         /// </remarks>
         /// <param name="texture">Background texture to measure.</param>
         /// <returns>A safe cover scale for the background texture.</returns>
-        private float GetBackgroundCoverScale(CTRTexture2D texture)
+        private float GetBackgroundCoverScale(Texture2D texture)
         {
             if (texture == null || texture._realWidth <= 0 || texture._realHeight <= 0)
             {
@@ -374,8 +375,8 @@ namespace CutTheRopeDX.GameMain
 
             // The region of world a screen of this shape exposes, which is the viewport taken back
             // through the camera's own scale. Covering that is an ordinary cover fit against it.
-            CTRRectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
-            CTRRectangle worldWindow = new(0f, 0f, visible.w / cameraScale, visible.h / cameraScale);
+            Rectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
+            Rectangle worldWindow = new(0f, 0f, visible.w / cameraScale, visible.h / cameraScale);
             float scale = LayoutMath.Cover(texture._realWidth, texture._realHeight, worldWindow).Scale;
             return scale <= 0f || float.IsNaN(scale) || float.IsInfinity(scale) ? 1f : scale;
         }
@@ -417,9 +418,9 @@ namespace CutTheRopeDX.GameMain
         /// position that shows the whole level on that axis.
         /// </remarks>
         /// <returns>The origin of the range and its extent on each axis.</returns>
-        private CTRRectangle CameraTrackingRange()
+        private Rectangle CameraTrackingRange()
         {
-            return new CTRRectangle(
+            return new Rectangle(
                 cameraBounds.x,
                 cameraBounds.y,
                 MathF.Max(0f, mapWidth - SCREEN_WIDTH),
@@ -432,10 +433,10 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The clamped position.</returns>
         private Vector BoundedCameraPosition(float x, float y)
         {
-            CTRRectangle range = CameraTrackingRange();
+            Rectangle range = CameraTrackingRange();
             return Vect(
-                FIT_TO_BOUNDARIES(x, range.x, range.x + range.w),
-                FIT_TO_BOUNDARIES(y, range.y, range.y + range.h));
+                Math.Clamp(x, range.x, range.x + range.w),
+                Math.Clamp(y, range.y, range.y + range.h));
         }
 
         /// <summary>
@@ -451,7 +452,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>Exposed world beyond the window, horizontally and vertically.</returns>
         private Vector CameraSlack(ViewportLayoutSnapshot snapshot)
         {
-            CTRRectangle viewport = snapshot.VisibleBounds;
+            Rectangle viewport = snapshot.VisibleBounds;
             float scale = MathF.Min(viewport.w / cameraWindow.w, viewport.h / cameraWindow.h);
             return Vect((viewport.w / scale) - cameraWindow.w, (viewport.h / scale) - cameraWindow.h);
         }
@@ -504,7 +505,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRRectangle viewport = snapshot.VisibleBounds;
+            Rectangle viewport = snapshot.VisibleBounds;
             Vector slack = CameraSlack(snapshot);
             Vector scrollable = CameraScrollable();
 
@@ -514,7 +515,7 @@ namespace CutTheRopeDX.GameMain
             float anchorX = GameplayCamera.Anchor(camera.pos.X, cameraBounds.x, scrollable.X, slack.X);
             float anchorY = GameplayCamera.Anchor(camera.pos.Y, cameraBounds.y, scrollable.Y, slack.Y);
 
-            CTRRectangle window = new(
+            Rectangle window = new(
                 cameraBounds.x + (scrollable.X * anchorX),
                 cameraBounds.y + (scrollable.Y * anchorY),
                 cameraWindow.w,
@@ -532,7 +533,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRRectangle viewport = snapshot.VisibleBounds;
+            Rectangle viewport = snapshot.VisibleBounds;
             easterEggScreen = viewport;
             if (pauseSwitcherWaves != null)
             {
@@ -573,7 +574,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="param">Unused timeline payload.</param>
         private void Selector_gameWon(FrameworkTypes param)
         {
-            CTRSoundMgr.EnableLoopedSounds(false);
+            SoundMgr.EnableLoopedSounds(false);
             if (!gameplayFlow.CompleteWinTransition())
             {
                 // A restart claimed the level while the win was still presenting. Leave the result
@@ -659,7 +660,7 @@ namespace CutTheRopeDX.GameMain
         /// a split half only resolved that way by accident, because the primary happens to own the
         /// halves. Callers decide what an unowned point means.
         /// </returns>
-        private CandyContext CandyForPointOrNull(ConstraintedPoint point)
+        private CandyContext CandyForPointOrNull(ConstrainedPoint point)
         {
             if (point == null)
             {
@@ -691,7 +692,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="param">Released candy physics point.</param>
         private void Selector_revealCandyFromLantern(FrameworkTypes param)
         {
-            ConstraintedPoint releasedPoint = param as ConstraintedPoint;
+            ConstrainedPoint releasedPoint = param as ConstrainedPoint;
             _ = LanternRelease.RestoreReleasedCandy(candies, releasedPoint);
         }
 
@@ -967,69 +968,59 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// Primary background texture used for computing scale.
         /// </summary>
-        private readonly CTRTexture2D backTexture;
+        private readonly Texture2D backTexture;
 
         /// <summary>
         /// Cached background scale derived from internal screen width.
         /// </summary>
         private float backgroundScale = 1f;
 
-#pragma warning disable IDE1006
         /// <summary>
         /// The active Om Nom gameplay object.
         /// </summary>
-        private GameObject targetObject => targets.Count > 0 ? targets[0].targetObject : null;
+        private GameObject TargetObject => targets.Count > 0 ? targets[0].targetObject : null;
 
         /// <summary>
         /// Controller for Om Nom animation state transitions.
         /// </summary>
-        private TargetAnimationController targetAnimationController => targets.Count > 0 ? targets[0].controller : null;
-#pragma warning restore IDE1006
+        private ITargetAnimationBackend TargetAnimation => targets.Count > 0 ? targets[0].animation : null;
 
         /// <summary>
         /// Support visual attached to certain level setups.
         /// </summary>
         private Image support;
 
-#pragma warning disable IDE1006
         /// <summary>
         /// The main candy gameplay object.
         /// </summary>
-        private GameObject candy => candies[0].WholeBody.Visual;
+        private GameObject Candy => candies[0].WholeBody.Visual;
 
         /// <summary>
         /// The base candy sprite for split or layered visuals.
         /// </summary>
-        private GameObject candyMain => candies[0].WholeBody.Main;
+        private GameObject CandyMain => candies[0].WholeBody.Main;
 
         /// <summary>
         /// The top candy sprite for split or layered visuals.
         /// </summary>
-        private GameObject candyTop => candies[0].WholeBody.Top;
-
-        /// <summary>
-        /// Animation used for the candy blink effect.
-        /// </summary>
+        private GameObject CandyTop => candies[0].WholeBody.Top;
 
         /// <summary>
         /// The constrained point currently representing the candy anchor.
         /// </summary>
-        private ConstraintedPoint star => candies[0].WholeBody.Point;
-#pragma warning restore IDE1006
+        private ConstrainedPoint CandyPoint => candies[0].WholeBody.Point;
 
         /// <summary>All independent candies in the level. Single-candy packs hold one element.</summary>
         private readonly List<CandyContext> candies = [];
 
-#pragma warning disable IDE0052
         /// <summary>All Om Noms in the level. Single-target packs hold one element.</summary>
         private readonly List<TargetContext> targets = [];
-#pragma warning restore IDE0052
 
         /// <summary>The vector Om Nom a tap on the target plays over the frozen level.</summary>
         private readonly EasterEggOmNom easterEgg = new();
 
         /// <summary>The visible screen region the easter egg's dim covers.</summary>
-        private CTRRectangle easterEggScreen = new(0f, 0f, SCREEN_WIDTH, SCREEN_HEIGHT);
+        private Rectangle easterEggScreen = new(0f, 0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         /// <summary>True while a press that began on Om Nom is waiting for its release.</summary>
         private bool overOmNom;
@@ -1039,7 +1030,7 @@ namespace CutTheRopeDX.GameMain
         /// the vector artwork depicts, so the only one whose tap plays the easter egg.
         /// </summary>
         private bool EasterEggMatchesTarget =>
-            targetObject != null && targetAnimationController?.SkinDefinition == null;
+            TargetObject != null && TargetAnimation?.SkinDefinition == null;
 
         /// <summary>Gets a value indicating whether the easter egg is holding the level.</summary>
         internal bool EasterEggHoldsLevel => easterEgg.FreezesGameplay;
@@ -1329,14 +1320,14 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// The level's extent in world units. The camera fits this region into the viewport.
         /// </summary>
-        private CTRRectangle cameraBounds;
+        private Rectangle cameraBounds;
 
         /// <summary>
         /// The region the camera can show at once, in world units. Equal to the level extent on
         /// an axis the level does not exceed, and to the design size on an axis it does, which is
         /// the axis the camera scrolls along.
         /// </summary>
-        private CTRRectangle cameraWindow;
+        private Rectangle cameraWindow;
 
         // private bool spiderTookCandy;
 
@@ -1386,7 +1377,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// The initial camera distance to the candy anchor.
         /// </summary>
-        public float initialCameraToStarDistance;
+        public float initialCameraToCandyDistance;
 
         /// <summary>Single owner of the restart-dim machine and the win/lose flags.</summary>
         public readonly LevelFlowState gameplayFlow = new();
@@ -1484,7 +1475,7 @@ namespace CutTheRopeDX.GameMain
             public RGBAColor c;
         }
 
-        // private sealed class SCandy : ConstraintedPoint
+        // private sealed class SCandy : ConstrainedPoint
         // {
         // public bool good;
 

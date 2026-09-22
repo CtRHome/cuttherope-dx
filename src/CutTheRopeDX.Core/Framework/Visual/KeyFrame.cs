@@ -21,7 +21,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="actions">Actions to execute at this keyframe.</param>
         /// <param name="time">Time offset in seconds.</param>
         /// <returns>A new action keyframe.</returns>
-        public static KeyFrame MakeAction(List<CTRAction> actions, float time)
+        public static KeyFrame MakeAction(List<TimelineAction> actions, float time)
         {
             KeyFrameValue keyFrameValue = new();
             keyFrameValue.action.actionSet = actions;
@@ -45,33 +45,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <returns>A new action keyframe wrapping a single <paramref name="action"/>.</returns>
         public static KeyFrame MakeSingleAction(BaseElement target, string action, int p, int sp, float time)
         {
-            return MakeAction([CTRAction.CreateAction(target, action, p, sp)], time);
-        }
-
-        /// <summary>
-        /// Creates a position keyframe with integer coordinates.
-        /// </summary>
-        /// <param name="x">X position.</param>
-        /// <param name="y">Y position.</param>
-        /// <param name="transition">Transition type.</param>
-        /// <param name="time">Time offset in seconds.</param>
-        /// <returns>A new position keyframe.</returns>
-        public static KeyFrame MakePos(int x, int y, TransitionType transition, float time)
-        {
-            return MakePosCore(x, y, transition, time);
-        }
-
-        /// <summary>
-        /// Creates a position keyframe with float coordinates.
-        /// </summary>
-        /// <param name="x">X position.</param>
-        /// <param name="y">Y position.</param>
-        /// <param name="transition">Transition type.</param>
-        /// <param name="time">Time offset in seconds.</param>
-        /// <returns>A new position keyframe.</returns>
-        public static KeyFrame MakePos(float x, float y, TransitionType transition, float time)
-        {
-            return MakePosCore(x, y, transition, time);
+            return MakeAction([TimelineAction.CreateAction(target, action, p, sp)], time);
         }
 
         /// <summary>
@@ -82,7 +56,7 @@ namespace CutTheRopeDX.Framework.Visual
         /// <param name="transition">Transition type.</param>
         /// <param name="time">Time offset in seconds.</param>
         /// <returns>A new position keyframe.</returns>
-        private static KeyFrame MakePosCore(float x, float y, TransitionType transition, float time)
+        public static KeyFrame MakePos(float x, float y, TransitionType transition, float time)
         {
             KeyFrameValue keyFrameValue = new();
             keyFrameValue.pos.x = x;
@@ -119,37 +93,13 @@ namespace CutTheRopeDX.Framework.Visual
         }
 
         /// <summary>
-        /// Creates a rotation keyframe with an integer angle.
-        /// </summary>
-        /// <param name="r">Rotation angle in degrees.</param>
-        /// <param name="transition">Transition type.</param>
-        /// <param name="time">Time offset in seconds.</param>
-        /// <returns>A new rotation keyframe.</returns>
-        public static KeyFrame MakeRotation(int r, TransitionType transition, float time)
-        {
-            return MakeRotationCore(r, transition, time);
-        }
-
-        /// <summary>
-        /// Creates a rotation keyframe with a float angle.
-        /// </summary>
-        /// <param name="r">Rotation angle in degrees.</param>
-        /// <param name="transition">Transition type.</param>
-        /// <param name="time">Time offset in seconds.</param>
-        /// <returns>A new rotation keyframe.</returns>
-        public static KeyFrame MakeRotation(float r, TransitionType transition, float time)
-        {
-            return MakeRotationCore(r, transition, time);
-        }
-
-        /// <summary>
         /// Creates a rotation keyframe.
         /// </summary>
         /// <param name="r">Rotation angle in degrees.</param>
         /// <param name="transition">Transition type.</param>
         /// <param name="time">Time offset in seconds.</param>
         /// <returns>A new rotation keyframe.</returns>
-        private static KeyFrame MakeRotationCore(float r, TransitionType transition, float time)
+        public static KeyFrame MakeRotation(float r, TransitionType transition, float time)
         {
             KeyFrameValue keyFrameValue = new();
             keyFrameValue.rotation.angle = r;

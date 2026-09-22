@@ -1,5 +1,6 @@
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Physics;
 using CutTheRopeDX.Framework.Visual;
 using CutTheRopeDX.GameMain.Tutorials;
@@ -14,7 +15,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private void InitializeGameState()
         {
-            CTRSoundMgr.EnableLoopedSounds(true);
+            SoundMgr.EnableLoopedSounds(true);
             aniPool.RemoveAllChilds();
             particlesAniPool.RemoveAllChilds();
             staticAniPool.RemoveAllChilds();
@@ -29,7 +30,7 @@ namespace CutTheRopeDX.GameMain
             }
             waterLevel = 0f;
             waterSpeed = 0f;
-            CTRSoundMgr.StopLoopedSounds();
+            SoundMgr.StopLoopedSounds();
 
             // Initialize object collections
             bungees = [];
@@ -70,12 +71,9 @@ namespace CutTheRopeDX.GameMain
             // Cleanup old mice before creating new arrays
             if (mice != null)
             {
-                foreach (object obj in mice)
+                foreach (Mouse mouse in mice)
                 {
-                    if (obj is Mouse mouse)
-                    {
-                        mouse.Cleanup();
-                    }
+                    mouse?.Cleanup();
                 }
             }
 
@@ -106,7 +104,7 @@ namespace CutTheRopeDX.GameMain
             string candyResource = CandySkinHelper.GetCandyResource(selectedCandySkin);
 
             // Initialize main candy
-            GameObject candyObj = GameObject.GameObject_createWithResIDQuad(candyResource, 0);
+            GameObject candyObj = Image.InitializeFromResource(new GameObject(), candyResource, 0);
             candyObj.DoRestoreCutTransparency();
             candyObj.anchor = 18;
             candyObj.bb = GetCandyBoundingBox(candyObj);
@@ -124,21 +122,21 @@ namespace CutTheRopeDX.GameMain
             candyObj.AddTimelinewithID(candyReappearTimeline, 2);
 
             // Add candy main visual component
-            GameObject candyMainObj = GameObject.GameObject_createWithResIDQuad(candyResource, 1);
+            GameObject candyMainObj = Image.InitializeFromResource(new GameObject(), candyResource, 1);
             candyMainObj.DoRestoreCutTransparency();
             candyMainObj.anchor = candyMainObj.parentAnchor = 18;
             _ = candyObj.AddChild(candyMainObj);
             candyMainObj.scaleX = candyMainObj.scaleY = 0.71f;
 
             // Add candy top visual component
-            GameObject candyTopObj = GameObject.GameObject_createWithResIDQuad(candyResource, 2);
+            GameObject candyTopObj = Image.InitializeFromResource(new GameObject(), candyResource, 2);
             candyTopObj.DoRestoreCutTransparency();
             candyTopObj.anchor = candyTopObj.parentAnchor = 18;
             _ = candyObj.AddChild(candyTopObj);
             candyTopObj.scaleX = candyTopObj.scaleY = 0.71f;
 
             // Setup candy blink animation (highlight_start=2, layer_1-8=3-10, highlight_end=1)
-            Animation candyBlinkAnim = Animation.Animation_createWithResID(Resources.Img.ObjCandyFx);
+            Animation candyBlinkAnim = Image.InitializeFromResource(new Animation(), Resources.Img.ObjCandyFx);
             candyBlinkAnim.AddAnimationWithIDDelayLoopFirstLast(0, 0.07f, Timeline.LoopType.TIMELINE_NO_LOOP, 0, 9);
             candyBlinkAnim.AddAnimationWithIDDelayLoopCountSequence(1, 0.3f, Timeline.LoopType.TIMELINE_NO_LOOP, 2, 10, [10]);
             Timeline blinkColorTimeline = candyBlinkAnim.GetTimeline(1);
@@ -169,8 +167,8 @@ namespace CutTheRopeDX.GameMain
             candyPairPrevDistance.Clear();
 
             // Initialize constraint points for ropes
-            ConstraintedPoint starPoint = new();
-            starPoint.SetWeight(1f);
+            ConstrainedPoint primaryPoint = new();
+            primaryPoint.SetWeight(1f);
 
             (GameObject candyObj, GameObject candyMainObj, GameObject candyTopObj, Animation candyBlinkAnim, Animation primaryBubble, CandyInGhostBubbleAnimation primaryGhostBubble) = CreateCandyVisual();
 
@@ -181,7 +179,7 @@ namespace CutTheRopeDX.GameMain
             primaryCandyClaimed = false;
 
             CandyBody primaryBody = new(
-                starPoint,
+                primaryPoint,
                 CandyBodyRole.Whole,
                 candyObj,
                 candyMainObj,
@@ -210,7 +208,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The new half body.</returns>
         private static CandyBody CreateSplitHalfBody(CandyBodyRole role, float x, float y)
         {
-            ConstraintedPoint point = new();
+            ConstrainedPoint point = new();
             point.SetWeight(1f);
             point.pos.X = x;
             point.pos.Y = y;
@@ -218,7 +216,7 @@ namespace CutTheRopeDX.GameMain
 
             int selectedCandySkin = Framework.Core.Preferences.GetIntForKey("PREFS_SELECTED_CANDY");
             string candyResource = CandySkinHelper.GetCandyResource(selectedCandySkin);
-            GameObject visual = GameObject.GameObject_createWithResIDQuad(
+            GameObject visual = Image.InitializeFromResource(new GameObject(),
                 candyResource,
                 role == CandyBodyRole.LeftHalf ? SplitCandyLeftQuad : SplitCandyRightQuad);
             visual.scaleX = visual.scaleY = 0.71f;
@@ -276,7 +274,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private CandyContext CreateCandyContext(string candyNumber, float px, float py)
         {
-            ConstraintedPoint p = new();
+            ConstrainedPoint p = new();
             p.SetWeight(1f);
             p.pos.X = px;
             p.pos.Y = py;
@@ -305,8 +303,8 @@ namespace CutTheRopeDX.GameMain
         {
             for (int i = 0; i < 3; i++)
             {
-                Timeline timeline2 = hudStar[i].GetCurrentTimeline();
-                timeline2?.StopTimeline();
+                Timeline currentTimeline = hudStar[i].GetCurrentTimeline();
+                currentTimeline?.StopTimeline();
                 const int HudUiStarFirstQuad = 1;
                 hudStar[i].SetDrawQuad(HudUiStarFirstQuad);
             }

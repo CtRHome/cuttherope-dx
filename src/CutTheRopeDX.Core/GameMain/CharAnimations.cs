@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 
 using CutTheRopeDX.Framework;
-using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Visual;
 
@@ -13,28 +12,6 @@ namespace CutTheRopeDX.GameMain
     internal sealed class CharAnimations : GameObject
     {
         /// <summary>
-        /// Creates an Om Nom character animation container from a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name to load.</param>
-        /// <returns>The initialized Om Nom character animation container.</returns>
-        public static CharAnimations CharAnimations_createWithResID(string resourceName)
-        {
-            return CharAnimations_create(Application.GetTexture(resourceName));
-        }
-
-        /// <summary>
-        /// Creates an Om Nom character animation container from a texture.
-        /// </summary>
-        /// <param name="t">Texture used by the Om Nom character animation container.</param>
-        /// <returns>The initialized Om Nom character animation container.</returns>
-        private static CharAnimations CharAnimations_create(CTRTexture2D t)
-        {
-            CharAnimations charAnimations = new();
-            _ = charAnimations.InitWithTexture(t);
-            return charAnimations;
-        }
-
-        /// <summary>
         /// Adds a named child Om Nom character animation image to the container.
         /// </summary>
         /// <param name="resourceName">Texture resource name for the child animation.</param>
@@ -43,16 +20,16 @@ namespace CutTheRopeDX.GameMain
             animations ??= [];
             animationNameToIndex ??= [];
 
-            CharAnimation charAnimation = CharAnimation.CharAnimation_createWithResID(resourceName);
+            CharAnimationLayer layer = InitializeFromResource(new CharAnimationLayer(), resourceName);
             // Use the same anchor as the base animation (18) for proper centering
-            charAnimation.parentAnchor = charAnimation.anchor = anchor;
-            charAnimation.DoRestoreCutTransparency();
+            layer.parentAnchor = layer.anchor = anchor;
+            layer.DoRestoreCutTransparency();
 
             int index = nextAnimationIndex++;
-            animations.Add(charAnimation);
+            animations.Add(layer);
             animationNameToIndex[resourceName] = index;
-            _ = AddChild(charAnimation);
-            charAnimation.SetEnabled(false);
+            _ = AddChild(layer);
+            layer.SetEnabled(false);
         }
 
         /// <inheritdoc />
@@ -62,7 +39,7 @@ namespace CutTheRopeDX.GameMain
             {
                 if (animations != null)
                 {
-                    foreach (Animation animation in animations)
+                    foreach (CharAnimationLayer animation in animations)
                     {
                         animation?.Dispose();
                     }
@@ -93,7 +70,7 @@ namespace CutTheRopeDX.GameMain
             }
             else if (animationNameToIndex != null && animationNameToIndex.TryGetValue(resourceName, out int index))
             {
-                ((CharAnimation)animations[index]).AddAnimationWithIDDelayLoopFirstLast(aid, d, l, s, e);
+                animations[index].AddAnimationWithIDDelayLoopFirstLast(aid, d, l, s, e);
             }
         }
 
@@ -121,29 +98,29 @@ namespace CutTheRopeDX.GameMain
         /// <param name="d">Delay before switching animations, in seconds.</param>
         public void SwitchToAnimationatEndOfAnimationDelay(string resourceName2, int a2, string resourceName1, int a1, float d)
         {
-            Animation animation = GetAnimation(resourceName1);
-            Animation animation2 = GetAnimation(resourceName2);
-            Timeline timeline = animation.GetTimeline(a1);
-            List<CTRAction> dynamicArray = [];
-            // Check if resourceName1 refers to the base animation (CharAnimations)
+            Animation currentAnimation = GetAnimation(resourceName1);
+            Animation nextAnimation = GetAnimation(resourceName2);
+            Timeline timeline = currentAnimation.GetTimeline(a1);
+            List<TimelineAction> dynamicArray = [];
+            // Check if resourceName1 refers to the base currentAnimation (CharAnimations)
             bool isBaseAnimation = resourceName1 == Resources.Img.CharAnimations;
-            dynamicArray.Add(CTRAction.CreateAction(animation2, "ACTION_PLAY_TIMELINE", isBaseAnimation ? 1 : 0, a2));
-            if (animation != animation2)
+            dynamicArray.Add(TimelineAction.CreateAction(nextAnimation, "ACTION_PLAY_TIMELINE", isBaseAnimation ? 1 : 0, a2));
+            if (currentAnimation != nextAnimation)
             {
-                dynamicArray.Add(CTRAction.CreateAction(animation2, "ACTION_SET_UPDATEABLE", 1, 1));
-                dynamicArray.Add(CTRAction.CreateAction(animation2, "ACTION_SET_VISIBLE", 1, 1));
-                dynamicArray.Add(CTRAction.CreateAction(animation2, "ACTION_SET_TOUCHABLE", 1, 1));
-                dynamicArray.Add(CTRAction.CreateAction(animation, "ACTION_SET_UPDATEABLE", 0, 0));
-                dynamicArray.Add(CTRAction.CreateAction(animation, "ACTION_SET_VISIBLE", 0, 0));
-                dynamicArray.Add(CTRAction.CreateAction(animation, "ACTION_SET_TOUCHABLE", 0, 0));
+                dynamicArray.Add(TimelineAction.CreateAction(nextAnimation, "ACTION_SET_UPDATEABLE", 1, 1));
+                dynamicArray.Add(TimelineAction.CreateAction(nextAnimation, "ACTION_SET_VISIBLE", 1, 1));
+                dynamicArray.Add(TimelineAction.CreateAction(nextAnimation, "ACTION_SET_TOUCHABLE", 1, 1));
+                dynamicArray.Add(TimelineAction.CreateAction(currentAnimation, "ACTION_SET_UPDATEABLE", 0, 0));
+                dynamicArray.Add(TimelineAction.CreateAction(currentAnimation, "ACTION_SET_VISIBLE", 0, 0));
+                dynamicArray.Add(TimelineAction.CreateAction(currentAnimation, "ACTION_SET_TOUCHABLE", 0, 0));
             }
             timeline.AddKeyFrame(KeyFrame.MakeAction(dynamicArray, d));
         }
 
         /// <summary>
-        /// Plays a timeline on the base animation or a named child animation.
+        /// Plays a timeline on the base currentAnimation or a named child currentAnimation.
         /// </summary>
-        /// <param name="resourceName">Texture resource name that identifies the animation to play.</param>
+        /// <param name="resourceName">Texture resource name that identifies the currentAnimation to play.</param>
         /// <param name="t">Timeline ID to play.</param>
         public void PlayAnimationtimeline(string resourceName, int t)
         {
@@ -151,22 +128,22 @@ namespace CutTheRopeDX.GameMain
             {
                 StopCurrentTimeline();
             }
-            foreach (Animation anim in animations)
+            foreach (CharAnimationLayer anim in animations)
             {
                 anim.SetEnabled(false);
             }
-            Animation animation = GetAnimation(resourceName);
-            animation.SetEnabled(true);
-            color = animation == this ? RGBAColor.solidOpaqueRGBA : RGBAColor.transparentRGBA;
-            animation.PlayTimeline(t);
+            Animation currentAnimation = GetAnimation(resourceName);
+            currentAnimation.SetEnabled(true);
+            color = currentAnimation == this ? RGBAColor.solidOpaqueRGBA : RGBAColor.transparentRGBA;
+            currentAnimation.PlayTimeline(t);
         }
 
         /// <inheritdoc />
         public override void PlayTimeline(int t)
         {
-            foreach (object obj in animations)
+            foreach (CharAnimationLayer obj in animations)
             {
-                ((Animation)obj).SetEnabled(false);
+                obj.SetEnabled(false);
             }
             color = RGBAColor.solidOpaqueRGBA;
             base.PlayTimeline(t);
@@ -175,7 +152,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// Animation layers managed by this character animation container.
         /// </summary>
-        private List<Animation> animations;
+        private List<CharAnimationLayer> animations;
 
         /// <summary>
         /// Maps animation names to their layer indexes.

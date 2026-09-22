@@ -18,7 +18,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <summary>
         /// Parsed frame rectangles in atlas texture coordinates.
         /// </summary>
-        public List<CTRRectangle> Rects { get; } = [];
+        public List<Rectangle> Rects { get; } = [];
 
         /// <summary>
         /// Per-frame offsets applied when drawing trimmed sprites.
@@ -99,9 +99,7 @@ namespace CutTheRopeDX.Framework.Core
             }
 
             ParsedTexturePackerAtlas atlas = new();
-#pragma warning disable IDE0028
             List<(float w, float h)> rectSizes = new(entries.Count);
-#pragma warning restore IDE0028
 
             foreach (FrameEntry entry in entries)
             {
@@ -157,9 +155,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <returns>Reordered frame <paramref name="entries"/>.</returns>
         private static List<FrameEntry> OrderFrameEntries(List<FrameEntry> entries, IReadOnlyList<string> frameOrder)
         {
-#pragma warning disable IDE0028
             Dictionary<string, int> order = new(StringComparer.Ordinal);
-#pragma warning restore IDE0028
             for (int i = 0; i < frameOrder.Count; i++)
             {
                 string name = frameOrder[i];
@@ -196,7 +192,7 @@ namespace CutTheRopeDX.Framework.Core
             float y = ReadFloat(frameElement, "y");
             float width = ReadFloat(frameElement, "w");
             float height = ReadFloat(frameElement, "h");
-            CTRRectangle rect = new(x, y, width, height);
+            Rectangle rect = new(x, y, width, height);
             atlas.Rects.Add(rect);
             rectSizes.Add((rect.w, rect.h));
 

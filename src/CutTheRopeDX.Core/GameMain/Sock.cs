@@ -1,5 +1,6 @@
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Helpers;
 using CutTheRopeDX.Framework.Visual;
 
 namespace CutTheRopeDX.GameMain
@@ -7,7 +8,7 @@ namespace CutTheRopeDX.GameMain
     /// <summary>
     /// Magic hat teleporter object, rendered as a Christmas sock during the seasonal theme.
     /// </summary>
-    internal sealed class Sock : CTRGameObject, ITransporterItem, ITransporterBindAware
+    internal sealed class Sock : GameObject, ITransporterItem, ITransporterBindAware
     {
         /// <summary>Scale factor used to convert magic hat offsets into world units.</summary>
         private const float ScalingCompensation = 3f;
@@ -17,39 +18,6 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Local Y offset from object origin to transporter bind point.</summary>
         private const float BindPointOffsetY = 25f * ScalingCompensation;
-
-        /// <summary>
-        /// Creates a magic hat from a texture.
-        /// </summary>
-        /// <param name="t">Texture used by the magic hat.</param>
-        /// <returns>The initialized magic hat.</returns>
-        public static Sock Sock_create(CTRTexture2D t)
-        {
-            return (Sock)new Sock().InitWithTexture(t);
-        }
-
-        /// <summary>
-        /// Creates a magic hat from a texture resource name.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <returns>The initialized magic hat.</returns>
-        public static Sock Sock_createWithResID(string resourceName)
-        {
-            return Sock_create(Application.GetTexture(resourceName));
-        }
-
-        /// <summary>
-        /// Creates a magic hat using a texture resource name and quad index.
-        /// </summary>
-        /// <param name="resourceName">Texture resource name.</param>
-        /// <param name="q">Quad index.</param>
-        /// <returns>The initialized magic hat.</returns>
-        public static Sock Sock_createWithResIDQuad(string resourceName, int q)
-        {
-            Sock sock = Sock_create(Application.GetTexture(resourceName));
-            sock.SetDrawQuad(q);
-            return sock;
-        }
 
         /// <summary>
         /// Creates the teleport flash animation from the same art the hat itself draws.
@@ -62,7 +30,7 @@ namespace CutTheRopeDX.GameMain
         public void CreateAnimations(string resourceName)
         {
             XmasSock = resourceName;
-            light = Animation_createWithResID(XmasSock);
+            light = InitializeFromResource(new Animation(), XmasSock);
             light.anchor = 34;
             light.parentAnchor = 10;
             light.y = 270f;
@@ -98,7 +66,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The added layer.</returns>
         private Image AddBandLayer(int quad)
         {
-            Image layer = Image_createWithResIDQuad(Resources.Img.ObjHatMaskable, quad);
+            Image layer = FromResource(Resources.Img.ObjHatMaskable, quad);
 
             // Anchored to the hat's own top-left corner: both atlases place their frames within the
             // same source drawing, so each layer landing on its own offset lands where it was drawn.
@@ -136,7 +104,7 @@ namespace CutTheRopeDX.GameMain
             b1.X = t1.X;
             b2.X = t2.X;
             b1.Y = b2.Y = y + mouthDepth;
-            angle = DEGREES_TO_RADIANS(rotation);
+            angle = float.DegreesToRadians(rotation);
             t1 = VectRotateAround(t1, angle, x, y);
             t2 = VectRotateAround(t2, angle, x, y);
             b1 = VectRotateAround(b1, angle, x, y);

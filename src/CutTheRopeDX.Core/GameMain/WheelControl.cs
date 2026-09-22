@@ -1,9 +1,12 @@
+using System;
+
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Visual;
 
 using static CutTheRopeDX.Framework.FrameworkTypes;
-using static CutTheRopeDX.Framework.Helpers.CTRMathHelper;
+using static CutTheRopeDX.Framework.Helpers.MathHelper;
 
 namespace CutTheRopeDX.GameMain
 {
@@ -84,7 +87,7 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            CTRSoundMgr.PlaySound(Resources.Snd.Wheel);
+            SoundMgr.PlaySound(Resources.Snd.Wheel);
             float rotateDelta = Grab.GetRotateAngleForStartEndCenter(lastTouch, point, Vect(grab.x, grab.y));
             if (rotateDelta > DEG_180)
             {
@@ -102,8 +105,8 @@ namespace CutTheRopeDX.GameMain
             float maxWheelDelta = ActivePhysicsConstants.GrabWheelRotateDeltaMax;
             float minWheelDelta = ActivePhysicsConstants.GrabWheelRotateDeltaMin;
             rotateDelta = rotateDelta > 0f
-                ? MIN(MAX(minWheelDelta, rotateDelta), maxWheelDelta)
-                : MAX(MIN(0f - minWheelDelta, rotateDelta), 0f - maxWheelDelta);
+                ? Math.Min(Math.Max(minWheelDelta, rotateDelta), maxWheelDelta)
+                : Math.Max(Math.Min(0f - minWheelDelta, rotateDelta), 0f - maxWheelDelta);
 
             Bungee rope = grab.Rope;
             if (rope != null)
@@ -143,9 +146,9 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            Arm.scaleX = Arm.scaleY = MAX(
+            Arm.scaleX = Arm.scaleY = Math.Max(
                 0f,
-                MIN(1.2f, 1 - RT(wheelScaleLength / 1400f, wheelScaleLength / 700)));
+                Math.Min(1.2f, 1 - RT(wheelScaleLength / 1400f, wheelScaleLength / 700)));
         }
     }
 }

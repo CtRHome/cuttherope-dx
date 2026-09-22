@@ -30,18 +30,18 @@ namespace CutTheRopeDX.Tests
             LayoutSurfaces.WithSurface(2560, 1440, () =>
             {
                 MenuController controller = new(
-                    (CTRRootController)Application.SharedRootController());
+                    Application.SharedRootController());
                 try
                 {
                     controller.ShowView(viewId);
 
-                    CtrRenderer.OnSurfaceChanged(720, 1280);
+                    GameLifecycle.OnSurfaceChanged(720, 1280);
 
                     // The real resize path reaches a controller through the root's active child
                     // chain, which a controller built for a test is not on.
                     controller.RelayoutTree(ScreenPresentation.Instance.Snapshot);
 
-                    CTRRectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
+                    Rectangle visible = ScreenPresentation.Instance.Snapshot.VisibleBounds;
                     Image backdrop = Backdrop(controller, viewId);
                     Assert.True(
                         backdrop.scaleX * backdrop.width >= visible.w,

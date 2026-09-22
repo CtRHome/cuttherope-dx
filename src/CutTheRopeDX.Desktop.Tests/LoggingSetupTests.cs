@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 
+using CutTheRopeDX.Framework.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -203,7 +205,7 @@ namespace CutTheRopeDX.Desktop.Tests
         [Fact]
         public void ComposePutsTheExceptionOnItsOwnLine()
         {
-            string formatted = LoggingSetup.Compose(
+            string formatted = LogEntryFormat.Compose(
                 LogLevel.Critical,
                 "Sdl.Host",
                 "device lost",
@@ -216,7 +218,7 @@ namespace CutTheRopeDX.Desktop.Tests
         [Fact]
         public void ComposeBracketsTheLevelAndSeparatesFieldsWithSpaces()
         {
-            string formatted = LoggingSetup.Compose(LogLevel.Information, "Sdl.Host", "renderer=Metal", null);
+            string formatted = LogEntryFormat.Compose(LogLevel.Information, "Sdl.Host", "renderer=Metal", null);
 
             Assert.DoesNotContain("\t", formatted);
             Assert.Contains(" [Information] Sdl.Host renderer=Metal", formatted);
@@ -228,7 +230,7 @@ namespace CutTheRopeDX.Desktop.Tests
             string account = Environment.UserName;
             Assert.True(account.Length >= 3, "This machine's account name is too short to redact.");
 
-            string formatted = LoggingSetup.Compose(
+            string formatted = LogEntryFormat.Compose(
                 LogLevel.Information,
                 "Preferences",
                 $"Using save directory: /Users/{account}/Documents/save",
@@ -243,7 +245,7 @@ namespace CutTheRopeDX.Desktop.Tests
         {
             Assert.DoesNotContain(
                 Environment.NewLine,
-                LoggingSetup.Compose(LogLevel.Information, "Sdl.Host", "renderer=Metal", null));
+                LogEntryFormat.Compose(LogLevel.Information, "Sdl.Host", "renderer=Metal", null));
         }
 
         [Fact]

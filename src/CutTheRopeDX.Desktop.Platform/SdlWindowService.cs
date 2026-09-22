@@ -7,10 +7,10 @@ using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Diagnostics;
 using CutTheRopeDX.Framework.Platform;
 
-
 using Microsoft.Extensions.Logging;
 
 using SDL3;
+
 namespace CutTheRopeDX.Desktop.Platform
 {
     internal sealed class SdlWindowService(nint window) : IWindowService
@@ -219,7 +219,7 @@ namespace CutTheRopeDX.Desktop.Platform
             {
                 SavePreferences();
             }
-            CtrRenderer.OnSurfaceChanged(pixelWidth, pixelHeight, DevicePixelRatio);
+            GameLifecycle.OnSurfaceChanged(pixelWidth, pixelHeight, DevicePixelRatio);
         }
         /// <summary>Decides what a reading of the window's flags says about the maximized state to keep.</summary>
         /// <param name="saved">The maximized state kept so far.</param>
@@ -261,7 +261,7 @@ namespace CutTheRopeDX.Desktop.Platform
 
         public Vector2 MapWindowToView(float x, float y)
         {
-            CTRRectangle viewport = ScreenPresentation.Instance.Snapshot.RenderViewport;
+            Rectangle viewport = ScreenPresentation.Instance.Snapshot.RenderViewport;
             return MapWindowToView(x, y, WindowWidth, WindowHeight, PixelWidth, PixelHeight, viewport.x, viewport.y);
         }
         public static Vector2 MapWindowToView(float x, float y, int windowWidth, int windowHeight, int pixelWidth, int pixelHeight, float marginX, float marginY)

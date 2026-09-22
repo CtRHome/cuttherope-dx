@@ -21,39 +21,39 @@ namespace CutTheRopeDX.GameMain
         {
             containedObjects = [];
             soundPlaying = -1;
-            vinilStickerL = Image.Image_createWithResIDQuad(VinylTexture, 2);
+            vinilStickerL = Image.FromResource(VinylTexture, 2);
             vinilStickerL.anchor = 20;
             vinilStickerL.parentAnchor = 18;
             vinilStickerL.rotationCenterX = vinilStickerL.width / 2f;
             vinilStickerL.x = 1f;
-            vinilStickerR = Image.Image_createWithResIDQuad(VinylTexture, 2);
+            vinilStickerR = Image.FromResource(VinylTexture, 2);
             vinilStickerR.scaleX = -1f;
             vinilStickerR.anchor = 20;
             vinilStickerR.parentAnchor = 18;
             vinilStickerR.rotationCenterX = vinilStickerR.width / 2f;
             vinilStickerR.x = -1f;
-            vinilCenter = Image.Image_createWithResIDQuad(VinylTexture, 3);
+            vinilCenter = Image.FromResource(VinylTexture, 3);
             vinilCenter.anchor = 18;
-            vinilHighlightL = Image.Image_createWithResIDQuad(VinylTexture, 1);
+            vinilHighlightL = Image.FromResource(VinylTexture, 1);
             vinilHighlightL.anchor = 12;
-            vinilHighlightR = Image.Image_createWithResIDQuad(VinylTexture, 1);
+            vinilHighlightR = Image.FromResource(VinylTexture, 1);
             vinilHighlightR.scaleX = -1f;
             vinilHighlightR.anchor = 9;
-            vinilControllerL = Image.Image_createWithResIDQuad(VinylTexture, 5);
+            vinilControllerL = Image.FromResource(VinylTexture, 5);
             vinilControllerL.anchor = 18;
             vinilControllerL.rotation = DEG_90;
-            vinilControllerR = Image.Image_createWithResIDQuad(VinylTexture, 5);
+            vinilControllerR = Image.FromResource(VinylTexture, 5);
             vinilControllerR.anchor = 18;
             vinilControllerR.rotation = -DEG_90;
-            vinilActiveControllerL = Image.Image_createWithResIDQuad(VinylTexture, 4);
+            vinilActiveControllerL = Image.FromResource(VinylTexture, 4);
             vinilActiveControllerL.anchor = vinilControllerL.anchor;
             vinilActiveControllerL.rotation = vinilControllerL.rotation;
             vinilActiveControllerL.visible = false;
-            vinilActiveControllerR = Image.Image_createWithResIDQuad(VinylTexture, 4);
+            vinilActiveControllerR = Image.FromResource(VinylTexture, 4);
             vinilActiveControllerR.anchor = vinilControllerR.anchor;
             vinilActiveControllerR.rotation = vinilControllerR.rotation;
             vinilActiveControllerR.visible = false;
-            vinil = Image.Image_createWithResIDQuad(VinylTexture, 0);
+            vinil = Image.FromResource(VinylTexture, 0);
             vinil.anchor = 18;
             passColorToChilds = false;
             _ = AddChild(vinilStickerL);
@@ -147,9 +147,8 @@ namespace CutTheRopeDX.GameMain
         /// <returns>Whether another circle contains at least one of the same objects.</returns>
         public bool ContainsSameObjectWithAnotherCircle()
         {
-            foreach (object obj in circlesArray)
+            foreach (RotatedCircle item in circlesArray)
             {
-                RotatedCircle item = (RotatedCircle)obj;
                 if (item != this && ContainsSameObjectWithCircle(item))
                 {
                     return true;
@@ -182,9 +181,8 @@ namespace CutTheRopeDX.GameMain
             vinil.Draw();
             Renderer.Disable(Renderer.GL_TEXTURE_2D);
             Renderer.SetBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONEMINUSSRCALPHA);
-            foreach (object obj in circlesArray)
+            foreach (RotatedCircle item in circlesArray)
             {
-                RotatedCircle item = (RotatedCircle)obj;
                 if (item != this && item.ContainsSameObjectWithAnotherCircle() && circlesArray.IndexOf(item) < circlesArray.IndexOf(this))
                 {
                     DrawHelper.DrawCircleIntersection(x, y, sizeInPixels, item.x, item.y, item.sizeInPixels, 81, OUTER_CIRCLE_WIDTH * item.vinilHighlightL.scaleX * 0.5f, CONTOUR_COLOR);
@@ -232,9 +230,8 @@ namespace CutTheRopeDX.GameMain
             {
                 return false;
             }
-            foreach (object obj in containedObjects)
+            foreach (GameObject containedObject in containedObjects)
             {
-                GameObject containedObject = (GameObject)obj;
                 if (anotherCircle.containedObjects.IndexOf(containedObject) != -1)
                 {
                     return true;
@@ -260,8 +257,8 @@ namespace CutTheRopeDX.GameMain
             };
             rotatedCircle.handle1 = Vect(rotatedCircle.x - RTPD(size * 3f), rotatedCircle.y);
             rotatedCircle.handle2 = Vect(rotatedCircle.x + RTPD(size * 3f), rotatedCircle.y);
-            rotatedCircle.handle1 = VectRotateAround(rotatedCircle.handle1, DEGREES_TO_RADIANS(rotatedCircle.rotation), rotatedCircle.x, rotatedCircle.y);
-            rotatedCircle.handle2 = VectRotateAround(rotatedCircle.handle2, DEGREES_TO_RADIANS(rotatedCircle.rotation), rotatedCircle.x, rotatedCircle.y);
+            rotatedCircle.handle1 = VectRotateAround(rotatedCircle.handle1, float.DegreesToRadians(rotatedCircle.rotation), rotatedCircle.x, rotatedCircle.y);
+            rotatedCircle.handle2 = VectRotateAround(rotatedCircle.handle2, float.DegreesToRadians(rotatedCircle.rotation), rotatedCircle.x, rotatedCircle.y);
             rotatedCircle.SetSize(size);
             rotatedCircle.SetHasOneHandle(HasOneHandle());
             rotatedCircle.vinilControllerL.visible = false;
@@ -338,10 +335,10 @@ namespace CutTheRopeDX.GameMain
         public Vector handle2;
 
         /// <summary>Initial world-space position of the first controller handle.</summary>
-        public Vector inithanlde1;
+        public Vector initHandle1;
 
         /// <summary>Initial world-space position of the second controller handle.</summary>
-        public Vector inithanlde2;
+        public Vector initHandle2;
 
         /// <summary>Shared list of rotated circles in the level.</summary>
         public List<RotatedCircle> circlesArray;

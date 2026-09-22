@@ -181,7 +181,7 @@ namespace CutTheRopeDX.GameMain
             bool isPaddington = false,
             bool paddingtonGreetingPending = false)
         {
-            target = CharAnimations.CharAnimations_createWithResID(Resources.Img.CharAnimations);
+            target = Image.InitializeFromResource(new CharAnimations(), Resources.Img.CharAnimations);
             target.DoRestoreCutTransparency();
             target.passColorToChilds = false;
 
@@ -356,7 +356,7 @@ namespace CutTheRopeDX.GameMain
         {
             return state switch
             {
-                TargetAnimationState.IdleLoop => target.GetCurrentTimelineIndex() == IdleLoopTimeline,
+                TargetAnimationState.IdleLoop => target.CurrentTimelineIndex == IdleLoopTimeline,
                 TargetAnimationState.IdleVariationOne
                 or TargetAnimationState.IdleVariationTwo
                 or TargetAnimationState.IdleVariationThree
@@ -372,7 +372,7 @@ namespace CutTheRopeDX.GameMain
                 or TargetAnimationState.GreetUp
                 or TargetAnimationState.GreetDown => false,
                 TargetAnimationState.Sleeping => isNightLevel
-                    && target.GetAnimation(Resources.Img.CharAnimationsSleeping)?.GetCurrentTimelineIndex() == SleepingTimeline,
+                    && target.GetAnimation(Resources.Img.CharAnimationsSleeping)?.CurrentTimelineIndex == SleepingTimeline,
                 _ => false
             };
         }
@@ -628,7 +628,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>Blink animation instance attached to Om Nom.</returns>
         private Animation CreateBlinkAnimation()
         {
-            Animation blink = Animation.Animation_createWithResID(Resources.Img.CharAnimations);
+            Animation blink = Image.InitializeFromResource(new Animation(), Resources.Img.CharAnimations);
             blink.parentAnchor = 9;
             blink.visible = false;
             blink.AddAnimationWithIDDelayLoopCountSequence(0, DefaultFrameDelay, Timeline.LoopType.TIMELINE_NO_LOOP, 4, 41, [41, 42, 42, 42]);
@@ -638,15 +638,6 @@ namespace CutTheRopeDX.GameMain
             return blink;
         }
 
-        /// <summary>
-        /// Creates a single ZZZ overlay image for the night level sleep animation.
-        /// Scale, rotation, and alpha are driven each frame by <see cref="AdvanceZzzState"/>.
-        /// </summary>
-        /// <returns>Configured ZZZ image, initially hidden.</returns>
-        /// <summary>
-        /// Creates the Paddington hat prop that stands beside Om Nom after the greeting.
-        /// </summary>
-        /// <returns>Hat prop image, sharing Om Nom's anchor so it lands where he set it down.</returns>
         /// <summary>
         /// Hands off from the hat tip in a single callback, the way the iOS release does: it reveals
         /// the hat, drops Om Nom back onto the base sheet and restarts his idle loop together.
@@ -669,9 +660,13 @@ namespace CutTheRopeDX.GameMain
             };
         }
 
+        /// <summary>
+        /// Creates the Paddington hat prop that stands beside Om Nom after the greeting.
+        /// </summary>
+        /// <returns>Hat prop image, sharing Om Nom's anchor so it lands where he set it down.</returns>
         private Image CreatePaddingtonHat()
         {
-            Image hat = Image.Image_createWithResIDQuad(Resources.Img.CharAnimationsPaddington, PaddingtonHatQuad);
+            Image hat = Image.FromResource(Resources.Img.CharAnimationsPaddington, PaddingtonHatQuad);
             hat.DoRestoreCutTransparency();
             // The hat is drawn straight at Om Nom's position rather than parented to him, so it has
             // to carry his anchor to land where the greeting's own last frame left it. AddImage
@@ -680,9 +675,14 @@ namespace CutTheRopeDX.GameMain
             return hat;
         }
 
+        /// <summary>
+        /// Creates a single ZZZ overlay image for the night level sleep animation.
+        /// Scale, rotation, and alpha are driven each frame by <see cref="AdvanceZzzState"/>.
+        /// </summary>
+        /// <returns>Configured ZZZ image, initially hidden.</returns>
         private static Image CreateZzzOverlay()
         {
-            Image zzz = Image.Image_createWithResID(Resources.Img.FxSleep);
+            Image zzz = Image.FromResource(Resources.Img.FxSleep);
             zzz.rotationCenterX = ZzzRotationCenterX;
             zzz.visible = false;
             return zzz;
@@ -697,9 +697,7 @@ namespace CutTheRopeDX.GameMain
             const int frameRangeLength = 15;
             const int totalLength = (frameRangeLength * 2) + 1;
 
-#pragma warning disable IDE0028
             List<int> sequence = new(totalLength);
-#pragma warning restore IDE0028
 
             for (int offset = 1; offset <= frameRangeLength; offset++)
             {

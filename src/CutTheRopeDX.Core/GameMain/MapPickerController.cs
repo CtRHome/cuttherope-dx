@@ -55,12 +55,12 @@ namespace CutTheRopeDX.GameMain
             };
             _ = view.AddChild(rectangleElement);
             FontGeneric font = Application.GetFont(Resources.Fnt.SmallFont);
-            Text text = new Text().InitWithFont(font);
-            text.SetString("START");
-            Text text2 = new Text().InitWithFont(font);
-            text2.SetString("START");
-            text2.scaleX = text2.scaleY = 1.2f;
-            Button button = new Button().InitWithUpElementDownElementandID(text, text2, MapPickerControllerButtonId.Start);
+            Text upLabel = new Text().InitWithFont(font);
+            upLabel.SetString("START");
+            Text downLabel = new Text().InitWithFont(font);
+            downLabel.SetString("START");
+            downLabel.scaleX = downLabel.scaleY = 1.2f;
+            Button button = new Button().InitWithUpElementDownElementandID(upLabel, downLabel, MapPickerControllerButtonId.Start);
             button.anchor = button.parentAnchor = 34;
             button.delegateButtonDelegate = this;
             _ = view.AddChild(button);
@@ -105,10 +105,10 @@ namespace CutTheRopeDX.GameMain
         {
             if (rootNode != null)
             {
-                CTRRootController ctrrootController = (CTRRootController)Application.SharedRootController();
-                ctrrootController.SetMap(rootNode);
-                ctrrootController.SetMapName(selectedMap);
-                CTRRootController.SetMapsList(maplist);
+                RootController root = Application.SharedRootController();
+                root.Map = rootNode;
+                root.MapName = selectedMap;
+                RootController.SetMapsList(maplist);
                 Deactivate();
             }
         }
@@ -119,7 +119,7 @@ namespace CutTheRopeDX.GameMain
         public void SetNormalMode()
         {
             autoLoad = false;
-            ((CTRRootController)Application.SharedRootController()).SetPicker(true);
+            Application.SharedRootController().SetPicker(true);
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace CutTheRopeDX.GameMain
         public void SetAutoLoadMap(string map)
         {
             autoLoad = true;
-            ((CTRRootController)Application.SharedRootController()).SetPicker(false);
+            Application.SharedRootController().SetPicker(false);
             selectedMap = map;
         }
 

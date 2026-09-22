@@ -22,11 +22,11 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The initialized gravity toggle button.</returns>
         public static ToggleButton CreateGravityButtonWithDelegate(IButtonDelegation d)
         {
-            Image u = Image.Image_createWithResIDQuad(Resources.Img.ObjStarIdle, 21);
-            Image d2 = Image.Image_createWithResIDQuad(Resources.Img.ObjStarIdle, 21);
-            Image u2 = Image.Image_createWithResIDQuad(Resources.Img.ObjStarIdle, 22);
-            Image d3 = Image.Image_createWithResIDQuad(Resources.Img.ObjStarIdle, 22);
-            ToggleButton toggleButton = new ToggleButton().InitWithUpElement1DownElement1UpElement2DownElement2andID(u, d2, u2, d3, GameSceneButtonId.GravityToggle);
+            Image normalUp = Image.FromResource(Resources.Img.ObjStarIdle, 21);
+            Image normalDown = Image.FromResource(Resources.Img.ObjStarIdle, 21);
+            Image invertedUp = Image.FromResource(Resources.Img.ObjStarIdle, 22);
+            Image invertedDown = Image.FromResource(Resources.Img.ObjStarIdle, 22);
+            ToggleButton toggleButton = new ToggleButton().InitWithUpElement1DownElement1UpElement2DownElement2andID(normalUp, normalDown, invertedUp, invertedDown, GameSceneButtonId.GravityToggle);
             toggleButton.delegateButtonDelegate = d;
             return toggleButton;
         }
@@ -36,9 +36,9 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         public GameScene()
         {
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
+            RootController root = Application.SharedRootController();
             dd = new DelayedDispatcher();
-            initialCameraToStarDistance = -1f;
+            initialCameraToCandyDistance = -1f;
             aniPool = new AnimationsPool
             {
                 visible = false
@@ -56,11 +56,11 @@ namespace CutTheRopeDX.GameMain
             };
             _ = AddChild(staticAniPool);
             camera = new Camera2D().InitWithSpeedandType(14f, CAMERATYPE.CAMERASPEEDDELAY);
-            string[] boxBackgrounds = PackConfig.GetBoxBackgrounds(cTRRootController.GetPack());
+            string[] boxBackgrounds = PackConfig.GetBoxBackgrounds(root.Pack);
             string boxBackground = boxBackgrounds.FirstOrDefault(name => !string.IsNullOrWhiteSpace(name));
             if (string.IsNullOrWhiteSpace(boxBackground))
             {
-                throw new InvalidDataException($"Pack config is missing boxBackground for pack {cTRRootController.GetPack()}.");
+                throw new InvalidDataException($"Pack config is missing boxBackground for pack {root.Pack}.");
             }
             back = new TileMap().InitWithRowsColumns(1, 1);
             // Wide levels can move the camera past one P1 width, so repeat it on both axes.
@@ -76,7 +76,7 @@ namespace CutTheRopeDX.GameMain
             {
                 const int HudUiStarFirstQuad = 1;
                 const int HudUiStarLastQuad = 11;
-                hudStar[i] = Animation.Animation_createWithResID(Resources.Img.HudUi);
+                hudStar[i] = Image.InitializeFromResource(new Animation(), Resources.Img.HudUi);
                 hudStar[i].SetDrawQuad(HudUiStarFirstQuad);
                 _ = hudStar[i].AddAnimationDelayLoopFirstLast(0.05f, Timeline.LoopType.TIMELINE_NO_LOOP, HudUiStarFirstQuad, HudUiStarLastQuad);
                 hudStar[i].SetPauseAtIndexforAnimation(10, 0);
@@ -105,8 +105,8 @@ namespace CutTheRopeDX.GameMain
             overOmNom = false;
             dd.CancelAllDispatches();
             gameplayFlow.Reset();
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
-            if (cTRRootController.IsPicker())
+            RootController root = Application.SharedRootController();
+            if (root.IsPicker())
             {
                 XmlLoaderFinishedWithfromwithSuccess(ContentPaths.LoadXml("mappicker://reload"), "mappicker://reload", true);
                 return;
@@ -129,8 +129,8 @@ namespace CutTheRopeDX.GameMain
                 return;
             }
 
-            int pack = cTRRootController.GetPack();
-            int level = cTRRootController.GetLevel();
+            int pack = root.Pack;
+            int level = root.Level;
             string mapPath = Path.Combine(ContentPaths.MapsDirectory, LevelsList.LEVEL_NAMES[pack, level]);
             XmlLoaderFinishedWithfromwithSuccess(ContentPaths.LoadXml(mapPath), mapPath, true);
         }
@@ -142,20 +142,20 @@ namespace CutTheRopeDX.GameMain
         {
             dd.CancelAllDispatches();
             gameplayFlow.Reset();
-            initialCameraToStarDistance = -1f;
+            initialCameraToCandyDistance = -1f;
             animateRestartDim = false;
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
-            if (cTRRootController.IsPicker())
+            RootController root = Application.SharedRootController();
+            if (root.IsPicker())
             {
                 XmlLoaderFinishedWithfromwithSuccess(ContentPaths.LoadXml("mappicker://next"), "mappicker://next", true);
                 return;
             }
-            int pack = cTRRootController.GetPack();
-            int level = cTRRootController.GetLevel();
-            if (level < CTRPreferences.GetLevelsInPackCount(pack) - 1)
+            int pack = root.Pack;
+            int level = root.Level;
+            if (level < Preferences.GetLevelsInPackCount(pack) - 1)
             {
-                cTRRootController.SetLevel(++level);
-                cTRRootController.SetMapName(LevelsList.LEVEL_NAMES[pack, level]);
+                root.Level = ++level;
+                root.MapName = LevelsList.LEVEL_NAMES[pack, level];
                 string mapPath = Path.Combine(ContentPaths.MapsDirectory, LevelsList.LEVEL_NAMES[pack, level]);
                 XmlLoaderFinishedWithfromwithSuccess(ContentPaths.LoadXml(mapPath), mapPath, true);
             }
@@ -177,7 +177,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="ys">Additional Y offset for the image.</param>
         public void CreateEarthImageWithOffsetXY(float xs, float ys)
         {
-            Image image = Image.Image_createWithResIDQuad(Resources.Img.ObjStarIdle, 23);
+            Image image = Image.FromResource(Resources.Img.ObjStarIdle, 23);
             image.anchor = 18;
             Timeline timeline = new Timeline().InitWithMaxKeyFramesOnTrack(2);
             timeline.AddKeyFrame(KeyFrame.MakeRotation(0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0));
@@ -188,8 +188,8 @@ namespace CutTheRopeDX.GameMain
             timeline.AddKeyFrame(KeyFrame.MakeRotation(0, KeyFrame.TransitionType.FRAME_TRANSITION_LINEAR, 0.3f));
             image.AddTimelinewithID(timeline, 0);
 
-            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
-            Vector? earthBgPosition = PackConfig.GetEarthBgPosition(cTRRootController.GetPack());
+            RootController root = Application.SharedRootController();
+            Vector? earthBgPosition = PackConfig.GetEarthBgPosition(root.Pack);
             if (earthBgPosition.HasValue)
             {
                 image.x = earthBgPosition.Value.X;

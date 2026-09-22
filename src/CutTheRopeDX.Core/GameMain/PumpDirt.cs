@@ -52,22 +52,10 @@ namespace CutTheRopeDX.GameMain
             size = 2f;
             sizeVar = 1f;
             emissionRate = 100f;
-            startColor.RedColor = 1f;
-            startColor.GreenColor = 1f;
-            startColor.BlueColor = 1f;
-            startColor.AlphaChannel = 0.6f;
-            startColorVar.RedColor = 0f;
-            startColorVar.GreenColor = 0f;
-            startColorVar.BlueColor = 0f;
-            startColorVar.AlphaChannel = 0f;
-            endColor.RedColor = 1f;
-            endColor.GreenColor = 1f;
-            endColor.BlueColor = 1f;
-            endColor.AlphaChannel = 0f;
-            endColorVar.RedColor = 0f;
-            endColorVar.GreenColor = 0f;
-            endColorVar.BlueColor = 0f;
-            endColorVar.AlphaChannel = 0f;
+            startColor = RGBAColor.MakeRGBA(1f, 1f, 1f, 0.6f);
+            startColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
+            endColor = RGBAColor.MakeRGBA(1f, 1f, 1f, 0f);
+            endColorVar = RGBAColor.MakeRGBA(0f, 0f, 0f, 0f);
             blendAdditive = true;
             return this;
         }
@@ -96,12 +84,7 @@ namespace CutTheRopeDX.GameMain
         {
             base.InitParticle(ref particle);
             int quadIndex = RND_RANGE(6, 8);
-            Quad2D qt = imageGrid.texture.quads[quadIndex];
-            Quad3D qv = Quad3D.MakeQuad3D(0f, 0f, 0f, 0f, 0f);
-            drawer.SetTextureQuadatVertexQuadatIndex(qt, qv, particleCount);
-            CTRRectangle rectangle = imageGrid.texture.quadRects[quadIndex];
-            particle.width = rectangle.w * particle.size;
-            particle.height = rectangle.h * particle.size;
+            SetParticleQuad(ref particle, quadIndex, particle.size);
         }
 
         /// <inheritdoc />

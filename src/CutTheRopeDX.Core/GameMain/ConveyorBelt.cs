@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using CutTheRopeDX.Framework.Core;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Visual;
 
 namespace CutTheRopeDX.GameMain
@@ -152,7 +153,7 @@ namespace CutTheRopeDX.GameMain
                 anchor = 9;
                 parentAnchor = 9;
 
-                plateSection = Image.Image_createWithResIDQuad(Resources.Img.ObjConveyor, ImgObjConveyorPlate);
+                plateSection = Image.FromResource(Resources.Img.ObjConveyor, ImgObjConveyorPlate);
                 plateSection.parent = this;
                 plateSection.anchor = 10;
                 plateSection.parentAnchor = 10;
@@ -161,7 +162,7 @@ namespace CutTheRopeDX.GameMain
 
                 if (direction != 0)
                 {
-                    plateArrow = Image.Image_createWithResIDQuad(Resources.Img.ObjConveyor, ImgObjConveyorPlateArrow);
+                    plateArrow = Image.FromResource(Resources.Img.ObjConveyor, ImgObjConveyorPlateArrow);
                     plateArrow.anchor = 18;
                     plateArrow.parentAnchor = 18;
                     if (direction < 0)
@@ -329,8 +330,8 @@ namespace CutTheRopeDX.GameMain
 
             this.rotation = -rotation;
             IsManual = isManual;
-            rotationRad = DEGREES_TO_RADIANS(rotation);
-            direction = Vect(Cosf(rotationRad), -Sinf(rotationRad));
+            rotationRad = float.DegreesToRadians(rotation);
+            direction = Vect(MathF.Cos(rotationRad), -MathF.Sin(rotationRad));
             this.velocity = velocity;
             rotationCenterX = -length / 2f;
             rotationCenterY = 0f;
@@ -346,8 +347,8 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The world-space position.</returns>
         private Vector VecToWorldSpace(float localX, float localY)
         {
-            float cosR = Cosf(rotationRad);
-            float sinR = Sinf(rotationRad);
+            float cosR = MathF.Cos(rotationRad);
+            float sinR = MathF.Sin(rotationRad);
             return Vect(
                 x + (cosR * localX) - (sinR * localY),
                 y - (sinR * localX) - (cosR * localY));
@@ -544,7 +545,7 @@ namespace CutTheRopeDX.GameMain
 
                 if (wrapped)
                 {
-                    CTRSoundMgr.PlaySound(Resources.Snd.TransporterDrop);
+                    SoundMgr.PlaySound(Resources.Snd.TransporterDrop);
                     objectsDistributed = false;
                 }
 
@@ -743,7 +744,7 @@ namespace CutTheRopeDX.GameMain
         public Vector ToLocalSpace(Vector worldPoint)
         {
             float perpAngle = -rotationRad - (MathF.PI / 2f);
-            Vector perp = Vect(Cosf(perpAngle), Sinf(perpAngle));
+            Vector perp = Vect(MathF.Cos(perpAngle), MathF.Sin(perpAngle));
             float dx = worldPoint.X - x;
             float dy = worldPoint.Y - y;
             return Vect((direction.X * dx) + (direction.Y * dy), (perp.X * dx) + (perp.Y * dy));
@@ -869,7 +870,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>The configured <see cref="Image"/> piece.</returns>
         private static Image CreatePiece(int quad, int anchors)
         {
-            Image piece = Image.Image_createWithResIDQuad(Resources.Img.ObjConveyor, quad);
+            Image piece = Image.FromResource(Resources.Img.ObjConveyor, quad);
             piece.anchor = (sbyte)anchors;
             piece.parentAnchor = (sbyte)anchors;
             return piece;
@@ -880,7 +881,7 @@ namespace CutTheRopeDX.GameMain
         /// </summary>
         private static void PlayManualMoveSound()
         {
-            CTRSoundMgr.PlayRandomSound(Resources.Snd.Conv01, Resources.Snd.Conv02, Resources.Snd.Conv03, Resources.Snd.Conv04);
+            SoundMgr.PlayRandomSound(Resources.Snd.Conv01, Resources.Snd.Conv02, Resources.Snd.Conv03, Resources.Snd.Conv04);
         }
 
         /// <summary>

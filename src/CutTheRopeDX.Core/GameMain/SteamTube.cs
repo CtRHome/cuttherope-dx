@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 
 using CutTheRopeDX.Framework;
 using CutTheRopeDX.Framework.Core;
 using CutTheRopeDX.Framework.Helpers;
+using CutTheRopeDX.Framework.Media;
 using CutTheRopeDX.Framework.Visual;
 
 namespace CutTheRopeDX.GameMain
@@ -38,14 +40,14 @@ namespace CutTheRopeDX.GameMain
         {
             x = position.X;
             y = position.Y;
-            this.heightScale = heightScale;
+            HeightScale = heightScale;
             rotation = angle;
             anchor = 18;
             steamBack = new BaseElement();
             steamBack.anchor = steamBack.parentAnchor = 18;
             steamFront = new BaseElement();
             steamFront.anchor = steamFront.parentAnchor = 18;
-            tube = Image.Image_createWithResIDQuad(Resources.Img.ObjPipe, 0);
+            tube = Image.FromResource(Resources.Img.ObjPipe, 0);
             tube.x = 0f;
             tube.y = 0f;
             tube.anchor = 10;
@@ -53,7 +55,7 @@ namespace CutTheRopeDX.GameMain
             _ = AddChild(tube);
             width = tube.width;
             height = tube.height;
-            valve = Image.Image_createWithResIDQuad(Resources.Img.ObjPipe, 1);
+            valve = Image.FromResource(Resources.Img.ObjPipe, 1);
             valve.x = 0f;
             valve.y = 27f * heightScale;
             valve.anchor = 18;
@@ -102,17 +104,13 @@ namespace CutTheRopeDX.GameMain
         public float GetCurrentHeightModulated()
         {
             float currentHeight = GetCurrentHeight();
-            return currentHeight + (heightScale * Sinf(6f * phase));
+            return currentHeight + (HeightScale * MathF.Sin(6f * phase));
         }
 
         /// <summary>
         /// Gets the height scale factor applied to this steam tube.
         /// </summary>
-        /// <returns>The height scale multiplier.</returns>
-        public float GetHeightScale()
-        {
-            return heightScale;
-        }
+        public float HeightScale { get; private set; } = 1f;
 
         /// <inheritdoc />
         public override void Update(float delta)
@@ -140,11 +138,11 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public override bool OnTouchDownXY(float tx, float ty)
         {
-            Vector vector = VectAdd(Vect(x, y), VectRotate(Vect(0f, 28f * heightScale), DEGREES_TO_RADIANS(rotation)));
+            Vector vector = VectAdd(Vect(x, y), VectRotate(Vect(0f, 28f * HeightScale), float.DegreesToRadians(rotation)));
             float touchZone = VectLength(VectSub(Vect(tx, ty), vector));
             // The Windows Phone reach of 40 grows with the tube like the valve offset above it, or
             // the valve would be a third of its authored size to tap in DX's larger world.
-            if (touchZone < 40f * heightScale)
+            if (touchZone < 40f * HeightScale)
             {
                 int valveTimelineIndex = 0;
                 switch (steamState)
@@ -152,17 +150,17 @@ namespace CutTheRopeDX.GameMain
                     case 0:
                         steamState++;
                         valveTimelineIndex = 0;
-                        CTRSoundMgr.PlaySound(Resources.Snd.SteamStart2);
+                        SoundMgr.PlaySound(Resources.Snd.SteamStart2);
                         break;
                     case 1:
                         steamState++;
                         valveTimelineIndex = 0;
-                        CTRSoundMgr.PlaySound(Resources.Snd.SteamStart);
+                        SoundMgr.PlaySound(Resources.Snd.SteamStart);
                         break;
                     case 2:
                         steamState = 0;
                         valveTimelineIndex = 1;
-                        CTRSoundMgr.PlaySound(Resources.Snd.SteamEnd);
+                        SoundMgr.PlaySound(Resources.Snd.SteamEnd);
                         break;
                     default:
                         break;
@@ -197,7 +195,7 @@ namespace CutTheRopeDX.GameMain
         {
             get
             {
-                float angle = DEGREES_TO_RADIANS(rotation);
+                float angle = float.DegreesToRadians(rotation);
                 Vector offset = VectRotate(Vect(0f, height * 0.45f * scaleY), angle);
                 return VectAdd(Vect(x, y), offset);
             }
@@ -206,7 +204,7 @@ namespace CutTheRopeDX.GameMain
         /// <inheritdoc />
         public void SetBindPoint(Vector point)
         {
-            float angle = DEGREES_TO_RADIANS(rotation);
+            float angle = float.DegreesToRadians(rotation);
             Vector offset = VectRotate(Vect(0f, height * 0.45f * scaleY), angle);
             Vector adjusted = VectSub(point, offset);
             x = adjusted.X;
@@ -268,7 +266,7 @@ namespace CutTheRopeDX.GameMain
                 2 => 141f,
                 _ => 0f,
             };
-            return baseHeight * heightScale;
+            return baseHeight * HeightScale;
         }
 
         /// <summary>
@@ -288,11 +286,11 @@ namespace CutTheRopeDX.GameMain
             }
             if (steamFront != null)
             {
-                Dictionary<int, BaseElement> childs2 = steamFront.GetChilds();
-                foreach (KeyValuePair<int, BaseElement> keyValuePair2 in childs2)
+                Dictionary<int, BaseElement> frontChilds = steamFront.GetChilds();
+                foreach (KeyValuePair<int, BaseElement> child in frontChilds)
                 {
-                    BaseElement value2 = keyValuePair2.Value;
-                    value2?.GetTimeline(0).SetTimelineLoopType(Timeline.LoopType.TIMELINE_NO_LOOP);
+                    BaseElement element = child.Value;
+                    element?.GetTimeline(0).SetTimelineLoopType(Timeline.LoopType.TIMELINE_NO_LOOP);
                 }
             }
             if (steamState != 3)
@@ -354,7 +352,7 @@ namespace CutTheRopeDX.GameMain
                     {
                         horizontalOffset *= -steamState;
                     }
-                    Animation animation = Animation.Animation_createWithResID(Resources.Img.ObjPipe);
+                    Animation animation = Image.InitializeFromResource(new Animation(), Resources.Img.ObjPipe);
                     animation.DoRestoreCutTransparency();
                     _ = animation.AddAnimationDelayLoopFirstLast(frameDelay, Timeline.LoopType.TIMELINE_REPLAY, animationStartFrame, animationEndFrame);
                     animation.anchor = animation.parentAnchor = 18;
@@ -388,9 +386,6 @@ namespace CutTheRopeDX.GameMain
             BaseElement child = baseElement.GetChild(baseElement.ChildsCount() - 1);
             child.PlayTimeline(0);
         }
-
-        /// <summary>Scale factor applied to tube dimensions and steam heights.</summary>
-        private float heightScale = 1f;
 
         /// <summary>Current valve state: 0 = low, 1 = medium, 2 = high.</summary>
         public int steamState;

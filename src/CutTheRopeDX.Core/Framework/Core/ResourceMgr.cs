@@ -19,10 +19,102 @@ using static CutTheRopeDX.Helpers.ParsingHelpers;
 namespace CutTheRopeDX.Framework.Core
 {
     /// <summary>
-    /// Loads, caches, frees, and background-prefetches framework resources such as textures, fonts, and sounds.
+    /// Loads, caches, frees, and background-prefetches resources such as textures, fonts, and sounds,
+    /// resolving localized variants for the active language.
     /// </summary>
     internal class ResourceMgr : FrameworkTypes
     {
+        /// <summary>
+        /// Adjusts a resource name for the active language when localized variants exist.
+        /// </summary>
+        /// <param name="resourceName">The string name of the resource to look up.</param>
+        /// <returns>The localized resource name variant, or <paramref name="resourceName"/> unchanged if no variant exists.</returns>
+        public static string HandleLocalizedResource(string resourceName)
+        {
+            return string.IsNullOrEmpty(resourceName)
+                ? resourceName
+                : resourceName switch
+                {
+                    _ when resourceName == Resources.Img.MenuExtraButtonsEn => LanguageHelper.Current switch
+                    {
+                        Language.LANGEN => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGRU => Resources.Img.MenuExtraButtonsRu,
+                        Language.LANGDE => Resources.Img.MenuExtraButtonsGr,
+                        Language.LANGFR => Resources.Img.MenuExtraButtonsFr,
+                        Language.LANGES => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGIT => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGNL => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGPTBR => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGKO => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGJA => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGZH => Resources.Img.MenuExtraButtonsEn,
+                        Language.LANGZHTW => Resources.Img.MenuExtraButtonsEn,
+                        _ => Resources.Img.MenuExtraButtonsEn,
+                    },
+                    _ => resourceName,
+                };
+        }
+
+        /// <summary>
+        /// Returns the texture quad index for the localized result stamp overlay.
+        /// </summary>
+        /// <returns>Quad index for the current language's result stamp.</returns>
+        public static int GetResultStampQuad()
+        {
+            return LanguageHelper.Current switch
+            {
+                Language.LANGEN => 17,
+                Language.LANGFR => 18,
+                Language.LANGDE => 19,
+                Language.LANGRU => 20,
+                Language.LANGPTBR => 21,
+                Language.LANGES => 22,
+                Language.LANGIT => 23,
+                Language.LANGJA => 24,
+                Language.LANGKO => 25,
+                Language.LANGNL => 26,
+                Language.LANGZH => 27,
+                Language.LANGZHTW => 27, // no zh_tw stamp, use English
+                _ => 17,
+            };
+        }
+
+        /// <summary>
+        /// Returns the texture quad offset for the localized HUD button sprite.
+        /// </summary>
+        /// <returns>Quad offset for the current language's HUD button.</returns>
+        public static int GetHudButtonQuadOffset()
+        {
+            return LanguageHelper.Current switch
+            {
+                Language.LANGEN => 12,
+                Language.LANGDE => 13,
+                Language.LANGRU => 14,
+                Language.LANGJA => 15,
+                Language.LANGKO => 16,
+                Language.LANGZH => 17,
+                Language.LANGZHTW => 17, // use zh
+                Language.LANGES => 18,
+                Language.LANGFR => 12,
+                Language.LANGIT => 12,
+                Language.LANGNL => 12,
+                Language.LANGPTBR => 12,
+                _ => 12, // en fallback
+            };
+        }
+
+        /// <summary>
+        /// Loads a resource by its string name. Auto-assigns an ID if needed.
+        /// </summary>
+        /// <param name="resourceName">The string name of the resource to load.</param>
+        /// <param name="resType">The type of resource to load (image, sound, etc.).</param>
+        /// <returns>The loaded resource object.</returns>
+        public static object LoadResourceByName(string resourceName, ResourceType resType)
+        {
+            ResourceMgr mgr = new();
+            return mgr.LoadResource(resourceName, resType);
+        }
+
         /// <summary>
         /// Adds a resource to the load queue by resource name.
         /// </summary>
@@ -208,7 +300,7 @@ namespace CutTheRopeDX.Framework.Core
                 return value;
             }
 
-            string path = CTRResourceMgr.XNA_ResName(resourceName);
+            string path = HandleLocalizedResource(resourceName);
             float scaleX = GetNormalScaleX(resourceName);
             float scaleY = GetNormalScaleY(resourceName);
             switch (resType)
@@ -247,7 +339,7 @@ namespace CutTheRopeDX.Framework.Core
         {
             localizedName = string.IsNullOrEmpty(resourceName)
                 ? resourceName
-                : CTRResourceMgr.HandleLocalizedResource(resourceName);
+                : HandleLocalizedResource(resourceName);
 
             return !string.IsNullOrEmpty(localizedName) && Resources.IsValidResourceName(localizedName);
         }
@@ -332,7 +424,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <param name="scaleX">Horizontal texture scale.</param>
         /// <param name="scaleY">Vertical texture scale.</param>
         /// <returns>Loaded texture resource.</returns>
-        public virtual CTRTexture2D LoadTextureImageInfo(string resourceName, string path, XElement i, bool isWvga, float scaleX, float scaleY)
+        public virtual Texture2D LoadTextureImageInfo(string resourceName, string path, XElement i, bool isWvga, float scaleX, float scaleY)
         {
             TextureAtlasConfig atlasConfig = GetTextureAtlasConfig(resourceName);
             float aspectRatioScaleX = GetAspectRatioScaleX();
@@ -348,14 +440,14 @@ namespace CutTheRopeDX.Framework.Core
             string pngPath = ImageContentPath(resourceName);
             if (useAntialias)
             {
-                CTRTexture2D.SetAntiAliasTexParameters();
+                Texture2D.SetAntiAliasTexParameters();
             }
             else
             {
-                CTRTexture2D.SetAliasTexParameters();
+                Texture2D.SetAliasTexParameters();
             }
 
-            CTRTexture2D texture2D = new CTRTexture2D().InitWithPath(pngPath) ?? throw new FileNotFoundException(
+            Texture2D texture2D = new Texture2D().InitWithPath(pngPath) ?? throw new FileNotFoundException(
                     $"Resource '{resourceName}' is missing the PNG. Did you forget to add {resourceName}.png?",
                     pngPath);
 
@@ -398,19 +490,45 @@ namespace CutTheRopeDX.Framework.Core
         /// Returns the aspect-ratio compensation scale applied to the X axis.
         /// </summary>
         /// <returns>Aspect-ratio scale factor.</returns>
-        protected virtual float GetAspectRatioScaleX()
+        private static float GetAspectRatioScaleX()
         {
-            return 1f;
+            int width = ScreenPresentation.Instance.SurfaceWidth;
+            int height = ScreenPresentation.Instance.SurfaceHeight;
+            if (width <= 0 || height <= 0)
+            {
+                return 1f;
+            }
+
+            // iOS ScreenSizeMgr derives ASPECT_RATIO from logical 640x960 fit scale.
+            // This mirrors min(scaleX, scaleY) against that logical reference size.
+            float scaleByWidth = width / 640f;
+            float scaleByHeight = height / 960f;
+            float scale = MathF.Min(scaleByWidth, scaleByHeight);
+            return scale > 0f ? scale : 1f;
         }
 
         /// <summary>
         /// Returns atlas configuration for the specified texture resource, if any.
         /// </summary>
         /// <param name="resourceName">Logical texture resource name.</param>
-        /// <returns>Atlas configuration, or <see langword="null" /> when the texture is not atlas-backed.</returns>
-        protected virtual TextureAtlasConfig GetTextureAtlasConfig(string resourceName)
+        /// <returns>Atlas configuration, or <see langword="null" /> for background images, whose dimensions come from the texture itself.</returns>
+        private static TextureAtlasConfig GetTextureAtlasConfig(string resourceName)
         {
-            return null;
+            // Background images don't need JSON atlas - dimensions auto-detected from texture
+            if (Resources.IsBackgroundImg(resourceName))
+            {
+                return null;
+            }
+
+            // Convention-based: all textures use JSON+PNG pairs in images folder
+            return new TextureAtlasConfig
+            {
+                AtlasPath = ContentPaths.GetImagePath(resourceName, ".json"),
+                ResourceName = resourceName,
+                UseAntialias = true,
+                CenterOffsets = false,
+                ScaleRes = null
+            };
         }
 
         /// <summary>
@@ -477,7 +595,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <param name="isWvga">Whether WVGA scaling rules should be applied.</param>
         /// <param name="scaleX">Horizontal texture scale.</param>
         /// <param name="scaleY">Vertical texture scale.</param>
-        private static void ApplyTexturePackerInfo(CTRTexture2D texture, ParsedTexturePackerAtlas atlas, bool isWvga, float scaleX, float scaleY)
+        private static void ApplyTexturePackerInfo(Texture2D texture, ParsedTexturePackerAtlas atlas, bool isWvga, float scaleX, float scaleY)
         {
             texture.preCutSize = vectUndefined;
             if (atlas == null || atlas.Rects.Count == 0)
@@ -488,7 +606,7 @@ namespace CutTheRopeDX.Framework.Core
             float[] quadData = new float[atlas.Rects.Count * 4];
             for (int i = 0; i < atlas.Rects.Count; i++)
             {
-                CTRRectangle rect = atlas.Rects[i];
+                Rectangle rect = atlas.Rects[i];
                 int index = i * 4;
                 quadData[index] = rect.x;
                 quadData[index + 1] = rect.y;
@@ -542,7 +660,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <param name="data">Flat quad rectangle data array.</param>
         /// <param name="scaleX">Horizontal texture scale.</param>
         /// <param name="scaleY">Vertical texture scale.</param>
-        private static void SetQuadsInfo(CTRTexture2D texture, float[] data, float scaleX, float scaleY)
+        private static void SetQuadsInfo(Texture2D texture, float[] data, float scaleX, float scaleY)
         {
             int quadCount = data.Length / 4;
             texture.SetQuadsCapacity(quadCount);
@@ -550,10 +668,10 @@ namespace CutTheRopeDX.Framework.Core
             for (int i = 0; i < quadCount; i++)
             {
                 int quadDataIndex = i * 4;
-                CTRRectangle rect = MakeRectangle(data[quadDataIndex], data[quadDataIndex + 1], data[quadDataIndex + 2], data[quadDataIndex + 3]);
+                Rectangle rect = MakeRectangle(data[quadDataIndex], data[quadDataIndex + 1], data[quadDataIndex + 2], data[quadDataIndex + 3]);
                 if (lowestPoint < rect.h + rect.y)
                 {
-                    lowestPoint = (int)Ceil(rect.h + rect.y);
+                    lowestPoint = (int)MathF.Ceiling(rect.h + rect.y);
                 }
                 rect.x /= scaleX;
                 rect.y /= scaleY;
@@ -565,7 +683,7 @@ namespace CutTheRopeDX.Framework.Core
             {
                 texture._lowypoint = lowestPoint;
             }
-            CTRTexture2D.OptimizeMemory();
+            Texture2D.OptimizeMemory();
         }
 
         /// <summary>
@@ -576,7 +694,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <param name="offsetDataSize">Number of float entries stored in <paramref name="data"/>.</param>
         /// <param name="scaleX">Horizontal texture scale.</param>
         /// <param name="scaleY">Vertical texture scale.</param>
-        private static void SetOffsetsInfo(CTRTexture2D texture, float[] data, int offsetDataSize, float scaleX, float scaleY)
+        private static void SetOffsetsInfo(Texture2D texture, float[] data, int offsetDataSize, float scaleX, float scaleY)
         {
             int offsetCount = offsetDataSize / 2;
             for (int i = 0; i < offsetCount; i++)
@@ -632,7 +750,7 @@ namespace CutTheRopeDX.Framework.Core
         /// <returns>Load completion percentage from 0 to 100.</returns>
         public virtual int GetPercentLoaded()
         {
-            return loadCount == 0 ? 100 : 100 * loaded / GetLoadCount();
+            return loadCount == 0 ? 100 : 100 * loaded / loadCount;
         }
 
         /// <summary>
@@ -830,10 +948,6 @@ namespace CutTheRopeDX.Framework.Core
         /// Returns the number of resources currently queued for loading.
         /// </summary>
         /// <returns>Queued resource count.</returns>
-        private int GetLoadCount()
-        {
-            return loadCount;
-        }
 
         /// <summary>
         /// Loads queued resources for one frame and notifies the delegate when the batch is complete.
@@ -848,7 +962,7 @@ namespace CutTheRopeDX.Framework.Core
         public void Update()
         {
             long frameStartedTicks = Stopwatch.GetTimestamp();
-            while (loaded < GetLoadCount()
+            while (loaded < loadCount
                 && Stopwatch.GetElapsedTime(frameStartedTicks).TotalMilliseconds < FrameLoadBudgetMilliseconds)
             {
                 if (loadQueue.Count > 0)
@@ -876,14 +990,14 @@ namespace CutTheRopeDX.Framework.Core
 
             // Taken before the completion callback, which builds controllers that are not loading.
             longestUpdateMs = Math.Max(longestUpdateMs, Stopwatch.GetElapsedTime(frameStartedTicks).TotalMilliseconds);
-            if (loaded >= GetLoadCount())
+            if (loaded >= loadCount)
             {
                 if (Timer >= 0)
                 {
                     TimerManager.StopTimer(Timer);
                 }
                 Timer = -1;
-                ReportBatchComplete(GetLoadCount(), "incremental", longestUpdateMs);
+                ReportBatchComplete(loadCount, "incremental", longestUpdateMs);
                 resourcesDelegate.AllResourcesLoaded();
             }
         }

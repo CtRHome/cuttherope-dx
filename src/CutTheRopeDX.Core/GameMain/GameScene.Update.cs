@@ -48,6 +48,7 @@ namespace CutTheRopeDX.GameMain
             }
             pauseSwitcherWaves?.Update(delta);
             SyncBubbleAnimationsToFreeze();
+            SyncFlyingCandyWingsToFreeze();
             for (int ti = 0; ti < targets.Count; ti++)
             {
                 TargetContext t = targets[ti];
@@ -186,7 +187,12 @@ namespace CutTheRopeDX.GameMain
                             bool kickedRopeHeld = timeFrozen && grab.Mount?.IsMounted == false && rope.cut == -1;
                             if (!kickedRopeHeld)
                             {
+                                // A flying candy the rope is holding back stays exactly where it is:
+                                // the rope settles around it rather than reeling it in.
+                                ConstrainedPoint heldTail = HoveringFlyingCandyPoint(rope.tail);
+                                Vector heldAt = heldTail?.pos ?? default;
                                 UpdateRopeWithAntCarryOverride(rope, delta);
+                                heldTail?.pos = heldAt;
                             }
                             if (grab.Spider is SpiderRider rider && rider.IsAttached)
                             {
@@ -247,7 +253,8 @@ namespace CutTheRopeDX.GameMain
                             {
                                 float ropeAngle = float.RadiansToDegrees(VectAngleNormalized(anchorToEnd));
                                 GameObject rotatedVisual = RotatedVisualOf(rotateBody);
-                                if (rotateBody.Owner.Capabilities.CanRotateWithRopes)
+                                // A flying candy keeps its heading: its rope never turns it.
+                                if (rotateBody.Owner.Capabilities.CanRotateWithRopes && !rotateBody.Owner.IsFlying)
                                 {
                                     if (!rope.chosenOne)
                                     {
@@ -276,7 +283,7 @@ namespace CutTheRopeDX.GameMain
                 // holding THIS body's candy freezes that coast.
                 foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Rope))
                 {
-                    if (!body.Owner.Capabilities.CanRotateWithRopes)
+                    if (!body.Owner.Capabilities.CanRotateWithRopes || body.Owner.IsFlying)
                     {
                         body.ResidualRotation = 0f;
                     }
@@ -302,6 +309,9 @@ namespace CutTheRopeDX.GameMain
                 && primarySplit.Right.IsPresent
                 && GameObject.ObjectsIntersect(primarySplit.Left.Body.Visual, primarySplit.Right.Body.Visual);
 
+            // Flying candies take their place beside their leaders before anything integrates.
+            StepFlyingCandies();
+
             // Step every active body's point and visual in one pass: whole candies and surviving
             // split halves alike. A removed, hidden, or split candy offers no body, so the old
             // presence guards are the enumerator's job.
@@ -311,11 +321,13 @@ namespace CutTheRopeDX.GameMain
                 {
                     body.RocketCollisionDrawPosition = Vect(body.Visual.drawX, body.Visual.drawY);
                 }
-                if (!timeFrozen)
+                // A hovering flying candy is held exactly where it is: neither integrated nor relaxed.
+                bool hovering = IsHoveringFlyingCandy(body);
+                if (!timeFrozen && !hovering)
                 {
                     body.Point.Update(delta * ropePhysicsSpeed);
                 }
-                if (ActivePhysicsConstants.RelaxCandyPointsAfterIntegration)
+                if (ActivePhysicsConstants.RelaxCandyPointsAfterIntegration && !hovering)
                 {
                     // Time Travel relaxes each candy point the moment it has moved - and does so
                     // whether or not time is frozen, unlike the integration above.
@@ -695,9 +707,21 @@ namespace CutTheRopeDX.GameMain
                     {
                         continue;
                     }
+                    if (ctx.Flight?.TubeToClear == bambooTube)
+                    {
+                        if (bambooTube.IsNearAHole(body.Point))
+                        {
+                            continue;
+                        }
+                        ctx.Flight.TubeToClear = null;
+                    }
                     bool inRange = bambooTube.TryCatchCandy(body.Point);
                     if (ctx.Lifecycle.CanEnterTransport && inRange)
                     {
+                        if (ctx.IsFlying)
+                        {
+                            ctx.Flight.TubeToClear = bambooTube;
+                        }
                         OperateBambooTube(bambooTube, ctx);
                         SoundMgr.PlaySound(Resources.Snd.ExpBambooChute);
                     }
@@ -749,6 +773,7 @@ namespace CutTheRopeDX.GameMain
                     }
 
                     CandyAttachmentSnapshot detached = ctx.Lifecycle.Attachments.CaptureInLantern();
+                    BreakFlyingCandyWings(ctx, animate: true);
                     ReleaseLanternCaptureAttachments(detached, body.Point);
                     body.Visual.passTransformationsToChilds = true;
                     body.Main.scaleX = body.Main.scaleY = 1f;
@@ -849,6 +874,7 @@ namespace CutTheRopeDX.GameMain
                             miceManager.GrabWithActiveMouse(body.Point, body.Visual);
                             if (miceManager.CarriesCandy(body.Point))
                             {
+                                BreakFlyingCandyWings(ctx, animate: true);
                                 tutorialDirector.Fire(TutorialEvent.MouseGrab, body);
                             }
                             break;
@@ -920,6 +946,16 @@ namespace CutTheRopeDX.GameMain
                             tutorialDirector.Fire(TutorialEvent.SockCatch, body);
                             exitSock.state = Sock.SOCK_THROWING;
                             exitSock.idleTimeout = 0.8f;
+                            if (ctx.IsFlying)
+                            {
+                                // Time Travel also takes the catching sock out of service until
+                                // nothing has been in its mouth for its idle timeout. A flying
+                                // candy is pulled straight back beside its leader when it comes
+                                // out - often back into this sock - and would otherwise be
+                                // swallowed again at once. CTR HD leaves the catching sock idle,
+                                // so this stays with the flying candy.
+                                sock.state = Sock.SOCK_RECEIVING;
+                            }
                             ReleaseRopesForPoint(body.Point);
                             ReleaseTransportAttachments(detached, body.Point);
                             // The rocket teleports with the candy; hide it for the transit like the
@@ -1306,7 +1342,9 @@ namespace CutTheRopeDX.GameMain
                     {
                         anyCandyHit = true;
 
-                        if (timeFrozen)
+                        // A flying candy is blocked by a bouncer, never bounced off it; that is
+                        // settled after the bouncers have all moved.
+                        if (timeFrozen || body.Owner.IsFlying)
                         {
                             continue;
                         }
@@ -1329,6 +1367,7 @@ namespace CutTheRopeDX.GameMain
                     bouncer.skip = false;
                 }
             }
+            PushFlyingCandiesOutOfBouncers(delta);
             if (waterLayer != null && waterLevel > -SCREEN_HEIGHT && waterSpeed > 0f)
             {
                 _ = Mover.MoveVariableToTarget(ref waterLevel, -SCREEN_HEIGHT, waterSpeed, delta);
@@ -1435,7 +1474,8 @@ namespace CutTheRopeDX.GameMain
             // Per-body bubble lift: every body carrying a bubble floats, whole candy or split half.
             foreach (CandyBody body in ActiveCandyBodies(CandyInteraction.Bubble))
             {
-                if (body.Bubble == null)
+                // A bubble holds a flying candy but cannot lift it: it goes where its leader goes.
+                if (body.Bubble == null || body.Owner.IsFlying)
                 {
                     continue;
                 }
@@ -1985,6 +2025,8 @@ namespace CutTheRopeDX.GameMain
                     // The claw bursts the bubble where it snatched the candy, not where the candy
                     // ends up.
                     PopCandyBubbleAt(grabbedBody, hand.ClawPosition());
+                    // A candy snatched out of the air loses its wings.
+                    BreakFlyingCandyWings(ctx, animate: true);
 
                     if (ctx.Lifecycle.Attachments.HasActiveRocket)
                     {

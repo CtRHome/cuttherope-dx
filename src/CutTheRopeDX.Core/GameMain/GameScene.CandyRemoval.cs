@@ -22,6 +22,15 @@ namespace CutTheRopeDX.GameMain
             }
 
             ReleaseRemovalOwnership(body, reason, detached);
+
+            // Whichever candy left, the pair a flying candy follows is broken, so every flying
+            // candy drops. A candy lost off screen takes the wings down without the burst. Only a
+            // real candy counts: a bomb clearing away its wreck, or an axe or bulb going, leaves
+            // the pair intact, as in the original.
+            if (body.Owner.Capabilities.CanBeEaten)
+            {
+                BreakAllFlyingCandyWings(animate: reason != CandyRemovalReason.OffScreen);
+            }
             return true;
         }
 

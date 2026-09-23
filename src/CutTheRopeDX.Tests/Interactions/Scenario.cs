@@ -66,13 +66,18 @@ namespace CutTheRopeDX.Tests.Interactions
         /// <param name="x">Level-space X.</param>
         /// <param name="y">Level-space Y.</param>
         /// <param name="number">Optional candy key, for ropes that bind by <c>candyNumber</c>.</param>
+        /// <param name="isDriven">Makes it a Time Travel flying candy that copies the other candy.</param>
         /// <returns>This scenario.</returns>
-        public Scenario Candy(int x, int y, string number = null)
+        public Scenario Candy(int x, int y, string number = null, bool isDriven = false)
         {
             XElement candy = Node("candy", x, y);
             if (number != null)
             {
                 candy.SetAttributeValue("candyNumber", number);
+            }
+            if (isDriven)
+            {
+                candy.SetAttributeValue("isDriven", Flag(true));
             }
 
             return Add(candy);
@@ -330,12 +335,19 @@ namespace CutTheRopeDX.Tests.Interactions
         /// <param name="y">Level-space Y.</param>
         /// <param name="size">Width class: 1 is the small bouncer, 2 the large one.</param>
         /// <param name="angle">Bouncer angle in degrees.</param>
+        /// <param name="path">Mover path string, e.g. "0,-100", or <see langword="null"/> for a still bouncer.</param>
+        /// <param name="moveSpeed">Mover speed for <paramref name="path"/>.</param>
         /// <returns>This scenario.</returns>
-        public Scenario Bouncer(int x, int y, int size = 2, float angle = 0f)
+        public Scenario Bouncer(int x, int y, int size = 2, float angle = 0f, string path = null, float moveSpeed = 0f)
         {
             XElement bouncer = Node(size == 1 ? "bouncer1" : "bouncer2", x, y);
             bouncer.SetAttributeValue("size", Num(size));
             bouncer.SetAttributeValue("angle", Num(angle));
+            if (path != null)
+            {
+                bouncer.SetAttributeValue("path", path);
+                bouncer.SetAttributeValue("moveSpeed", Num(moveSpeed));
+            }
             return Add(bouncer);
         }
 

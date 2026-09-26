@@ -8,7 +8,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// Identifier for the original <i>Cut the Rope</i> music pack.
         /// </summary>
-        public const string CtROriginal = "ctr_original";
+        public const string Original = "ctr_original";
         public const string KaizoPackage = "kaizo_package";
     }
 
@@ -20,7 +20,7 @@ namespace CutTheRopeDX.GameMain
         /// <summary>
         /// Music tracks used by the original <i>Cut the Rope</i> music pack.
         /// </summary>
-        public static string[] CtROriginal = [
+        public static string[] Original = [
             Resources.Music.GameMusic4
         ];
         public static string[] KaizoPackage = [

@@ -379,8 +379,8 @@ namespace CutTheRopeDX.GameMain
                         break;
                 }
 
-                _ = logoParent.AddChild(image3);
-                Image imagePackage = Image.Image_createWithResIDQuad(Resources.Img.CommunityPackageSubtitle, 0);
+                _ = logoParent.AddChild(logo);
+                Image imagePackage = Image.FromResource(Resources.Img.CommunityPackageSubtitle, 0);
                 imagePackage.anchor = 10;
                 imagePackage.parentAnchor = 10;
                 imagePackage.y = 500f;
@@ -691,7 +691,7 @@ namespace CutTheRopeDX.GameMain
                 Image.SetElementPositionWithQuadOffset(button3, Resources.Img.MenuExtraButtons, 3);
                 button3.x -= texture.preCutSize.X + 215;
                 button3.y -= texture.preCutSize.Y;
-                _ = baseElement2.AddChild(button3);
+                _ = socialContainer.AddChild(button3);
                 Image image = Image.FromResource(Resources.Img.MenuExtraButtonsEn, 0);
                 image.anchor = 9;
                 image.parentAnchor = 36;

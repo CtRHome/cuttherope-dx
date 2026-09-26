@@ -127,7 +127,7 @@ namespace CutTheRopeDX.Framework.Core
                 string locale = Preferences.GetStringForKey("PREFS_LOCALE");
                 if (string.IsNullOrEmpty(locale))
                 {
-                    text = "en";
+                    locale = "en";
                 }
                 appSettings.SetString(8, locale);
             }

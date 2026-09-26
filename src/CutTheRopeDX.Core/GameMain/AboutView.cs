@@ -134,20 +134,20 @@ namespace CutTheRopeDX.GameMain
 
             // Fan work credit section
 
-            Image communityLogo = Image.Image_createWithResID(Resources.Img.CommunityPackageLogo);
+            Image communityLogo = Image.FromResource(Resources.Img.CommunityPackageLogo);
             _ = vBox.AddChild(communityLogo);
 
             Text PackageCredits = CreateCenteredTextBlock(BuildFanworkMainText(), containerWidth, scale);
             _ = vBox.AddChild(PackageCredits);
 
-            Image ctrhomeLogo = Image.Image_createWithResIDQuad(Resources.Img.CtRHomeLogo, 0);
+            Image ctrhomeLogo = Image.FromResource(Resources.Img.CtRHomeLogo, 0);
             _ = vBox.AddChild(ctrhomeLogo);
 
             string PackageCommunityText = Application.GetString("ABOUT_COMMUNITY_SPECIAL_THANKS");
             Text PackageCommunity = CreateCenteredTextBlock(PackageCommunityText, containerWidth, scale);
             _ = vBox.AddChild(PackageCommunity);
 
-            Image topLogo = Image.Image_createWithResID(Resources.Img.CutTheRopeDXLogo);
+            Image topLogo = Image.FromResource(Resources.Img.CutTheRopeDXLogo);
             _ = vBox.AddChild(topLogo);
 
             string fanworkMainText = Application.GetString("ABOUT_FANWORK_MAIN");

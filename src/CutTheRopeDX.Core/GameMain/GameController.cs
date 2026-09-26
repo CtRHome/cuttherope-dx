@@ -1229,7 +1229,7 @@ namespace CutTheRopeDX.GameMain
                         SoundMgr.PlayRandomMusic(MusicPacks.Original);
                         break;
                     case var p when p == MusicPackNames.KaizoPackage:
-                        CTRSoundMgr.PlayRandomMusic(MusicPacks.KaizoPackage);
+                        SoundMgr.PlayRandomMusic(MusicPacks.KaizoPackage);
                         break;
                     default:
                         GameControllerLog.UnknownMusicPack(Log.For(LogCategories.GameMusic), musicPack);

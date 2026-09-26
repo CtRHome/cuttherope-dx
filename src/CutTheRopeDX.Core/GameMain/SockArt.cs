@@ -20,7 +20,7 @@ namespace CutTheRopeDX.GameMain
         {
             // The Christmas art draws two socks and stops there, so a group past them has nothing
             // seasonal to wear and falls back to the magic hat, whose band any group can generate.
-            return isXmas && !WearsGeneratedBand(group)
+            return false && !WearsGeneratedBand(group)
                 ? Resources.Img.ObjSock
                 : Resources.Img.ObjHat;
         }

@@ -242,7 +242,7 @@ namespace CutTheRopeDX.GameMain
             int backgroundQuad;
             switch (true)
             {
-                case var _ when SpecialEvents.IsXmas:
+                case var _ when false:
                     backgroundResource = Resources.Img.MenuBgrXmas;
                     backgroundQuad = 0;
                     break;
@@ -267,7 +267,7 @@ namespace CutTheRopeDX.GameMain
                 int backgroundSecondaryQuad;
                 switch (true)
                 {
-                    case var _ when SpecialEvents.IsXmas:
+                    case var _ when false:
                         backgroundSecondaryResource = Resources.Img.MenuBgrXmas;
                         backgroundSecondaryQuad = 1;
                         break;
@@ -288,7 +288,7 @@ namespace CutTheRopeDX.GameMain
                 // Add event-specific decorations to logo -- layer bottom
                 switch (true)
                 {
-                    case var _ when SpecialEvents.IsXmas:
+                    case var _ when false:
                         // Hat background layer (behind the logo) - add to baseElement before logo
                         Image hatBackground = Image.FromResource(Resources.Img.MenuLogoXmasHat, 0);
                         hatBackground.anchor = 9;  // Top-left of the hat sprite
@@ -366,7 +366,7 @@ namespace CutTheRopeDX.GameMain
                 // Add event-specific decorations to logo -- layer top
                 switch (true)
                 {
-                    case var _ when SpecialEvents.IsXmas:
+                    case var _ when false:
                         // Hat foreground layer (on top of the text logo)
                         Image hatForeground = Image.FromResource(Resources.Img.MenuLogoXmasHat, 1);
                         hatForeground.anchor = 9;  // Top-left of the hat sprite
@@ -1674,7 +1674,7 @@ namespace CutTheRopeDX.GameMain
             }
             ShowView(viewToShow);
             SoundMgr.StopMusic();
-            if (SpecialEvents.IsXmas)
+            if (false)
             {
                 SoundMgr.PlayMusic(Resources.Music.MenuMusicXmas);
             }
@@ -1735,7 +1735,7 @@ namespace CutTheRopeDX.GameMain
             }
             if (url != null)
             {
-                if (SpecialEvents.IsXmas)
+                if (false)
                 {
                     SoundMgr.PlayMusic(Resources.Music.MenuMusicXmas);
                 }
@@ -1969,7 +1969,7 @@ namespace CutTheRopeDX.GameMain
                             SoundMgr.StopMusic();
                             return;
                         }
-                        if (SpecialEvents.IsXmas)
+                        if (false)
                         {
                             SoundMgr.PlayMusic(Resources.Music.MenuMusicXmas);
                         }

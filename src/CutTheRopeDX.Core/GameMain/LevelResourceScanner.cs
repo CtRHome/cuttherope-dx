@@ -373,13 +373,13 @@ namespace CutTheRopeDX.GameMain
         {
             int group = ParseIntOrZero(node.Attribute("group")?.Value);
 
-            _ = resources.Add(SockArt.TextureFor(group, SpecialEvents.IsXmas));
+            _ = resources.Add(SockArt.TextureFor(group, false));
             if (SockArt.WearsGeneratedBand(group))
             {
                 _ = resources.Add(Resources.Img.ObjHatMaskable);
             }
 
-            _ = resources.Add(SpecialEvents.IsXmas ? Resources.Snd.TeleportXmas : Resources.Snd.Teleport);
+            _ = resources.Add(false ? Resources.Snd.TeleportXmas : Resources.Snd.Teleport);
         }
 
         /// <summary>

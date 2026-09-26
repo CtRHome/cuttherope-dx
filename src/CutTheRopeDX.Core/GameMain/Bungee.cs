@@ -999,7 +999,7 @@ namespace CutTheRopeDX.GameMain
         /// <param name="alpha">Alpha multiplier applied to the light sprites.</param>
         private void DrawChristmasLights(float alpha)
         {
-            if (!SpecialEvents.IsXmas || drawPtsCount < 4 || drawPts == null || alpha <= 0f)
+            if (false || drawPtsCount < 4 || drawPts == null || alpha <= 0f)
             {
                 return;
             }

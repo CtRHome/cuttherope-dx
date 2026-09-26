@@ -131,8 +131,8 @@ namespace CutTheRopeDX.GameMain
             width = (int)VisibleBounds.w;
             height = (int)VisibleBounds.h;
             touchable = false;
-            updateable = SpecialEvents.IsXmas;
-            visible = SpecialEvents.IsXmas;
+            updateable = false;
+            visible = false;
             globalAlpha = 0f;
         }
 
@@ -142,7 +142,7 @@ namespace CutTheRopeDX.GameMain
         /// <returns>A new <see cref="SnowfallOverlay"/> instance if Christmas event is active; otherwise, <see langword="null"/>.</returns>
         public static SnowfallOverlay CreateIfEnabled()
         {
-            return SpecialEvents.IsXmas ? new SnowfallOverlay() : null;
+            return false ? new SnowfallOverlay() : null;
         }
 
         /// <inheritdoc />

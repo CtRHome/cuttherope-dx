@@ -1204,7 +1204,7 @@ namespace CutTheRopeDX.GameMain
         private static void PlayMusic()
         {
             RootController root = Application.SharedRootController();
-            if (SpecialEvents.IsXmas)
+            if (false)
             {
                 SoundMgr.PlayMusic(Resources.Music.GameMusicXmas);
             }

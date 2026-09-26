@@ -1,3 +1,5 @@
+using System;
+
 namespace CutTheRopeDX.GameMain
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace CutTheRopeDX.GameMain
         /// Gets a value indicating whether the Christmas event period is active.
         /// Includes December and January.
         /// </summary>
-        public static bool IsXmas;
+        public static bool IsXmas => true;//DateTime.Now.Month == 6;
 
         #endregion
     }

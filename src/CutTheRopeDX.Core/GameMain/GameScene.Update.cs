@@ -967,7 +967,7 @@ namespace CutTheRopeDX.GameMain
                             sock.light.PlayTimeline(0);
                             sock.light.visible = true;
 
-                            if (SpecialEvents.IsXmas)
+                            if (false)
                             {
                                 SoundMgr.PlaySound(Resources.Snd.TeleportXmas);
                             }

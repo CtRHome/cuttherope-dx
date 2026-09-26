@@ -425,7 +425,7 @@ namespace CutTheRopeDX.GameMain
                 // At most one chain per axe swing, which is what the grab loop's break already did.
                 foreach (RopeEntry entry in ropes.All)
                 {
-                    if (entry.Rope.cut != -1 || !entry.Rope.cutOnlyByAxe)
+                    if (entry.Rope.cut != -1 || !entry.Rope.cutOnlyByAxe || entry.Rope.cannotBeCutByAxe)
                     {
                         continue;
                     }
@@ -440,6 +440,11 @@ namespace CutTheRopeDX.GameMain
 
         private bool TryCutAxeOnlyChain(CandyContext axeCtx, Bungee rope)
         {
+            if (rope.cannotBeCutByAxe)
+            {
+                return false;
+            }
+
             ConstrainedPoint bladePoint = axeCtx.WholeBody.Point;
             for (int i = 0; i < rope.parts.Count; i++)
             {

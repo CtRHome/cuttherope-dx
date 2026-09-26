@@ -43,6 +43,7 @@ namespace CutTheRopeDX.GameMain
             // breakable="false" marks a chain, matching the original (it calls setUnBreakable when
             // the attribute is not "true").
             bool breakable = GetBoolAttribute(xmlNode, "breakable", defaultValue: true);
+            bool cannotBeCut = GetBoolAttribute(xmlNode, "cannotBeCut", defaultValue: false);
             bool axed = HasTrueAttribute(xmlNode, "axed");
             bool bombed = HasTrueAttribute(xmlNode, "bombed");
             string grabCandyNumber = xmlNode.Attribute("candyNumber")?.Value;
@@ -167,7 +168,7 @@ namespace CutTheRopeDX.GameMain
                         // breakable="false" is a chain: it renders as a chain and can only be cut by the
                         // axe (the original's single `isUnBreakable` isLeftPart). `axed`/axeNumber is purely a
                         // bind target and does not make the rope axe-only.
-                        bungee.SetCutOnlyByAxe();
+                        if (cannotBeCut) { bungee.SetCannotBeCutByAxe(); } else { bungee.SetCutOnlyByAxe(); }
                     }
                     grab.SetRope(bungee);
                     ropes.Register(bungee, grab);

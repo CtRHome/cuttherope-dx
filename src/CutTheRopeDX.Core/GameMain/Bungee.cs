@@ -656,6 +656,17 @@ namespace CutTheRopeDX.GameMain
         }
 
         /// <summary>
+        /// Marks this bungee as an unbreakable chain: it renders as a chain and cannot be cut
+        /// by any means.
+        /// </summary>
+        public void SetCannotBeCutByAxe()
+        {
+            breakable = true;
+            cutOnlyByAxe = true;
+            cannotBeCutByAxe = true;
+        }
+
+        /// <summary>
         /// Calculates the current polyline length across all bungee constraint points.
         /// </summary>
         /// <returns>The approximate current bungee length in world units.</returns>
@@ -1203,6 +1214,9 @@ namespace CutTheRopeDX.GameMain
 
         /// <summary>Whether this chain can only be cut by an axe blade, not a finger trace or razor.</summary>
         public bool cutOnlyByAxe;
+
+        /// <summary>Whether this chain cannot be cut by an axe blade.</summary>
+        public bool cannotBeCutByAxe;
 
         /// <summary>Red channels of the three shades a masked chain link can take.</summary>
         private static readonly float[] ChainMaskRed = [0.78f, 0.85f, 0.88f];

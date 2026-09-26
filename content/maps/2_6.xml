@@ -1,12 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
 <map>
-<layer name="settings">
-<map gridSize="32" width="320" height="480" />
-<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
-</layer>
-<layer name="Objects">
-<target x="159" y="395" />
-<tutorialText x="75" y="197" locale="en" text="You have reached the end of the Kaizo Box. Thank you for playing!" width="160" />
-<candy x="162" y="81" />
-<bouncer1 x="162" y="131" angle="0" size="1" />
-</layer>
+  <layer name="settings">
+    <map gridSize="32" width="320" height="480" levelName="The Problems Begin&#13;&#10;By radiazia_"/>
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <bouncer1 x="80" y="75" size="1" angle="0" />
+    <grab x="240" y="400" length="100" wheel="false" gun="false" radius="20" moveLength="150" moveVertical="false" moveOffset="150" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <candy x="79" y="29" candyNumber="0" />
+    <bouncer1 x="80" y="205" size="1" angle="0" />
+    <bouncer1 x="80" y="335" size="1" angle="0" />
+    <bouncer1 x="80" y="465" size="1" angle="0" />
+    <grab x="240" y="250" length="100" wheel="false" gun="false" radius="20" moveLength="150" moveVertical="false" moveOffset="150" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="240" y="170" length="100" wheel="false" gun="false" radius="20" moveLength="150" moveVertical="false" moveOffset="150" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="240" y="30" length="100" wheel="false" gun="false" radius="20" moveLength="150" moveVertical="false" moveOffset="150" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <spike2 x="178" y="382" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="418" angle="0" size="2" toggled="false" />
+    <lantern x="290" y="405" candyCaptured="false" />
+    <lantern x="290" y="255" candyCaptured="false" />
+    <lantern x="290" y="175" candyCaptured="false" />
+    <lantern x="290" y="35" candyCaptured="false" />
+    <target x="261" y="435" />
+    <spike2 x="178" y="232" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="268" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="152" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="188" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="12" angle="0" size="2" toggled="false" />
+    <spike2 x="178" y="48" angle="0" size="2" toggled="false" />
+    <lantern x="31" y="34" candyCaptured="false" />
+    <grab x="15" y="112" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="15" y="239" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="15" y="368" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <bubble x="81" y="144" />
+    <bubble x="78" y="271" />
+    <bubble x="79" y="401" />
+    <star x="243" y="171" timeout="-1" />
+    <star x="242" y="251" timeout="-1" />
+    <star x="242" y="401" timeout="-1" />
+    <spike2 x="180" y="100" angle="90" size="2" toggled="false" />
+    <spike2 x="180" y="325" angle="90" size="2" toggled="false" />
+  </layer>
 </map>

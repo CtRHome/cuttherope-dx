@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map>
+  <layer name="settings">
+    <map gridSize="32" width="320" height="480" levelName="FuFutile&#13;&#10;By Fawn-coder" />
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <grab x="160" y="224" length="133" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" path="RC81" moveSpeed="70" breakable="false" />
+    <candy x="160" y="288" candyNumber="0" />
+    <spike1 x="288" y="224" angle="-45" size="1" toggled="false" path="-128,-128" moveSpeed="70" />
+    <spike1 x="160" y="96" angle="45" size="1" toggled="false" path="-128,128" moveSpeed="70" />
+    <spike1 x="32" y="224" angle="135" size="1" toggled="false" path="128,128" moveSpeed="70" />
+    <spike1 x="160" y="352" angle="45" size="1" toggled="false" path="128,-128" moveSpeed="70" />
+    <target x="32" y="448" />
+    <grab x="256" y="128" length="57" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" path="RC81" moveSpeed="70" breakable="false" />
+    <grab x="64" y="128" length="57" wheel="true" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" path="RW81" moveSpeed="70" breakable="false" />
+    <star x="288" y="224" timeout="-1" />
+    <star x="32" y="224" timeout="-1" />
+    <star x="160" y="512" timeout="-1" path="0,-544" moveSpeed="70" />
+    <sock x="160" y="32" group="0" angle="180" path="RC215" moveSpeed="70" />
+    <sock x="32" y="416" group="0" angle="90" />
+    <spike4 x="64" y="448" angle="90" size="4" toggled="false" />
+    <spike4 x="0" y="448" angle="-90" size="4" toggled="false" />
+    <spike1 x="32" y="352" angle="0" size="1" toggled="false" />
+  </layer>
+</map>

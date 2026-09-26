@@ -1,51 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <map>
-<layer name="settings">
-<map gridSize="32" width="320" height="480" levelName="Path of Pain&#13;&#10;By Sneaky"/>
-<gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
-</layer>
-<layer name="Objects">
-<spike2 x="3" y="381" angle="90" size="4" />
-<spike2 x="4" y="196" angle="90" size="4" />
-<spike2 x="4" y="53" angle="90" size="4" />
-<spike2 x="98" y="478" angle="180" size="4" />
-<spike2 x="282" y="478" angle="180" size="4" />
-<candy x="45" y="436" />
-
-<!-- practice checkpoint -->
-<!-- <candy x="35" y="138" /> -->
-
-<spike2 x="101" y="333" angle="180" size="4" />
-<target x="62" y="46" />
-<grab x="46" y="377" length="20" wheel="false" gun="false" radius="-1" moveLength="250" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<spike2 x="88" y="367" angle="90" size="1" />
-<spike2 x="145" y="452" angle="-60" size="1" />
-<spike2 x="175" y="450" angle="-120" size="1" />
-<spike2 x="224" y="361" angle="90" size="1" />
-<spike2 x="204" y="335" angle="180" size="2" />
-<spike2 x="228" y="236" angle="180" size="4" />
-<grab x="285" y="269" length="" wheel="false" gun="false" radius="30" moveLength="250" moveVertical="false" moveOffset="250" spider="false" part="L" hidePath="false" />
-<spike2 x="126" y="238" angle="0" size="2" />
-<grab x="284" y="391" length="" wheel="false" gun="false" radius="30" moveLength="150" moveVertical="true" moveOffset="150" spider="false" part="L" hidePath="false" />
-<spike2 x="319" y="381" angle="90" size="4" />
-<spike2 x="319" y="198" angle="90" size="4" />
-<spike2 x="174" y="312" angle="-165" size="2" />
-<spike2 x="184" y="253" angle="-165" size="2" />
-<spike2 x="252" y="250" angle="150" size="1" />
-<spike2 x="106" y="315" angle="150" size="1" />
-<grab x="35" y="138" length="" wheel="false" gun="false" radius="30" moveLength="250" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" />
-<spike2 x="100" y="114" angle="180" size="4" />
-<spike2 x="201" y="114" angle="180" size="2" />
-<spike2 x="183" y="223" angle="90" size="1" />
-<grab x="282" y="195" length="" wheel="false" gun="false" radius="30" moveLength="150" moveVertical="true" moveOffset="150" spider="false" part="L" hidePath="false" />
-<spike2 x="184" y="120" angle="-90" size="1" />
-<grab x="280" y="19" length="" wheel="false" gun="false" radius="30" moveLength="250" moveVertical="false" moveOffset="250" spider="false" part="L" hidePath="false" />
-<spike2 x="119" y="24" angle="90" size="1" />
-<grab x="36" y="285" length="" wheel="false" gun="false" radius="30" moveLength="175" moveVertical="true" moveOffset="175" spider="false" part="L" hidePath="false" />
-<spike2 x="320" y="20" angle="90" size="4" />
-<spike2 x="234" y="0" angle="0" size="4" />
-<spike2 x="69" y="0" angle="180" size="4" />
-<star x="105" y="94" />
-<star x="157" y="211" />
-<star x="158" y="360" />
-</layer>
+  <layer name="settings">
+    <map gridSize="32" width="640" height="480" levelName="Kaizo Welcome&#13;&#10;By KONDUCKTOR" />
+    <gameDesign ropePhysicsSpeed="1" special="0" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <target x="106" y="183" />
+    <candy x="122" y="316" candyNumber="0" />
+    <pump x="53" y="326" angle="0" />
+    <bouncer1 x="122" y="387" size="1" angle="0" />
+    <spike4 x="422" y="318" angle="0" size="4" toggled="false" />
+    <spike4 x="422" y="246" angle="0" size="4" toggled="false" />
+    <gravitySwitch x="405" y="377" />
+    <spike2 x="198" y="401" angle="90" size="2" toggled="false" />
+    <spike1 x="198" y="282" angle="90" size="1" toggled="false" />
+    <pump x="237" y="385" angle="-75" />
+    <bouncer2 x="278" y="416" size="2" angle="-25" />
+    <grab x="557" y="114" length="30" wheel="false" gun="false" radius="40" moveLength="382" moveVertical="false" moveOffset="382" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <spike1 x="482" y="155" angle="0" size="1" toggled="false" />
+    <spike1 x="242" y="223" angle="-30" size="1" toggled="false" />
+    <spike1 x="290" y="224" angle="30" size="1" toggled="false" />
+    <spike2 x="343" y="385" angle="90" size="2" toggled="false" />
+    <pipe x="560" y="286" angle="-90" />
+    <spike4 x="245" y="156" angle="0" size="4" toggled="false" />
+    <spike1 x="369" y="170" angle="30" size="1" toggled="false" />
+    <spike1 x="418" y="170" angle="-30" size="1" toggled="false" />
+    <spike4 x="96" y="251" angle="0" size="4" toggled="false" />
+    <spike4 x="89" y="92" angle="45" size="4" toggled="false" />
+    <star x="267" y="271" timeout="-1" />
+    <star x="561" y="194" timeout="-1" />
+    <star x="199" y="199" timeout="-1" />
+  </layer>
 </map>

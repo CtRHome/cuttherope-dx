@@ -1,0 +1,55 @@
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - >
+ 
+    Created using Cut the Rope Level Editor:
+    https://adriandrummis.github.io/CutTheRopeEditor/
+ 
+<- - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+ 
+<map>
+ 
+    <layer name="settings">
+        <map gridSize="32" width="853" height="480" levelName="Juggling Act&#13;&#10;By HitSpace"/>
+        <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+    </layer>
+ 
+    <layer name="Objects">
+        <candy x="426" y="240" />
+        <spike2 x="726" y="40" angle="0" size="2" path="-300,0" moveSpeed="100" />
+        <sock x="526" y="90" group="3" angle="-90" />
+        <sock x="626" y="90" group="3" angle="-90" />
+        <star x="726" y="140" timeout="-1" path="-200,0,-100,-100" moveSpeed="50" />
+        <spike2 x="776" y="240" angle="90" size="2" path="-700,0" moveSpeed="75" />
+        <star x="326" y="40" timeout="-1" />
+        <spike2 x="326" y="190" angle="180" size="2" path="450,0,-250,0" moveSpeed="100" />
+        <spike2 x="226" y="15" angle="0" size="2" />
+        <sock x="226" y="440" group="2" angle="-90" />
+        <spike2 x="476" y="340" angle="90" size="2" />
+        <spike2 x="226" y="190" angle="0" size="2" />
+        <sock x="226" y="140" group="2" angle="-90" />
+        <sock x="426" y="90" group="0" angle="90" />
+        <sock x="426" y="390" group="0" angle="-90" />
+        <sock x="526" y="390" group="1" angle="-90" />
+        <sock x="326" y="390" group="1" angle="-90" />
+        <grab x="427" y="140" length="80" wheel="false" gun="false" radius="-1" moveLength="0" moveVertical="false" moveOffset="0" spider="false" part="L" hidePath="false" kickable="false" kicked="false" />
+        <star x="226" y="140" timeout="-1" />
+        <spike2 x="76" y="140" angle="90" size="2" />
+        <spike2 x="176" y="140" angle="90" size="2" />
+        <spike2 x="276" y="140" angle="90" size="2" />
+        <spike2 x="376" y="140" angle="90" size="2" />
+        <spike2 x="476" y="140" angle="90" size="2" />
+        <spike2 x="576" y="140" angle="90" size="2" />
+        <spike2 x="676" y="140" angle="90" size="2" />
+        <spike2 x="776" y="140" angle="90" size="2" />
+        <spike2 x="776" y="340" angle="90" size="2" />
+        <spike2 x="676" y="340" angle="90" size="2" />
+        <spike2 x="576" y="340" angle="90" size="2" />
+        <spike2 x="76" y="340" angle="90" size="2" />
+        <spike2 x="176" y="340" angle="90" size="2" />
+        <spike2 x="276" y="340" angle="90" size="2" />
+        <target x="426" y="440" />
+        <spike2 x="376" y="340" angle="90" size="2" />
+        <transporter x="76" y="390" angle="0" direction="forward" type="manual" width="50" length="700" />
+        <transporter x="76" y="90" angle="0" direction="forward" type="manual" width="50" length="700" />
+    </layer>
+ 
+</map>

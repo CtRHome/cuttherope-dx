@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map>
+  <layer name="settings">
+    <map gridSize="32" width="853" height="660" levelName="Rope-a-Dope Despair&#13;&#10;By Ansel Thanatos" />
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <target x="747" y="529" />
+    <candy x="71" y="56" candyNumber="0" />
+    <grab x="72" y="1" length="50" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <spike2 x="23" y="163" angle="0" size="2" toggled="false" />
+    <spike4 x="266" y="153" angle="0" size="4" toggled="false" />
+    <spike4 x="25" y="284" angle="90" size="4" toggled="false" />
+    <spike4 x="455" y="153" angle="0" size="4" toggled="false" />
+    <spike4 x="755" y="144" angle="0" size="4" toggled="false" />
+    <sock x="765" y="63" group="0" angle="180" />
+    <spike2 x="104" y="123" angle="-65" size="2" toggled="false" />
+    <pump x="28" y="114" angle="-62" />
+    <bouncer1 x="204" y="112" size="1" angle="0" path="0,-46" moveSpeed="70" />
+    <spike3 x="689" y="563" angle="90" size="3" toggled="false" />
+    <spike2 x="743" y="483" angle="0" size="2" toggled="false" />
+    <spike3 x="797" y="565" angle="90" size="3" toggled="false" />
+    <spike1 x="311" y="81" angle="0" size="1" toggled="false" rotateSpeed="90" path="0,0" />
+    <rotatedCircle x="407" y="71" size="35" handleAngle="0" oneHandle="false" />
+    <grab x="384" y="46" length="100" wheel="false" gun="false" radius="25" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" />
+    <rotatedCircle x="458" y="71" size="35" handleAngle="0" oneHandle="true" />
+    <star x="728" y="72" timeout="-1" />
+    <sock x="778" y="218" group="0" angle="135" />
+    <grab x="720" y="270" length="100" wheel="false" gun="false" radius="35" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <spike2 x="606" y="148" angle="-3" size="2" toggled="false" />
+    <rotatedCircle x="127" y="279" size="50" handleAngle="0" oneHandle="false" />
+    <grab x="99" y="259" length="30" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="false" bindBulb="true" bulbNumber="0" />
+    <lightBulb x="96" y="325" litRadius="50" bulbNumber="0" />
+    <grab x="312" y="33" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="204" y="32" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <grab x="734" y="51" length="100" wheel="false" gun="false" radius="10" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <bouncer1 x="645" y="110" size="1" angle="0" />
+    <transporter x="624" y="204" velocity="150" direction="forward" length="451" width="50" angle="180" />
+    <rotatedCircle x="510" y="71" size="35" handleAngle="0" oneHandle="true" />
+    <spike1 x="623" y="7" angle="90" size="1" toggled="false" />
+    <spike2 x="177" y="0" angle="180" size="2" toggled="false" />
+    <load x="238" y="66" />
+    <spike4 x="655" y="391" angle="-8" size="4" toggled="false" />
+    <pump x="803" y="328" angle="-171" />
+    <grab x="578" y="201" length="100" wheel="true" gun="false" radius="50" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <star x="129" y="282" timeout="-1" path="RC40" moveSpeed="120" />
+    <sock x="588" y="528" group="1" angle="180" />
+    <sock x="751" y="646" group="1" angle="-90" />
+    <rotatedCircle x="517" y="535" size="35" handleAngle="0" oneHandle="true" />
+    <rotatedCircle x="459" y="535" size="35" handleAngle="0" oneHandle="true" />
+    <rotatedCircle x="400" y="535" size="35" handleAngle="0" oneHandle="true" />
+    <grab x="115" y="504" length="100" wheel="false" gun="false" radius="40" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <spike1 x="328" y="268" angle="0" size="1" toggled="false" rotateSpeed="300" path="0,0" />
+    <spike1 x="505" y="366" angle="0" size="1" toggled="false" rotateSpeed="300" path="0,0" />
+    <spike4 x="458" y="400" angle="4" size="4" toggled="false" />
+    <spike3 x="287" y="388" angle="4" size="3" toggled="false" />
+    <spike4 x="25" y="470" angle="90" size="4" toggled="false" />
+    <grab x="377" y="524" length="100" wheel="false" gun="false" radius="39" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" />
+    <star x="748" y="608" timeout="-1" />
+    <hand x="222" y="534" segmentsCount="1" segment1Angle="0" segment1Length="100" segment1Rotatable="true" />
+    <spike1 x="138" y="153" angle="0" size="1" toggled="false" />
+  </layer>
+</map>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map>
+  <layer name="settings">
+    <map gridSize="32" width="640" height="960" levelName="Hazardous lands of Hot and Cold&#13;&#10;By 8 Second Rocket" />
+    <gameDesign ropePhysicsSpeed="1" twoParts="false" nightLevel="false" />
+  </layer>
+  <layer name="Objects">
+    <grab x="499" y="803" length="70" wheel="false" gun="false" radius="-1" moveLength="366" moveVertical="false" moveOffset="366" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="false" />
+    <candy x="500" y="912" candyNumber="0" />
+    <spike4 x="447" y="925" angle="-90" size="4" toggled="false" />
+    <spike4 x="559" y="904" angle="-116" size="4" toggled="false" />
+    <spike1 x="506" y="789" angle="67" size="1" toggled="false" />
+    <spike4 x="366" y="828" angle="0" size="4" toggled="false" />
+    <spike4 x="209" y="829" angle="0" size="4" toggled="false" />
+    <spike4 x="208" y="778" angle="0" size="4" toggled="false" />
+    <spike4 x="366" y="778" angle="0" size="4" toggled="false" />
+    <spike1 x="478" y="772" angle="0" size="1" toggled="false" />
+    <electro x="128" y="897" initialDelay="0.0" offTime="2.0" onTime="2.0" angle="-90" size="5" />
+    <star x="162" y="904" timeout="-1" />
+    <rocket x="355" y="869" angle="170" impulse="100" impulseFactor="0.6" time="-1" isRotatable="false" />
+    <bomb x="356" y="918" bombNumber="0" />
+    <sock x="40" y="746" group="0" angle="94" />
+    <pauseSwitcher x="582" y="838" />
+    <sock x="114" y="648" group="0" angle="0" />
+    <target x="84" y="140" />
+    <bouncer1 x="356" y="952" size="1" angle="0" />
+    <grab x="358" y="689" length="200" wheel="false" gun="false" radius="-1" moveLength="-1" moveVertical="false" moveOffset="0" spider="false" kickable="false" kicked="false" hidePath="false" invisible="false" breakable="true" bombed="true" bombNumber="0" />
+    <pump x="227" y="705" angle="-91" />
+    <gap x="468" y="589" angle="-90" radius="50" activeTime="1.0" index="1" />
+    <gap x="469" y="338" angle="-138" radius="50" activeTime="1.0" index="2" />
+    <steamTube x="463" y="462" angle="-14" />
+    <steamTube x="408" y="482" angle="-10" />
+    <steamTube x="354" y="495" angle="-3" />
+    <spike4 x="346" y="310" angle="15" size="4" toggled="false" />
+    <ghost x="115" y="340" grab="false" bubble="true" bouncer="false" radius="-1" angle="0" />
+    <star x="458" y="343" timeout="30" />
+    <star x="110" y="342" timeout="50" />
+    <spike1 x="103" y="362" angle="0" size="1" toggled="false" />
+    <spike4 x="181" y="296" angle="-179" size="4" toggled="false" path="-234,-4" moveSpeed="5" />
+    <transporter x="205" y="347" velocity="10" direction="forward" length="250" width="66" angle="-72" type="manual" />
+    <bouncer2 x="266" y="520" size="2" angle="0" />
+    <pump x="361" y="699" angle="-91" />
+    <spike4 x="404" y="541" angle="0" size="4" toggled="false" />
+    <spike4 x="197" y="550" angle="0" size="4" toggled="false" />
+  </layer>
+</map>

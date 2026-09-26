@@ -18,7 +18,7 @@
         "boxBackgroundP2Y": 945,
         "boxCover": ["bgr_02_cover"],
         "boxHoleBgColor": [61, 19, 9],
-        "levelCount": 5,
+        "levelCount": 16,
         "musicPack": ["kaizo_package"],
         "packSpritesheet": "1",
         "packQuadIndex": 1,
